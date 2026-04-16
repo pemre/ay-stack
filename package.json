@@ -4,6 +4,12 @@
   "version": "0.1.0",
   "homepage": "https://pemre.github.io/burkut/",
   "type": "module",
+  "bin": {
+    "burkut": "./dist/cli/bin/burkut.js"
+  },
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15,10 +21,13 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check src",
     "lint:fix": "biome check --fix src",
-    "format": "biome format --write src"
+    "format": "biome format --write src",
+    "serve": "tsx src/cli/bin/burkut.ts serve"
   },
   "dependencies": {
     "@fontsource/crimson-pro": "^5.2.8",
+    "cac": "^7.0.0",
+    "gray-matter": "^4.0.3",
     "i18next": "^25.8.13",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.575.0",
@@ -45,10 +54,11 @@
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
     "fast-check": "^4.5.3",
-    "gray-matter": "^4.0.3",
     "jsdom": "^24.0.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^5.4.0",
     "vitest": "^1.6.0"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

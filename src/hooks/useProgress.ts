@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ContentIndex } from "./useMdLoader";
+import type { ContentIndex } from "../shared/types.ts";
 
 const STORAGE_KEY = "readingProgress";
 const SCHEMA_VERSION = 1;

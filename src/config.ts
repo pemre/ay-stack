@@ -1,16 +1,11 @@
 /**
  * Centralized application configuration.
- * Single source of truth for groups, app identity, theme, defaults, and features.
+ * Single source of truth for app identity, theme, and features.
  */
 
 export interface SupportedLocale {
   code: string;
   label: string;
-}
-
-export interface GroupConfig {
-  id: string;
-  translationKey: string;
 }
 
 export interface AppConfig {
@@ -19,10 +14,6 @@ export interface AppConfig {
     logo: string;
     defaultLocale: string;
     supportedLocales: SupportedLocale[];
-  };
-  groups: GroupConfig[];
-  defaults: {
-    activeGroup: string;
   };
   features: {
     search: boolean;
@@ -42,21 +33,6 @@ const config: AppConfig = {
       { code: "en", label: "English" },
       { code: "zh", label: "中文" },
     ],
-  },
-
-  /**
-   * Groups define the main content categories.
-   * - id:             matches the `group` field in MD front matter (must stay stable)
-   * - translationKey: key used by react-i18next for locale-appropriate label
-   */
-  groups: [
-    { id: "Dynasties and States", translationKey: "groups.dynasties" },
-    { id: "Literature", translationKey: "groups.literature" },
-    { id: "Cinema", translationKey: "groups.cinema" },
-  ],
-
-  defaults: {
-    activeGroup: "Dynasties and States",
   },
 
   /** Feature flags – flip these to enable/disable functionality */

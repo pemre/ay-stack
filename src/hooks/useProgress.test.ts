@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
-import type { ContentIndex } from "./useMdLoader";
+import type { ContentIndex } from "../shared/types.ts";
 import { getAllContentIds, useProgress } from "./useProgress";
 
 /**

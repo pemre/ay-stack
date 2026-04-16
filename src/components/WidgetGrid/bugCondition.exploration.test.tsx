@@ -13,7 +13,18 @@ import { describe, expect, it, vi } from "vitest";
 
 // ── Shared mocks (module-level, apply to all tests) ───────────────────────────
 
-vi.mock("virtual:md-content", () => ({ default: {} }));
+vi.mock("virtual:burkut-content", () => ({
+  default: { nodes: {}, days: [], undated: [], dateRange: null, stats: { totalFiles: 0, byType: { markdown: 0, image: 0, video: 0, audio: 0 }, datedFiles: 0, undatedFiles: 0 } },
+}));
+
+// Mock useContentGraph to avoid virtual module resolution in dynamic App import
+vi.mock("../../hooks/useContentGraph", () => ({
+  useContentGraph: () => ({
+    graph: { nodes: {}, days: [], undated: [], dateRange: null, stats: { totalFiles: 0, byType: { markdown: 0, image: 0, video: 0, audio: 0 }, datedFiles: 0, undatedFiles: 0 } },
+    legacyIndex: {},
+    getContent: () => null,
+  }),
+}));
 
 vi.mock("react-leaflet", () => ({
   MapContainer: ({ children }: { children: React.ReactNode }) => (
@@ -74,8 +85,6 @@ const mockConfig = {
     defaultLocale: "tr",
     supportedLocales: [{ code: "tr", label: "Türkçe" }],
   },
-  groups: [],
-  defaults: { activeGroup: "Dynasties and States" },
   features: {
     search: false,
     darkLightToggle: false,

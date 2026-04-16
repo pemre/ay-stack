@@ -2,7 +2,7 @@ import L from "leaflet";
 import { type RefObject, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { MapContainer, Marker, Polygon, Popup, TileLayer, useMap } from "react-leaflet";
-import type { ContentIndex } from "../../hooks/useMdLoader";
+import type { ContentIndex } from "../../shared/types.ts";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { useTheme } from "../../hooks/useTheme";
 import "./MapPanel.css";

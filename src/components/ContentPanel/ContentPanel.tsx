@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { ContentIndex } from "../../hooks/useMdLoader";
+import type { ContentIndex } from "../../shared/types.ts";
 import "./ContentPanel.css";
 
 interface ContentPanelProps {

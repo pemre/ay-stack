@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import config from "../../config";
-import type { ContentEntry, ContentIndex } from "../../hooks/useMdLoader";
+import type { ContentEntry, ContentIndex } from "../../shared/types.ts";
 
 /**
  * SPEC: TimelinePanel / buildItems util + group visibility
@@ -100,51 +99,53 @@ describe("buildItems", () => {
 });
 
 /**
- * Pure function mirror of the translatedGroups useMemo in TimelinePanel.
- * Extracted here so the visibility logic can be unit-tested without jsdom/vis-timeline.
+ * Pure function that derives vis.js groups from a ContentIndex, mirroring
+ * the translatedGroups useMemo in TimelinePanel.
  */
-function buildTranslatedGroups(hiddenGroups: Set<string>, t: (k: string) => string = (k) => k) {
-  return config.groups.map((g) => ({
-    id: g.id,
-    content: t(g.translationKey),
-    visible: !hiddenGroups.has(g.id),
+function buildTranslatedGroups(index: ContentIndex, hiddenGroups: Set<string>) {
+  const seen = new Set<string>();
+  for (const item of Object.values(index)) {
+    if (item.group) seen.add(item.group);
+  }
+  return [...seen].sort().map((groupId) => ({
+    id: groupId,
+    content: groupId,
+    visible: !hiddenGroups.has(groupId),
   }));
 }
 
+const groupIndex: ContentIndex = {
+  xia: { id: "xia", group: "Dynasties", _path: "", _isHeader: false },
+  hero: { id: "hero", group: "Cinema", _path: "", _isHeader: false },
+  poem: { id: "poem", group: "Literature", _path: "", _isHeader: false },
+};
+
 describe("buildTranslatedGroups (group visibility)", () => {
   it("all groups visible when hiddenGroups is empty", () => {
-    const groups = buildTranslatedGroups(new Set());
-    expect(groups).toHaveLength(config.groups.length);
+    const groups = buildTranslatedGroups(groupIndex, new Set());
+    expect(groups).toHaveLength(3);
     for (const g of groups) expect(g.visible).toBe(true);
   });
 
   it("hides a single group when its id is in hiddenGroups", () => {
     const hidden = new Set(["Cinema"]);
-    const groups = buildTranslatedGroups(hidden);
+    const groups = buildTranslatedGroups(groupIndex, hidden);
     const cinema = groups.find((g) => g.id === "Cinema");
-    const dynasties = groups.find((g) => g.id === "Dynasties and States");
+    const dynasties = groups.find((g) => g.id === "Dynasties");
     expect(cinema?.visible).toBe(false);
     expect(dynasties?.visible).toBe(true);
   });
 
   it("hides multiple groups", () => {
     const hidden = new Set(["Cinema", "Literature"]);
-    const groups = buildTranslatedGroups(hidden);
+    const groups = buildTranslatedGroups(groupIndex, hidden);
     expect(groups.filter((g) => g.visible)).toHaveLength(1);
-    expect(groups.find((g) => g.id === "Dynasties and States")?.visible).toBe(true);
-  });
-
-  it("uses t() for content labels", () => {
-    const mockT = (key: string) => `translated:${key}`;
-    const groups = buildTranslatedGroups(new Set(), mockT);
-    for (const g of groups) {
-      expect(g.content).toMatch(/^translated:/);
-    }
+    expect(groups.find((g) => g.id === "Dynasties")?.visible).toBe(true);
   });
 
   it("unknown ids in hiddenGroups don't affect existing groups", () => {
     const hidden = new Set(["NonExistentGroup"]);
-    const groups = buildTranslatedGroups(hidden);
+    const groups = buildTranslatedGroups(groupIndex, hidden);
     for (const g of groups) expect(g.visible).toBe(true);
   });
 });

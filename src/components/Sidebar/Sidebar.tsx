@@ -1,8 +1,7 @@
 import { Check, ChevronDown, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import config from "../../config";
-import type { ContentEntry, ContentIndex } from "../../hooks/useMdLoader";
+import type { ContentEntry, ContentIndex } from "../../shared/types.ts";
 import "./Sidebar.css";
 
 interface SidebarProps {
@@ -36,6 +35,15 @@ export default function Sidebar({
 }: SidebarProps) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({ [activeGroup]: true });
+
+  // Derive unique groups from the content index
+  const groups = useMemo(() => {
+    const seen = new Set<string>();
+    for (const item of Object.values(index)) {
+      if (item.group) seen.add(item.group);
+    }
+    return [...seen].sort((a, b) => a.localeCompare(b));
+  }, [index]);
 
   // Auto-expand the active group
   useEffect(() => {
@@ -81,28 +89,28 @@ export default function Sidebar({
 
   return (
     <nav className="sidebar" aria-label={t("aria.sidebar")}>
-      {config.groups.map((group) => (
-        <div key={group.id} className="sidebar-group">
+      {groups.map((groupId) => (
+        <div key={groupId} className="sidebar-group">
           <button
             type="button"
-            className={`sidebar-group-btn ${activeGroup === group.id ? "active" : ""}`}
-            onClick={() => toggleGroup(group.id)}
-            aria-expanded={!!expanded[group.id]}
+            className={`sidebar-group-btn ${activeGroup === groupId ? "active" : ""}`}
+            onClick={() => toggleGroup(groupId)}
+            aria-expanded={!!expanded[groupId]}
           >
             <span className="sidebar-arrow">
-              {expanded[group.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+              {expanded[groupId] ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
             </span>
-            {t(group.translationKey)}
-            {completedSet?.has(group.id) && (
+            {groupId}
+            {completedSet?.has(groupId) && (
               <span className="sidebar-item-done" role="img" aria-label="read">
                 <Check size={12} />
               </span>
             )}
           </button>
 
-          {expanded[group.id] && (
+          {expanded[groupId] && (
             <ul className="sidebar-items">
-              {itemsInGroup(group.id).map((item) => (
+              {itemsInGroup(groupId).map((item) => (
                 <li key={item.id}>
                   <button
                     type="button"

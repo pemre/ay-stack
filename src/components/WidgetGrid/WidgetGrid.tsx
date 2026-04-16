@@ -1,7 +1,7 @@
 import type { Layout, ResponsiveLayouts } from "react-grid-layout";
 import { Responsive, useContainerWidth } from "react-grid-layout";
 import config from "../../config";
-import type { ContentIndex } from "../../hooks/useMdLoader";
+import type { ContentIndex } from "../../shared/types.ts";
 import ContentPanel from "../ContentPanel/ContentPanel";
 import MapPanel from "../MapPanel/MapPanel";
 import Sidebar from "../Sidebar/Sidebar";

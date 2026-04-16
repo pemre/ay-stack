@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { ContentIndex } from "../../hooks/useMdLoader";
+import type { ContentIndex } from "../../shared/types.ts";
 import { DEFAULT_LAYOUTS } from "./defaultLayouts";
 import { WIDGET_REGISTRY } from "./widgetRegistry";
 
@@ -12,7 +12,6 @@ const allVisible = () => Object.fromEntries(WIDGET_REGISTRY.map((w) => [w.id, tr
 vi.mock("../../config", () => ({
   default: {
     features: { draggableLayout: true },
-    groups: [],
   },
 }));
 
@@ -70,9 +69,6 @@ vi.mock("vis-timeline/standalone", () => ({
   })),
 }));
 
-// Mock virtual:md-content (used by useMdLoader inside ContentPanel)
-vi.mock("virtual:md-content", () => ({ default: { index: {}, content: {} } }));
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const emptyIndex: ContentIndex = {};
@@ -124,7 +120,7 @@ describe("WidgetGrid", () => {
   it("disables drag when draggableLayout is false", async () => {
     vi.resetModules();
     vi.doMock("../../config", () => ({
-      default: { features: { draggableLayout: false }, groups: [] },
+      default: { features: { draggableLayout: false } },
     }));
     const { WidgetGrid: WG } = await import("./WidgetGrid");
     const { DEFAULT_LAYOUTS: DL } = await import("./defaultLayouts");
