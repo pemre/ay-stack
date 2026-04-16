@@ -1,10 +1,8 @@
-## 🦅 Bürküt — History Explorer
+## 🦅 Bürküt — Content Visualizer
 
-**Bürküt** takes its name from the golden eagle of Turkic mythology — the *ongon* of khans, the earthly eye of Tengri, the divine scout that soared above the steppe and saw everything below. That is exactly what this project sets out to be: a bird's-eye view of human history.
+**Bürküt** takes its name from the golden eagle of Turkic mythology — the *ongon* of khans, the earthly eye of Tengri, the divine scout that soared above the steppe and saw everything below.
 
-Bürküt lets you explore civilisations, dynasties, empires, literary movements, and cultural milestones across every age through an interactive timeline, map, and detail panel. Every entry lives as a plain Markdown file with YAML front matter — no database, no backend, no CMS. New content is added by dropping a single `.md` file into the right folder.
-
-It started as something personal: a trip to China was coming up, and a timeline felt like the most honest way to understand what you're walking through — which dynasty built that wall, which poet lived in that city, which film was set in that era. Once the structure was in place, it became clear the same approach works for any country, any civilisation, any period.
+Bürküt is a CLI-driven content visualization tool. Point it at any local directory of content files (markdown, images, video, audio) and it serves an interactive UI on localhost — complete with a timeline, map, sidebar, and detail panel. Dates are extracted automatically from filenames, folder names, and frontmatter. No database, no backend, no CMS.
 
 > *"Rise above time. See everything."*
 
@@ -12,7 +10,7 @@ It started as something personal: a trip to China was coming up, and a timeline 
 
 ## Features
 
-- ⚡ Instant loading — all content pre-parsed at build time, zero runtime fetches
+- ⚡ CLI-driven — `burkut serve <directory>` scans and serves instantly
 - 🔀 Draggable & resizable widget grid — rearrange Sidebar, Content, Map, and Timeline widgets; layout and visibility persisted to localStorage
 - 🌗 Dark / Light theme toggle
 - 🌐 i18n — Turkish, English, and Chinese
@@ -20,16 +18,75 @@ It started as something personal: a trip to China was coming up, and a timeline 
 - 🗺️ Interactive map (Leaflet) with markers and polygons
 - 📅 Interactive timeline (vis.js), grouped by category
 - ✓ Reading progress tracker with new-content detection
+- 🔄 HMR — adding, editing, or deleting files updates the UI live
 
 ## Roadmap
 
-- [x] ~~Use react-grid-layout as a widget system instead of draggable panels~~
 - [ ] Custom localization for Vis.js based on app language
 - [ ] Search bar (by title + tag)
 - [ ] E2E tests (Playwright)
 - [ ] Mobile responsive layout
 
-## Quick Start
+## CLI Usage
+
+### Installation
+
+```bash
+# Run directly with npx (no install needed)
+npx burkut serve
+
+# Or install globally
+npm i -g burkut
+```
+
+### Commands
+
+```bash
+# Serve the current directory
+burkut serve
+
+# Serve a specific directory
+burkut serve ~/diary
+
+# Serve with options
+burkut serve ~/diary --port 3000 --host localhost --open
+
+# Build (stubbed — coming in a future release)
+burkut build
+
+npm run serve -- ./src/content
+```
+
+### Flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--port` | `5173` | Dev server port |
+| `--host` | `localhost` | Dev server host |
+| `--open` | `false` | Open browser on start |
+
+### Example Directory Structure
+
+```
+~/diary/
+├── 2025-03-15 journal.md          # date from filename
+├── 2025-03-15 photos/             # date from folder name
+│   ├── sunset.jpg                 # inherits 2025-03-15
+│   └── dinner.jpg                 # inherits 2025-03-15
+├── 2025-03-16 journal.md
+├── movies/
+│   └── in-the-mood-for-love.md    # date from frontmatter
+├── travel/
+│   └── 2025-01-10 istanbul.md     # date from filename
+└── .burkut/
+    └── config.ts                  # optional workspace config
+```
+
+Dates are extracted automatically from frontmatter `date` fields, `YYYY-MM-DD` filename prefixes, or parent folder prefixes. Files are grouped by date and displayed newest-first.
+
+Supported file types: `.md`, `.mdx`, `.markdown`, `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, `.svg`, `.avif`, `.mp4`, `.webm`, `.mov`, `.avi`, `.mp3`, `.wav`, `.ogg`, `.flac`, `.m4a`.
+
+## Development
 
 ```bash
 npm install
@@ -47,38 +104,6 @@ npm run build           # production build
 ```
 
 All four must pass before merging. See [.kiro/steering/tech.md](.kiro/steering/tech.md) for the full command reference and Biome config.
-
-## Adding Content
-
-Create `src/content/{Group}/{title}.md` with YAML front matter — the app picks it up automatically.
-
-To add a new group:
-1. Add `{ id, translationKey }` to `groups` in `src/config.ts`
-2. Add translations in `src/i18n/locales/*.json`
-3. Create a group header at `src/content/{Group}.md`
-4. Create the subfolder `src/content/{Group}/`
-
-### Front Matter Schema
-
-```yaml
----
-id: string
-group: string           # must match a config group id
-title: string
-subtitle: string
-start: string           # vis.js ISO format, e.g. "-002070-01-01"
-end: string
-className: string       # optional
-type: string            # default: range
-tags: [string]
-location:
-  lat: number
-  lng: number
-  label: string
-polygon: [[lat, lng]]   # optional, for map borders
-sidebarSort: string     # header files only: "start" or omit for alphabetical
----
-```
 
 ## Design System
 

@@ -74,6 +74,13 @@ UI primitives live in `src/components/ui/` with co-located `.tsx`, `.css`, and `
 
 Full conventions, component APIs, and patterns: [`src/components/ui/GUIDELINES.md`](../src/components/ui/GUIDELINES.md).
 
-## Custom Vite Plugin
+## CLI Dependencies
 
-`vite-plugins/md-content.ts` scans all `.md` files under `src/content/`, parses them with `gray-matter` at build/dev time, and serves them as a single virtual module (`virtual:md-content`). This keeps `gray-matter` and `Buffer` out of the browser bundle. The plugin watches the content directory for HMR.
+| Package | Type | Purpose |
+|---------|------|---------|
+| `cac` | production | Lightweight CLI argument parsing (~3KB) |
+| `gray-matter` | production | YAML frontmatter parsing (moved from devDependencies to support CLI runtime) |
+
+## Custom Vite Plugins
+
+`vite-plugins/burkut-content.ts` is the CLI-mode Vite plugin. It scans an arbitrary user directory, builds a `ContentGraph`, and serves it as `virtual:burkut-content`. It also serves media files via a `/content-assets/` middleware and watches for file changes to trigger HMR updates.

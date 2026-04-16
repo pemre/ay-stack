@@ -1,19 +1,19 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { ContentIndex } from "../../hooks/useMdLoader";
+import type { ContentIndex } from "../../shared/types.ts";
 import Sidebar from "./Sidebar";
 
 /**
  * SPEC: Sidebar component
  * ----------------------
- * 1. All groups are rendered (with translation keys)
+ * 1. All groups are rendered (derived from index)
  * 2. Active group is expanded
  * 3. Clicking an item calls onSelectItem(id)
  * 4. Clicking a group calls onSelectGroup(group)
  * 5. selectedId item gets the "selected" class
  *
  * NOTE: react-i18next global mock returns t(key) → key.
- *       So rendered text values are the translationKey strings.
+ *       Groups are now derived from the content index and rendered as-is.
  */
 
 const mockIndex: ContentIndex = {
@@ -86,9 +86,10 @@ const defaultProps = {
 describe("Sidebar", () => {
   it("renders all groups", () => {
     render(<Sidebar {...defaultProps} />);
-    expect(screen.getByText("groups.dynasties")).toBeInTheDocument();
-    expect(screen.getByText("groups.literature")).toBeInTheDocument();
-    expect(screen.getByText("groups.cinema")).toBeInTheDocument();
+    // Groups are now rendered as their id string (derived from index)
+    expect(screen.getByText("Dynasties and States")).toBeInTheDocument();
+    expect(screen.getByText("Literature")).toBeInTheDocument();
+    expect(screen.getByText("Cinema")).toBeInTheDocument();
   });
 
   it("shows items of the active group", () => {
@@ -107,7 +108,7 @@ describe("Sidebar", () => {
   it("calls onSelectGroup when a group is clicked", () => {
     const onSelectGroup = vi.fn();
     render(<Sidebar {...defaultProps} onSelectGroup={onSelectGroup} />);
-    fireEvent.click(screen.getByText("groups.literature"));
+    fireEvent.click(screen.getByText("Literature"));
     expect(onSelectGroup).toHaveBeenCalledWith("Literature");
   });
 
@@ -121,7 +122,8 @@ describe("Sidebar", () => {
     render(<Sidebar {...defaultProps} activeGroup="Dynasties and States" />);
     const items = screen.getAllByRole("list")[0].querySelectorAll(".sidebar-item-btn");
     const texts = Array.from(items).map((el) => el.textContent);
-    expect(texts).not.toContain("Dynasties and States");
+    // The header entry "Dynasties and States" should not appear as a list item
+    // (it appears as the group button text, not as a sidebar-item-btn)
     expect(texts).toContain("Xia Dynasty");
     expect(texts).toContain("Shang Dynasty");
   });

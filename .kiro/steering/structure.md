@@ -4,7 +4,7 @@
 ├── src/
 │   ├── App.tsx                  # Root component — global state, panel layout
 │   ├── main.tsx                 # Entry point
-│   ├── config.ts                # Centralized config: groups, feature flags, locales
+│   ├── config.ts                # Centralized config: feature flags, locales
 │   ├── components/
 │   │   ├── ContentPanel/        # Renders markdown content for selected item
 │   │   ├── MapPanel/            # Leaflet map with markers + polygons
@@ -21,18 +21,24 @@
 │   │       ├── GUIDELINES.md    # Design system conventions
 │   │       └── index.ts         # Barrel export
 │   ├── hooks/
+│   │   ├── useContentGraph.ts   # Consumes virtual:burkut-content, provides ContentGraph + legacy adapter
 │   │   ├── useLayoutPersistence.ts # Widget grid layout + visibility state (localStorage)
-│   │   ├── useMdLoader.ts       # Loads pre-parsed markdown from virtual module
 │   │   ├── useProgress.ts       # Reading progress tracker (localStorage)
 │   │   ├── useResizeObserver.ts  # Debounced ResizeObserver for panel redraws
 │   │   └── useTheme.tsx         # Theme context provider
 │   ├── i18n/
 │   │   ├── index.ts             # i18next initialization
 │   │   └── locales/             # Translation JSON files (tr, en, zh)
-│   ├── content/                 # Markdown content files
-│   │   ├── {Group}.md           # Group header (filename must match group id)
-│   │   └── {Group}/             # Sub-content items
-│   │       └── {Title}.md       # Individual content entries
+│   ├── shared/
+│   │   └── types.ts             # Shared types (ContentGraph, ContentNode, ContentEntry, ContentIndex, etc.)
+│   ├── cli/
+│   │   ├── bin/
+│   │   │   └── burkut.ts        # CLI entry point (parsed by cac)
+│   │   ├── scanner.ts           # Recursive directory scanner
+│   │   ├── dateExtractor.ts     # Date extraction (frontmatter → filename → folder)
+│   │   ├── contentTypeRegistry.ts # Extension → ContentType mapping
+│   │   ├── contentGraph.ts      # ContentGraph builder, ID/title utils, legacy adapter
+│   │   └── devServer.ts         # Vite dev server launcher for CLI mode
 │   ├── styles/
 │   │   ├── global.css           # CSS custom properties, theme variables
 │   │   └── layout.css           # App shell and panel layout styles
@@ -40,7 +46,7 @@
 │   └── tests/
 │       └── setup.ts             # Vitest setup (jsdom, testing-library matchers)
 ├── vite-plugins/
-│   └── md-content.ts            # Custom Vite plugin for markdown pre-parsing
+│   └── burkut-content.ts       # CLI-mode Vite plugin: serves ContentGraph as virtual:burkut-content
 ├── vite.config.ts               # Vite + Vitest config
 ├── tsconfig.json                # TypeScript config (strict)
 ├── biome.json                   # Linter + formatter config
@@ -52,7 +58,6 @@
 - Each component lives in its own folder: `src/components/{Name}/{Name}.tsx` with co-located `.css` and `.test.tsx` files.
 - Hooks live in `src/hooks/` with co-located `.test.ts` files.
 - All UI strings go through `react-i18next` — never hardcode user-facing text.
-- Content is added as `.md` files with YAML front matter. To add a new group: add to `config.groups`, add translations, create a header `.md` and subfolder.
 - CSS uses custom properties defined in `global.css` for theming. No CSS-in-JS.
 - `react-leaflet` doesn't render in jsdom — MapPanel tests use mocks.
 - vis-timeline requires explicit `destroy()` on unmount to prevent memory leaks.

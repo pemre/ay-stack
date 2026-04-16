@@ -1,15 +1,16 @@
-# Product: Bürküt — History Explorer
+# Product: Bürküt — Content Visualizer
 
-Bürküt is an interactive history explorer that lets users browse civilisations, dynasties, empires, literary movements, and cultural milestones through a timeline, map, and detail panel.
+Bürküt is a CLI-driven content visualization tool. Run `burkut serve <directory>` to scan any local directory for content files (markdown, images, video, audio), extract dates from filenames, folder names, and frontmatter, and serve an interactive daily-stream UI on localhost via Vite.
 
-All content is Markdown-driven (YAML front matter + body). No database or backend. New content is added by dropping a `.md` file into `src/content/{Group}/`. Group headers live at `src/content/{Group}.md`.
-
-The app is deployed to GitHub Pages at https://pemre.github.io/burkut/.
+- Install with `npm i -g burkut` or run directly with `npx burkut serve`
+- Dates are extracted automatically using a priority chain: frontmatter `date` → filename `YYYY-MM-DD` prefix → parent folder prefix
+- Content is grouped by date into day buckets and displayed newest-first
+- HMR support: adding, editing, or deleting files in the target directory updates the UI live
+- Optional per-directory configuration via `.burkut/config.ts`
 
 ## Key Concepts
 
-- Content items are `.md` files parsed at build time by a custom Vite plugin (`vite-plugins/md-content.ts`) into a single virtual module — zero runtime fetches.
-- Groups (e.g. "Dynasties and States", "Literature", "Cinema") are defined in `src/config.ts`.
+- In CLI mode, `vite-plugins/burkut-content.ts` scans the user's directory and serves a `ContentGraph` as `virtual:burkut-content`.
 - Feature flags in `config.features` control optional capabilities (search, dark/light toggle, draggable layout, progress tracker).
 - i18n supports Turkish (default), English, and Chinese via `react-i18next`.
 - Users can mark items as "read"; progress is tracked in localStorage and shown as an SVG donut chart.

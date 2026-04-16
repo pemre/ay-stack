@@ -1,29 +1,36 @@
 {
-  "app.title": "Bürküt — Tarih Gezgini — Çin",
-  "app.htmlTitle": "🦅 Bürküt — Tarih Gezgini",
+  "app.title": "Bürküt",
+  "app.htmlTitle": "🦅 Bürküt",
+
   "groups.dynasties": "Hanedanlar ve devletler",
   "groups.literature": "Edebiyat",
   "groups.cinema": "Sinema",
+
   "content.loading": "Yükleniyor…",
   "content.notFound": "*İçerik bulunamadı.*",
   "content.loadError": "*İçerik yüklenemedi.*",
+
   "aria.contentPanel": "İçerik paneli",
   "aria.sidebar": "İçerik menüsü",
   "aria.timeline": "Zaman çizelgesi",
   "aria.map": "Harita paneli",
   "aria.mapContainer": "Çin haritası",
+
   "language": "Dil",
   "theme.toggle": "Koyu/açık tema değiştir",
+
   "panels.sidebar": "Menü",
   "panels.content": "İçerik",
   "panels.map": "Harita",
   "panels.timeline": "Zaman Çizelgesi",
+
   "progress.markRead": "Okundu olarak işaretle",
   "progress.markUnread": "Okunmadı olarak işaretle",
   "progress.title": "Okuma İlerlemesi",
   "progress.newContentTitle": "Yeni içerik eklendi!",
   "progress.newContentMessage": "Son ziyaretinizden bu yana aşağıdaki içerikler eklendi. İlerlemeniz buna göre güncellendi.",
   "progress.dismiss": "Anladım",
+
   "layout.reset": "Pencereleri sıfırla",
   "widget.close": "Pencereyi kapat",
   "widget.visibility.label": "Pencereler"

@@ -13,7 +13,7 @@
 import { render, screen } from "@testing-library/react";
 import type { Layout, ResponsiveLayouts } from "react-grid-layout";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ContentIndex } from "../../hooks/useMdLoader";
+import type { ContentIndex } from "../../shared/types.ts";
 import { DEFAULT_LAYOUTS } from "./defaultLayouts";
 import { WIDGET_REGISTRY } from "./widgetRegistry";
 
@@ -22,7 +22,6 @@ import { WIDGET_REGISTRY } from "./widgetRegistry";
 vi.mock("../../config", () => ({
   default: {
     features: { draggableLayout: true },
-    groups: [],
   },
 }));
 
@@ -72,7 +71,9 @@ vi.mock("vis-timeline/standalone", () => ({
   })),
 }));
 
-vi.mock("virtual:md-content", () => ({ default: { index: {}, content: {} } }));
+vi.mock("virtual:burkut-content", () => ({
+  default: { nodes: {}, days: [], undated: [], dateRange: null, stats: { totalFiles: 0, byType: { markdown: 0, image: 0, video: 0, audio: 0 }, datedFiles: 0, undatedFiles: 0 } },
+}));
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -160,38 +161,38 @@ describe("Preservation Property 5a — WidgetGrid renders correct number of visi
     visibilityState: Record<string, boolean>;
     expectedIds: string[];
   }> = [
-    {
-      label: "all four widgets visible with default layout",
-      layouts: DEFAULT_LAYOUTS,
-      visibilityState: allVisible(),
-      expectedIds: ALL_IDS,
-    },
-    {
-      label: "single widget layout — only sidebar visible",
-      layouts: makeLayouts([{ i: "sidebar", x: 0, y: 0, w: 3, h: 8 }]),
-      visibilityState: onlyVisible(["sidebar"]),
-      expectedIds: ["sidebar"],
-    },
-    {
-      label: "two widgets visible — content and map",
-      layouts: makeLayouts([
-        { i: "content", x: 0, y: 0, w: 5, h: 8 },
-        { i: "map", x: 5, y: 0, w: 4, h: 8 },
-      ]),
-      visibilityState: onlyVisible(["content", "map"]),
-      expectedIds: ["content", "map"],
-    },
-    {
-      label: "three widgets visible — sidebar, content, timeline",
-      layouts: makeLayouts([
-        { i: "sidebar", x: 0, y: 0, w: 3, h: 8 },
-        { i: "content", x: 3, y: 0, w: 5, h: 8 },
-        { i: "timeline", x: 0, y: 8, w: 12, h: 4 },
-      ]),
-      visibilityState: onlyVisible(["sidebar", "content", "timeline"]),
-      expectedIds: ["sidebar", "content", "timeline"],
-    },
-  ];
+      {
+        label: "all four widgets visible with default layout",
+        layouts: DEFAULT_LAYOUTS,
+        visibilityState: allVisible(),
+        expectedIds: ALL_IDS,
+      },
+      {
+        label: "single widget layout — only sidebar visible",
+        layouts: makeLayouts([{ i: "sidebar", x: 0, y: 0, w: 3, h: 8 }]),
+        visibilityState: onlyVisible(["sidebar"]),
+        expectedIds: ["sidebar"],
+      },
+      {
+        label: "two widgets visible — content and map",
+        layouts: makeLayouts([
+          { i: "content", x: 0, y: 0, w: 5, h: 8 },
+          { i: "map", x: 5, y: 0, w: 4, h: 8 },
+        ]),
+        visibilityState: onlyVisible(["content", "map"]),
+        expectedIds: ["content", "map"],
+      },
+      {
+        label: "three widgets visible — sidebar, content, timeline",
+        layouts: makeLayouts([
+          { i: "sidebar", x: 0, y: 0, w: 3, h: 8 },
+          { i: "content", x: 3, y: 0, w: 5, h: 8 },
+          { i: "timeline", x: 0, y: 8, w: 12, h: 4 },
+        ]),
+        visibilityState: onlyVisible(["sidebar", "content", "timeline"]),
+        expectedIds: ["sidebar", "content", "timeline"],
+      },
+    ];
 
   for (const { label, layouts, visibilityState, expectedIds } of cases) {
     it(`renders ${expectedIds.length} widget(s): ${label}`, () => {
@@ -221,47 +222,47 @@ describe("Preservation Property 5b — only visible widgets appear in the DOM", 
     visibilityState: Record<string, boolean>;
     visibleIds: string[];
   }> = [
-    {
-      label: "all widgets visible",
-      visibilityState: allVisible(),
-      visibleIds: ALL_IDS,
-    },
-    {
-      label: "all widgets hidden",
-      visibilityState: allHidden(),
-      visibleIds: [],
-    },
-    {
-      label: "only sidebar visible",
-      visibilityState: onlyVisible(["sidebar"]),
-      visibleIds: ["sidebar"],
-    },
-    {
-      label: "only content visible",
-      visibilityState: onlyVisible(["content"]),
-      visibleIds: ["content"],
-    },
-    {
-      label: "only map visible",
-      visibilityState: onlyVisible(["map"]),
-      visibleIds: ["map"],
-    },
-    {
-      label: "only timeline visible",
-      visibilityState: onlyVisible(["timeline"]),
-      visibleIds: ["timeline"],
-    },
-    {
-      label: "sidebar and content visible, map and timeline hidden",
-      visibilityState: onlyVisible(["sidebar", "content"]),
-      visibleIds: ["sidebar", "content"],
-    },
-    {
-      label: "map and timeline visible, sidebar and content hidden",
-      visibilityState: onlyVisible(["map", "timeline"]),
-      visibleIds: ["map", "timeline"],
-    },
-  ];
+      {
+        label: "all widgets visible",
+        visibilityState: allVisible(),
+        visibleIds: ALL_IDS,
+      },
+      {
+        label: "all widgets hidden",
+        visibilityState: allHidden(),
+        visibleIds: [],
+      },
+      {
+        label: "only sidebar visible",
+        visibilityState: onlyVisible(["sidebar"]),
+        visibleIds: ["sidebar"],
+      },
+      {
+        label: "only content visible",
+        visibilityState: onlyVisible(["content"]),
+        visibleIds: ["content"],
+      },
+      {
+        label: "only map visible",
+        visibilityState: onlyVisible(["map"]),
+        visibleIds: ["map"],
+      },
+      {
+        label: "only timeline visible",
+        visibilityState: onlyVisible(["timeline"]),
+        visibleIds: ["timeline"],
+      },
+      {
+        label: "sidebar and content visible, map and timeline hidden",
+        visibilityState: onlyVisible(["sidebar", "content"]),
+        visibleIds: ["sidebar", "content"],
+      },
+      {
+        label: "map and timeline visible, sidebar and content hidden",
+        visibilityState: onlyVisible(["map", "timeline"]),
+        visibleIds: ["map", "timeline"],
+      },
+    ];
 
   for (const { label, visibilityState, visibleIds } of cases) {
     it(`visibility filter: ${label}`, () => {
@@ -304,76 +305,76 @@ describe("Preservation Property 4 — onLayoutChange writes to localStorage on e
     label: string;
     layouts: ResponsiveLayouts[];
   }> = [
-    {
-      label: "single onLayoutChange call",
-      layouts: [
-        makeLayouts([
-          { i: "sidebar", x: 1, y: 0, w: 3, h: 8 },
-          { i: "content", x: 4, y: 0, w: 5, h: 8 },
-          { i: "map", x: 9, y: 0, w: 3, h: 8 },
-          { i: "timeline", x: 0, y: 8, w: 12, h: 4 },
-        ]),
-      ],
-    },
-    {
-      label: "three sequential calls (simulates drag steps)",
-      layouts: [
-        makeLayouts([
-          { i: "sidebar", x: 0, y: 0, w: 3, h: 8 },
-          { i: "content", x: 3, y: 0, w: 5, h: 8 },
-          { i: "map", x: 8, y: 0, w: 4, h: 8 },
-          { i: "timeline", x: 0, y: 8, w: 12, h: 4 },
-        ]),
-        makeLayouts([
-          { i: "sidebar", x: 0, y: 0, w: 4, h: 8 },
-          { i: "content", x: 4, y: 0, w: 4, h: 8 },
-          { i: "map", x: 8, y: 0, w: 4, h: 8 },
-          { i: "timeline", x: 0, y: 8, w: 12, h: 4 },
-        ]),
-        makeLayouts([
-          { i: "sidebar", x: 0, y: 0, w: 2, h: 10 },
-          { i: "content", x: 2, y: 0, w: 6, h: 10 },
-          { i: "map", x: 8, y: 0, w: 4, h: 10 },
-          { i: "timeline", x: 0, y: 10, w: 12, h: 4 },
-        ]),
-      ],
-    },
-    {
-      label: "five sequential calls (simulates resize steps)",
-      layouts: [
-        makeLayouts([
-          { i: "sidebar", x: 0, y: 0, w: 2, h: 4 },
-          { i: "content", x: 2, y: 0, w: 6, h: 4 },
-          { i: "map", x: 8, y: 0, w: 4, h: 4 },
-          { i: "timeline", x: 0, y: 4, w: 12, h: 4 },
-        ]),
-        makeLayouts([
-          { i: "sidebar", x: 0, y: 0, w: 2, h: 5 },
-          { i: "content", x: 2, y: 0, w: 6, h: 5 },
-          { i: "map", x: 8, y: 0, w: 4, h: 5 },
-          { i: "timeline", x: 0, y: 5, w: 12, h: 4 },
-        ]),
-        makeLayouts([
-          { i: "sidebar", x: 0, y: 0, w: 2, h: 6 },
-          { i: "content", x: 2, y: 0, w: 6, h: 6 },
-          { i: "map", x: 8, y: 0, w: 4, h: 6 },
-          { i: "timeline", x: 0, y: 6, w: 12, h: 4 },
-        ]),
-        makeLayouts([
-          { i: "sidebar", x: 0, y: 0, w: 2, h: 7 },
-          { i: "content", x: 2, y: 0, w: 6, h: 7 },
-          { i: "map", x: 8, y: 0, w: 4, h: 7 },
-          { i: "timeline", x: 0, y: 7, w: 12, h: 4 },
-        ]),
-        makeLayouts([
-          { i: "sidebar", x: 0, y: 0, w: 2, h: 8 },
-          { i: "content", x: 2, y: 0, w: 6, h: 8 },
-          { i: "map", x: 8, y: 0, w: 4, h: 8 },
-          { i: "timeline", x: 0, y: 8, w: 12, h: 4 },
-        ]),
-      ],
-    },
-  ];
+      {
+        label: "single onLayoutChange call",
+        layouts: [
+          makeLayouts([
+            { i: "sidebar", x: 1, y: 0, w: 3, h: 8 },
+            { i: "content", x: 4, y: 0, w: 5, h: 8 },
+            { i: "map", x: 9, y: 0, w: 3, h: 8 },
+            { i: "timeline", x: 0, y: 8, w: 12, h: 4 },
+          ]),
+        ],
+      },
+      {
+        label: "three sequential calls (simulates drag steps)",
+        layouts: [
+          makeLayouts([
+            { i: "sidebar", x: 0, y: 0, w: 3, h: 8 },
+            { i: "content", x: 3, y: 0, w: 5, h: 8 },
+            { i: "map", x: 8, y: 0, w: 4, h: 8 },
+            { i: "timeline", x: 0, y: 8, w: 12, h: 4 },
+          ]),
+          makeLayouts([
+            { i: "sidebar", x: 0, y: 0, w: 4, h: 8 },
+            { i: "content", x: 4, y: 0, w: 4, h: 8 },
+            { i: "map", x: 8, y: 0, w: 4, h: 8 },
+            { i: "timeline", x: 0, y: 8, w: 12, h: 4 },
+          ]),
+          makeLayouts([
+            { i: "sidebar", x: 0, y: 0, w: 2, h: 10 },
+            { i: "content", x: 2, y: 0, w: 6, h: 10 },
+            { i: "map", x: 8, y: 0, w: 4, h: 10 },
+            { i: "timeline", x: 0, y: 10, w: 12, h: 4 },
+          ]),
+        ],
+      },
+      {
+        label: "five sequential calls (simulates resize steps)",
+        layouts: [
+          makeLayouts([
+            { i: "sidebar", x: 0, y: 0, w: 2, h: 4 },
+            { i: "content", x: 2, y: 0, w: 6, h: 4 },
+            { i: "map", x: 8, y: 0, w: 4, h: 4 },
+            { i: "timeline", x: 0, y: 4, w: 12, h: 4 },
+          ]),
+          makeLayouts([
+            { i: "sidebar", x: 0, y: 0, w: 2, h: 5 },
+            { i: "content", x: 2, y: 0, w: 6, h: 5 },
+            { i: "map", x: 8, y: 0, w: 4, h: 5 },
+            { i: "timeline", x: 0, y: 5, w: 12, h: 4 },
+          ]),
+          makeLayouts([
+            { i: "sidebar", x: 0, y: 0, w: 2, h: 6 },
+            { i: "content", x: 2, y: 0, w: 6, h: 6 },
+            { i: "map", x: 8, y: 0, w: 4, h: 6 },
+            { i: "timeline", x: 0, y: 6, w: 12, h: 4 },
+          ]),
+          makeLayouts([
+            { i: "sidebar", x: 0, y: 0, w: 2, h: 7 },
+            { i: "content", x: 2, y: 0, w: 6, h: 7 },
+            { i: "map", x: 8, y: 0, w: 4, h: 7 },
+            { i: "timeline", x: 0, y: 7, w: 12, h: 4 },
+          ]),
+          makeLayouts([
+            { i: "sidebar", x: 0, y: 0, w: 2, h: 8 },
+            { i: "content", x: 2, y: 0, w: 6, h: 8 },
+            { i: "map", x: 8, y: 0, w: 4, h: 8 },
+            { i: "timeline", x: 0, y: 8, w: 12, h: 4 },
+          ]),
+        ],
+      },
+    ];
 
   for (const { label, layouts: sequence } of sequences) {
     it(`localStorage updated after each call: ${label}`, () => {

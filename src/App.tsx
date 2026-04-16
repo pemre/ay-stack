@@ -1,5 +1,5 @@
 import { Github, RotateCcw } from "lucide-react";
-import { type ChangeEvent, useCallback, useEffect, useState } from "react";
+import { type ChangeEvent, useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import NewContentModal from "./components/NewContentModal/NewContentModal";
 import ProgressPie from "./components/ProgressPie/ProgressPie";
@@ -8,43 +8,24 @@ import { Button } from "./components/ui";
 import { WidgetGrid } from "./components/WidgetGrid/WidgetGrid";
 import { WidgetVisibilityMenu } from "./components/WidgetVisibilityMenu/WidgetVisibilityMenu";
 import config from "./config";
+import { useContentGraph } from "./hooks/useContentGraph";
 import { useLayoutPersistence } from "./hooks/useLayoutPersistence";
-import { useMdLoader } from "./hooks/useMdLoader";
 import { useProgress } from "./hooks/useProgress";
 import "./styles/layout.css";
 
 /**
  * Global state:
  *  selectedId  – clicked timeline/sidebar item id
- *  activeGroup – which group is selected (from config.groups)
+ *  activeGroup – which group is selected
  */
 export default function App() {
   const { t, i18n } = useTranslation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [activeGroup, setActiveGroup] = useState(config.defaults.activeGroup);
+  const [activeGroup, setActiveGroup] = useState("");
   const { resetLayout, visibilityState, setWidgetVisible, layouts, onLayoutChange } =
     useLayoutPersistence();
 
-  /** Set of vis.js group ids currently hidden on the timeline (persisted) */
-  const [hiddenGroups, setHiddenGroups] = useState<Set<string>>(() => {
-    try {
-      const stored = localStorage.getItem("hiddenGroups");
-      return stored ? new Set(JSON.parse(stored) as string[]) : new Set();
-    } catch {
-      return new Set();
-    }
-  });
-
-  // Persist hidden groups to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem("hiddenGroups", JSON.stringify([...hiddenGroups]));
-    } catch {
-      /* quota exceeded or private browsing — silently ignore */
-    }
-  }, [hiddenGroups]);
-
-  const { index, getContent } = useMdLoader();
+  const { legacyIndex: index, getContent } = useContentGraph();
   const {
     toggleComplete,
     isComplete,
@@ -54,10 +35,12 @@ export default function App() {
     completedSet,
   } = useProgress(index);
 
+  const emptyHiddenGroups = useMemo(() => new Set<string>(), []);
+
   const handleSelect = useCallback(
     (id: string) => {
       setSelectedId(id);
-      if (index[id]?.group) setActiveGroup(index[id].group);
+      if (index[id]?.group) setActiveGroup(index[id].group as string);
     },
     [index],
   );
@@ -75,34 +58,6 @@ export default function App() {
     },
     [i18n, t],
   );
-
-  /** Toggle a vis.js group's visibility on the timeline */
-  const toggleGroup = useCallback((groupId: string) => {
-    setHiddenGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(groupId)) next.delete(groupId);
-      else next.add(groupId);
-      return next;
-    });
-  }, []);
-
-  const timelineHeaderChildren = config.groups.map((g) => {
-    const isHidden = hiddenGroups.has(g.id);
-    return (
-      <button
-        type="button"
-        key={g.id}
-        className={`timeline-group-toggle ${
-          isHidden ? "timeline-group-toggle--hidden" : "timeline-group-toggle--active"
-        }`}
-        onClick={() => toggleGroup(g.id)}
-        aria-pressed={!isHidden}
-        title={isHidden ? `Show ${t(g.translationKey)}` : `Hide ${t(g.translationKey)}`}
-      >
-        {t(g.translationKey)}
-      </button>
-    );
-  });
 
   return (
     <div className="app-shell">
@@ -173,8 +128,7 @@ export default function App() {
           isComplete={isComplete}
           onToggleComplete={toggleComplete}
           onSelect={handleSelect}
-          hiddenGroups={hiddenGroups}
-          timelineHeaderChildren={timelineHeaderChildren}
+          hiddenGroups={emptyHiddenGroups}
         />
       </div>
 

@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3 Spiral Timeline</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --color-background: #0f172a;
+            --color-surface: #1e293b;
+            --color-text: #f1f5f9;
+            --color-text-secondary: #cbd5e1;
+            --color-primary: #38bdf8;
+            --color-border: rgba(203, 213, 225, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-background);
+            color: var(--color-text);
+            overflow: hidden;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .spiral-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--color-surface);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            z-index: 10;
+            max-width: 300px;
+        }
+
+        .control-group {
+            margin-bottom: 16px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            background: var(--color-primary);
+            color: #0f172a;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(203, 213, 225, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            cursor: pointer;
+            border: none;
+        }
+
+        .zoom-value {
+            text-align: center;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-top: 4px;
+        }
+
+        .time-slider-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-surface);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            z-index: 10;
+            min-width: 400px;
+            max-width: 700px;
+        }
+
+        .time-slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .time-slider-track {
+            position: relative;
+            width: 100%;
+            height: 32px;
+            background: rgba(203, 213, 225, 0.1);
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .time-slider-ticks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .time-slider-tick {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(203, 213, 225, 0.2);
+        }
+
+        .time-slider-tick-label {
+            position: absolute;
+            bottom: -18px;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: var(--color-text-secondary);
+            white-space: nowrap;
+        }
+
+        .time-slider-window {
+            position: absolute;
+            top: 2px;
+            bottom: 2px;
+            background: rgba(56, 189, 248, 0.25);
+            border: 2px solid var(--color-primary);
+            border-radius: 4px;
+            cursor: grab;
+            transition: width 0.3s ease;
+        }
+
+        .time-slider-window:active {
+            cursor: grabbing;
+        }
+
+        .time-slider-window-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-primary);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .time-slider-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 22px;
+            font-size: 11px;
+            color: var(--color-text-secondary);
+        }
+
+        .svg-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 12px;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.2s;
+            max-width: 300px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .tooltip.visible {
+            opacity: 1;
+        }
+
+        .tooltip-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: var(--color-text);
+        }
+
+        .tooltip-content {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            line-height: 1.4;
+        }
+
+        .tooltip-date {
+            font-size: 11px;
+            color: var(--color-primary);
+            margin-top: 4px;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .node {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .node:hover {
+            filter: brightness(1.3);
+        }
+
+        .node:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        .axis-label {
+            font-size: 14px;
+            font-weight: 600;
+            fill: var(--color-text-secondary);
+            text-anchor: middle;
+            pointer-events: none;
+        }
+
+        .year-label {
+            font-size: 11px;
+            font-weight: 500;
+            fill: var(--color-text-secondary);
+            text-anchor: middle;
+            pointer-events: none;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .ring-enter {
+            animation: fadeInScale 0.4s ease-out;
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+    const { useState, useEffect, useRef, useMemo } = React;
+
+    const SAMPLE_DATA = [
+        { date: new Date('2024-01-15'), type: 'news', title: 'Tech Conference', content: 'Annual technology summit announcement' },
+        { date: new Date('2024-03-20'), type: 'journal', title: 'Personal Note', content: 'Reflection on Q1 goals' },
+        { date: new Date('2024-06-10'), type: 'travel', title: 'Summer Trip', content: 'Visited Mediterranean coast' },
+        { date: new Date('2024-09-05'), type: 'news', title: 'Product Launch', content: 'New software release' },
+        { date: new Date('2023-02-14'), type: 'journal', title: 'Valentine Day', content: 'Special memories' },
+        { date: new Date('2023-05-22'), type: 'travel', title: 'Mountain Hiking', content: 'Alps expedition' },
+        { date: new Date('2023-08-30'), type: 'news', title: 'Industry Award', content: 'Recognition received' },
+        { date: new Date('2023-11-12'), type: 'journal', title: 'Year Review', content: 'Looking back at 2023' },
+        { date: new Date('2022-04-18'), type: 'travel', title: 'City Break', content: 'Weekend in Paris' },
+        { date: new Date('2022-07-25'), type: 'news', title: 'Partnership', content: 'Strategic collaboration' },
+        { date: new Date('2022-10-03'), type: 'journal', title: 'Autumn Thoughts', content: 'Season reflections' },
+        { date: new Date('2021-01-08'), type: 'news', title: 'New Year Launch', content: 'Fresh start initiatives' },
+        { date: new Date('2021-06-16'), type: 'travel', title: 'Island Vacation', content: 'Greek islands tour' },
+        { date: new Date('2021-12-24'), type: 'journal', title: 'Holiday Season', content: 'Family celebrations' },
+        { date: new Date('2020-09-15'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-06-11'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-06-09'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-06-02'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-05-15'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-04-15'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-04-10'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-04-01'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-03-30'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-03-24'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-03-22'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-03-15'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-02-15'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-01-24'), type: 'news', title: 'Remote Work', content: 'Transition announcement' },
+        { date: new Date('2020-01-20'), type: 'journal', title: 'Adaptation', content: 'New normal thoughts' },
+    ];
+
+    const DEFAULT_CONFIG = {
+        yearsToShow: 1,
+        zoomDirection: 'past',
+        monthDirection: 'ccw',
+        yearLabelPosition: 'top', // 'top', 'right', 'bottom', 'left', 'top-right', 'top-left', 'bottom-right', 'bottom-left'
+        zoom: {
+            speed: 1.0,
+            mouseWheel: true,
+            slider: true,
+            buttons: true,
+        },
+        fog: {
+            enabled: true,
+            startRing: 2,
+            intensity: 0.8,
+        },
+        ringGradient: {
+            enabled: true,
+            scale: 'spectral',
+            applyTo: ['grid', 'labels'],
+        },
+        animations: {
+            enabled: true,
+            duration: 400,
+        },
+        types: [
+            { key: 'news', color: '#38bdf8', shape: 'circle' },
+            { key: 'journal', color: '#f472b6', shape: 'square' },
+            { key: 'travel', color: '#34d399', shape: 'star' },
+        ],
+    };
+
+    function SpiralTimeline({ data = SAMPLE_DATA, config = DEFAULT_CONFIG }) {
+        const svgRef = useRef(null);
+        const tooltipRef = useRef(null);
+        const [hoveredNode, setHoveredNode] = useState(null);
+        const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+
+        // Compute data year range
+        const dataMinYear = useMemo(() => d3.min(data, d => d.date.getFullYear()), [data]);
+        const dataMaxYear = useMemo(() => d3.max(data, d => d.date.getFullYear()), [data]);
+        const totalDataYears = dataMaxYear - dataMinYear + 1; // e.g. 2020-2024 = 5
+
+        const [yearsToShow, setYearsToShow] = useState(config.yearsToShow || 2);
+        // windowStart = the first "real" year in the visible window
+        // Default: show the most recent years
+        const [windowStart, setWindowStart] = useState(dataMaxYear - (config.yearsToShow || 2) + 1);
+
+        const mergedConfig = { ...DEFAULT_CONFIG, ...config };
+        const { zoomDirection, monthDirection, yearLabelPosition, zoom, fog, ringGradient, animations } = mergedConfig;
+
+        // Clamp windowStart when yearsToShow changes
+        useEffect(() => {
+            setWindowStart(prev => {
+                const maxStart = dataMaxYear - yearsToShow + 1;
+                const minStart = dataMinYear;
+                return Math.max(minStart, Math.min(prev, maxStart));
+            });
+        }, [yearsToShow, dataMinYear, dataMaxYear]);
+
+        const windowEnd = windowStart + yearsToShow - 1; // last real year inclusive
+
+        const colorInterpolator = useMemo(() => {
+            if (ringGradient.scale === 'spectral') return d3.interpolateSpectral;
+            if (ringGradient.scale === 'rainbow') return d3.interpolateRainbow;
+            if (ringGradient.scale === 'cool') return d3.interpolateCool;
+            if (ringGradient.scale === 'warm') return d3.interpolateWarm;
+            return d3.interpolateSpectral;
+        }, [ringGradient.scale]);
+
+        const getYearColor = (yearOffset) => {
+            const t = (yearOffset % 10) / 10;
+            return colorInterpolator(t);
+        };
+
+        const monthLabels = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+
+        // Season colors for background gradient
+        const getSeasonColor = (monthIndex) => {
+            // Winter (Dec, Jan, Feb) - months 11, 0, 1
+            // Spring (Mar, Apr, May) - months 2, 3, 4
+            // Summer (Jun, Jul, Aug) - months 5, 6, 7
+            // Autumn (Sep, Oct, Nov) - months 8, 9, 10
+
+            if (monthIndex === 11 || monthIndex === 0 || monthIndex === 1) {
+                // Winter - blue shades
+                const progress = monthIndex === 11 ? 0 : monthIndex === 0 ? 0.33 : 0.67;
+                return d3.interpolateRgb('#1e3a8a', '#3b82f6')(progress);
+            } else if (monthIndex >= 2 && monthIndex <= 4) {
+                // Spring - yellow/green shades
+                const progress = (monthIndex - 2) / 2;
+                return d3.interpolateRgb('#fbbf24', '#84cc16')(progress);
+            } else if (monthIndex >= 5 && monthIndex <= 7) {
+                // Summer - green shades
+                const progress = (monthIndex - 5) / 2;
+                return d3.interpolateRgb('#22c55e', '#14b8a6')(progress);
+            } else {
+                // Autumn - orange/brown shades
+                const progress = (monthIndex - 8) / 2;
+                return d3.interpolateRgb('#f97316', '#92400e')(progress);
+            }
+        };
+
+        const getTypeConfig = (type) => {
+            return mergedConfig.types.find(t => t.key === type) || mergedConfig.types[0];
+        };
+
+        const drawShape = (g, shape, size, color) => {
+            const s = size / 2;
+
+            switch (shape) {
+                case 'circle':
+                    g.append('circle')
+                        .attr('r', s)
+                        .attr('fill', 'none')
+                        .attr('stroke', color)
+                        .attr('stroke-width', 2);
+                    break;
+                case 'square':
+                    g.append('rect')
+                        .attr('x', -s)
+                        .attr('y', -s)
+                        .attr('width', s * 2)
+                        .attr('height', s * 2)
+                        .attr('fill', 'none')
+                        .attr('stroke', color)
+                        .attr('stroke-width', 2);
+                    break;
+                case 'triangle':
+                    const points = [
+                        [0, -s],
+                        [s * 0.866, s * 0.5],
+                        [-s * 0.866, s * 0.5]
+                    ];
+                    g.append('polygon')
+                        .attr('points', points.map(p => p.join(',')).join(' '))
+                        .attr('fill', 'none')
+                        .attr('stroke', color)
+                        .attr('stroke-width', 2);
+                    break;
+                case 'star':
+                    const starPoints = [];
+                    for (let i = 0; i < 10; i++) {
+                        const angle = (i * Math.PI) / 5 - Math.PI / 2;
+                        const r = i % 2 === 0 ? s : s * 0.4;
+                        starPoints.push([r * Math.cos(angle), r * Math.sin(angle)]);
+                    }
+                    g.append('polygon')
+                        .attr('points', starPoints.map(p => p.join(',')).join(' '))
+                        .attr('fill', 'none')
+                        .attr('stroke', color)
+                        .attr('stroke-width', 2);
+                    break;
+                case 'pentagon':
+                    const pentPoints = [];
+                    for (let i = 0; i < 5; i++) {
+                        const angle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+                        pentPoints.push([s * Math.cos(angle), s * Math.sin(angle)]);
+                    }
+                    g.append('polygon')
+                        .attr('points', pentPoints.map(p => p.join(',')).join(' '))
+                        .attr('fill', 'none')
+                        .attr('stroke', color)
+                        .attr('stroke-width', 2);
+                    break;
+            }
+        };
+
+        // Ref to track whether SVG layers have been initialized
+        const layersRef = useRef(null);
+        // Track previous spiral geometry so entering elements can animate FROM their old position
+        const prevGeomRef = useRef(null);
+
+        // One-time initialization: create persistent layer groups
+        useEffect(() => {
+            if (!svgRef.current) return;
+            const svg = d3.select(svgRef.current);
+            svg.selectAll('*').remove();
+
+            const width = svgRef.current.clientWidth;
+            const height = svgRef.current.clientHeight;
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            const root = svg.append('g')
+                .attr('transform', `translate(${centerX},${centerY})`);
+
+            layersRef.current = {
+                root,
+                seasonBg: root.append('g').attr('class', 'layer-season-bg'),
+                radialLines: root.append('g').attr('class', 'layer-radial-lines'),
+                spiral: root.append('g').attr('class', 'layer-spiral'),
+                yearMarkers: root.append('g').attr('class', 'layer-year-markers'),
+                monthLabels: root.append('g').attr('class', 'layer-month-labels'),
+                dataNodes: root.append('g').attr('class', 'layer-data-nodes'),
+                initialized: false,
+            };
+        }, []); // only once on mount
+
+        // Main rendering effect with transitions
+        useEffect(() => {
+            if (!svgRef.current || !data.length || !layersRef.current) return;
+
+            const layers = layersRef.current;
+            const isFirstRender = !layers.initialized;
+            layers.initialized = true;
+
+            const width = svgRef.current.clientWidth;
+            const height = svgRef.current.clientHeight;
+            const maxRadius = Math.min(width, height) * 0.4;
+
+            const turnsPerYear = 1;
+            const oldestYear = windowStart - 1;
+            const newestYear = windowEnd + 1;
+            const yearRange = newestYear - oldestYear;
+            const fadeOutFraction = 0.25;
+            const totalTurns = yearRange * turnsPerYear;
+            const radiusIncrement = maxRadius / totalTurns;
+
+            const DURATION = isFirstRender ? 0 : (animations.enabled ? 800 : 0);
+
+            const dateToSpiral = (date) => {
+                const yearDiff = date.getFullYear() - oldestYear;
+                const dayOfYear = d3.timeDay.count(d3.timeYear(date), date);
+                const yearProgress = dayOfYear / 365;
+                const totalRotations = yearDiff + yearProgress;
+                const angle = -Math.PI / 2 - totalRotations * 2 * Math.PI;
+                const radius = totalRotations * radiusIncrement * turnsPerYear;
+                return {
+                    angle, radius,
+                    x: Math.cos(angle) * radius,
+                    y: Math.sin(angle) * radius,
+                    totalRotations
+                };
+            };
+
+            // ── STATIC LAYERS (season bg, radial lines, month labels) ──
+            // These don't change with windowStart, only with maxRadius. Draw once or update simply.
+            if (isFirstRender) {
+                // Season background wedges
+                for (let m = 0; m < 12; m++) {
+                    const arcStartAngle = -(m + 1) * (Math.PI / 6);
+                    const arcEndAngle = -m * (Math.PI / 6);
+                    const segmentsPerWedge = 20;
+                    for (let seg = 0; seg < segmentsPerWedge; seg++) {
+                        const innerRadius = seg * maxRadius / segmentsPerWedge;
+                        const outerRadius = (seg + 1) * maxRadius / segmentsPerWedge;
+                        const gradientProgress = seg / segmentsPerWedge;
+                        const seasonColor = getSeasonColor(m);
+                        const segmentColor = d3.interpolateRgb('rgba(0,0,0,0)', seasonColor)(gradientProgress);
+                        const opacity = 0.15 * gradientProgress;
+                        const arcPath = d3.arc()
+                            .innerRadius(innerRadius).outerRadius(outerRadius)
+                            .startAngle(arcStartAngle).endAngle(arcEndAngle);
+                        layers.seasonBg.append('path')
+                            .attr('d', arcPath).attr('fill', segmentColor).attr('opacity', opacity);
+                    }
+
+                    // Radial lines
+                    const monthAngle = -Math.PI / 2 - (m * Math.PI / 6);
+                    const lineSegments = 50;
+                    for (let i = 0; i < lineSegments; i++) {
+                        const r1 = (i / lineSegments) * maxRadius;
+                        const r2 = ((i + 1) / lineSegments) * maxRadius;
+                        const progress = i / lineSegments;
+                        const lineOpacity = 0.1 + (progress * 0.4);
+                        layers.radialLines.append('line')
+                            .attr('x1', Math.cos(monthAngle) * r1).attr('y1', Math.sin(monthAngle) * r1)
+                            .attr('x2', Math.cos(monthAngle) * r2).attr('y2', Math.sin(monthAngle) * r2)
+                            .attr('stroke', '#cbd5e1').attr('stroke-width', 1.5).attr('opacity', lineOpacity);
+                    }
+                }
+
+                // Month labels (static)
+                for (let m = 0; m < 12; m++) {
+                    const angle = -Math.PI / 2 - (m + 0.5) * (Math.PI / 6);
+                    const labelRadius = maxRadius + 30;
+                    layers.monthLabels.append('text')
+                        .attr('x', Math.cos(angle) * labelRadius)
+                        .attr('y', Math.sin(angle) * labelRadius)
+                        .attr('class', 'axis-label')
+                        .text(monthLabels[m]);
+                }
+            }
+
+            // ── SPIRAL PATH (data-joined transition) ──
+            // Use a fixed resolution per year (120 segments/year) keyed by
+            // absolute year position so D3 matches the same calendar moment
+            // across renders.
+            const SEGS_PER_YEAR = 120;
+            const spiralSegData = [];
+
+            // Helper: compute spiral point for an absolute year value
+            // using SPECIFIC geometry params (so we can compute for old or new state)
+            const spiralPointWith = (absYear, geomOldestYear, geomRadiusIncrement, geomYearRange, geomNewestYear) => {
+                const rotations = absYear - geomOldestYear;
+                const angle = -Math.PI / 2 - rotations * 2 * Math.PI;
+                const radius = rotations * geomRadiusIncrement;
+
+                let opacity;
+                // Outside the visible range of this geometry = invisible
+                if (rotations < 0) { opacity = 0; }
+                else if (absYear > geomNewestYear + fadeOutFraction) { opacity = 0; }
+                else if (rotations < 1) { opacity = rotations; }
+                else if (absYear > geomNewestYear) {
+                    // In the tail region
+                    const tailProgress = (absYear - geomNewestYear) / fadeOutFraction;
+                    opacity = Math.pow(1 - tailProgress, 3);
+                }
+                else if (fog.enabled && rotations > fog.startRing) {
+                    opacity = Math.max(0.1, 1 - ((rotations - fog.startRing) / geomYearRange) * fog.intensity);
+                } else { opacity = 1; }
+
+                const color = ringGradient.enabled && ringGradient.applyTo.includes('grid')
+                    ? getYearColor(Math.floor(Math.max(0, rotations))) : 'rgba(203, 213, 225, 0.3)';
+
+                return {
+                    x: Math.cos(angle) * radius,
+                    y: Math.sin(angle) * radius,
+                    opacity, color, rotations
+                };
+            };
+
+            const spiralPointAt = (absYear) => spiralPointWith(absYear, oldestYear, radiusIncrement, yearRange, newestYear);
+
+            // Previous geometry for computing enter start positions
+            const prevGeom = prevGeomRef.current;
+            const hasPrevGeom = prevGeom && !isFirstRender;
+
+            const spiralPointAtPrev = hasPrevGeom
+                ? (absYear) => spiralPointWith(absYear, prevGeom.oldestYear, prevGeom.radiusIncrement, prevGeom.yearRange, prevGeom.newestYear)
+                : spiralPointAt;
+
+            // Main spiral: from oldestYear to newestYear
+            const mainSegments = yearRange * SEGS_PER_YEAR;
+            for (let i = 0; i < mainSegments; i++) {
+                const absY1 = oldestYear + (i / SEGS_PER_YEAR);
+                const absY2 = oldestYear + ((i + 1) / SEGS_PER_YEAR);
+                const p1 = spiralPointAt(absY1);
+                const p2 = spiralPointAt(absY2);
+                const key = Math.round(absY1 * SEGS_PER_YEAR);
+
+                // Compute where this segment WAS in the previous geometry (for enter animation)
+                const pp1 = spiralPointAtPrev(absY1);
+                const pp2 = spiralPointAtPrev(absY2);
+
+                spiralSegData.push({
+                    key,
+                    x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y,
+                    opacity: p1.opacity, color: p1.color,
+                    // Previous positions for enter animation
+                    px1: pp1.x, py1: pp1.y, px2: pp2.x, py2: pp2.y,
+                    pOpacity: pp1.opacity, pColor: pp1.color,
+                });
+            }
+
+            // Fade-out tail beyond newestYear
+            const tailSegments = Math.ceil(fadeOutFraction * SEGS_PER_YEAR);
+            for (let i = 0; i < tailSegments; i++) {
+                const absY1 = newestYear + (i / SEGS_PER_YEAR);
+                const absY2 = newestYear + ((i + 1) / SEGS_PER_YEAR);
+                const tailProgress1 = (i / tailSegments);
+                const p1 = spiralPointAt(absY1);
+                const p2 = spiralPointAt(absY2);
+                p1.opacity = Math.pow(1 - tailProgress1, 3);
+                const key = Math.round(absY1 * SEGS_PER_YEAR);
+
+                const pp1 = spiralPointAtPrev(absY1);
+                const pp2 = spiralPointAtPrev(absY2);
+
+                spiralSegData.push({
+                    key,
+                    x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y,
+                    opacity: p1.opacity, color: p1.color,
+                    px1: pp1.x, py1: pp1.y, px2: pp2.x, py2: pp2.y,
+                    pOpacity: pp1.opacity, pColor: pp1.color,
+                });
+            }
+
+            // Data join keyed by absolute calendar position
+            layers.spiral.selectAll('line.spiral-seg')
+                .data(spiralSegData, d => d.key)
+                .join(
+                    enter => enter.append('line')
+                        .attr('class', 'spiral-seg')
+                        // Start at the PREVIOUS geometry position (slide in from where they would have been)
+                        .attr('x1', d => d.px1).attr('y1', d => d.py1)
+                        .attr('x2', d => d.px2).attr('y2', d => d.py2)
+                        .attr('stroke', d => d.pColor).attr('stroke-width', 2)
+                        .attr('opacity', d => hasPrevGeom ? d.pOpacity : 0)
+                        .call(sel => sel.transition().duration(DURATION)
+                            .attr('x1', d => d.x1).attr('y1', d => d.y1)
+                            .attr('x2', d => d.x2).attr('y2', d => d.y2)
+                            .attr('stroke', d => d.color)
+                            .attr('opacity', d => d.opacity)),
+                    update => update
+                        .call(sel => sel.transition().duration(DURATION)
+                            .attr('x1', d => d.x1).attr('y1', d => d.y1)
+                            .attr('x2', d => d.x2).attr('y2', d => d.y2)
+                            .attr('stroke', d => d.color)
+                            .attr('opacity', d => d.opacity)),
+                    exit => exit
+                        .call(sel => sel.each(function(d) {
+                            // Compute where this segment maps on the NEW geometry
+                            const absY1 = d.key / SEGS_PER_YEAR;
+                            const absY2 = absY1 + (1 / SEGS_PER_YEAR);
+                            const np1 = spiralPointAt(absY1);
+                            const np2 = spiralPointAt(absY2);
+                            d3.select(this).transition().duration(DURATION)
+                                .attr('x1', np1.x).attr('y1', np1.y)
+                                .attr('x2', np2.x).attr('y2', np2.y)
+                                .attr('opacity', 0)
+                                .remove();
+                        }))
+                );
+
+            // Save current geometry for next transition
+            prevGeomRef.current = { oldestYear, radiusIncrement, yearRange, newestYear };
+
+            // ── YEAR MARKERS (data-joined transition) ──
+            let markerAngle;
+            switch(yearLabelPosition) {
+                case 'top': markerAngle = -Math.PI / 2; break;
+                case 'right': markerAngle = 0; break;
+                case 'bottom': markerAngle = Math.PI / 2; break;
+                case 'left': markerAngle = Math.PI; break;
+                case 'top-right': markerAngle = -Math.PI / 4; break;
+                case 'top-left': markerAngle = -3 * Math.PI / 4; break;
+                case 'bottom-right': markerAngle = Math.PI / 4; break;
+                case 'bottom-left': markerAngle = 3 * Math.PI / 4; break;
+                default: markerAngle = -Math.PI / 2;
+            }
+
+            // Helper to compute year marker position for a given geometry
+            const yearMarkerPos = (year, geomOldestYear, geomRadiusIncrement) => {
+                const rotations = year - geomOldestYear;
+                const radius = rotations * geomRadiusIncrement;
+                const mx = Math.cos(markerAngle) * radius;
+                const my = Math.sin(markerAngle) * radius;
+                const labelOffset = 30;
+                const lx = mx + Math.cos(markerAngle) * labelOffset;
+                const ly = my + Math.sin(markerAngle) * labelOffset;
+                return { mx, my, lx, ly };
+            };
+
+            const yearMarkerData = [];
+            for (let i = 0; i <= yearRange; i++) {
+                const year = oldestYear + i;
+                const rotations = i;
+                let opacity;
+                if (i === 0) { opacity = 0; }
+                else if (fog.enabled && rotations >= fog.startRing) {
+                    opacity = Math.max(0.1, 1 - ((rotations - fog.startRing) / yearRange) * fog.intensity);
+                } else { opacity = 1; }
+                const labelColor = ringGradient.enabled && ringGradient.applyTo.includes('labels')
+                    ? getYearColor(i) : '#cbd5e1';
+                const pos = yearMarkerPos(year, oldestYear, radiusIncrement);
+                // Previous position for enter animation
+                const pPos = hasPrevGeom
+                    ? yearMarkerPos(year, prevGeom.oldestYear, prevGeom.radiusIncrement)
+                    : pos;
+                // Was this year visible in the previous geometry?
+                // prevOldestYear is the cosmetic center year (opacity 0)
+                // so visible range was prevOldestYear+1 .. prevNewestYear
+                let prevOpacity = 0;
+                if (hasPrevGeom) {
+                    const prevRotations = year - prevGeom.oldestYear;
+                    if (prevRotations <= 0 || prevRotations > prevGeom.yearRange) {
+                        prevOpacity = 0; // was outside prev visible range
+                    } else if (prevRotations < 1) {
+                        prevOpacity = prevRotations; // was in the fade-in ring
+                    } else {
+                        prevOpacity = 1; // was fully visible
+                    }
+                }
+                yearMarkerData.push({ year, ...pos, opacity, labelColor, pmx: pPos.mx, pmy: pPos.my, plx: pPos.lx, ply: pPos.ly, prevOpacity });
+            }
+
+            // Pre-compute exit positions for year markers on the NEW geometry
+            const yearExitTargets = new Map();
+            layers.yearMarkers.selectAll('g.year-marker').each(function(d) {
+                if (!yearMarkerData.find(v => v.year === d.year)) {
+                    const pos = yearMarkerPos(d.year, oldestYear, radiusIncrement);
+                    yearExitTargets.set(d.year, pos);
+                }
+            });
+
+            layers.yearMarkers.selectAll('g.year-marker')
+                .data(yearMarkerData, d => d.year)
+                .join(
+                    enter => {
+                        const g = enter.append('g').attr('class', 'year-marker');
+                        // Start circle+text at PREVIOUS geometry position
+                        g.append('circle')
+                            .attr('cx', d => d.pmx).attr('cy', d => d.pmy)
+                            .attr('r', 5).attr('fill', d => d.labelColor);
+                        g.append('text')
+                            .attr('x', d => d.plx).attr('y', d => d.ply)
+                            .attr('class', 'year-label')
+                            .attr('fill', d => d.labelColor)
+                            .attr('text-anchor', 'middle')
+                            .attr('font-size', '14px')
+                            .attr('font-weight', '700')
+                            .text(d => d.year);
+                        // Start at previous opacity (0 if wasn't visible)
+                        g.attr('opacity', d => d.prevOpacity);
+                        // Transition to new position
+                        g.each(function(d) {
+                            const el = d3.select(this);
+                            el.transition().duration(DURATION).attr('opacity', d.opacity);
+                            el.select('circle').transition().duration(DURATION)
+                                .attr('cx', d.mx).attr('cy', d.my);
+                            el.select('text').transition().duration(DURATION)
+                                .attr('x', d.lx).attr('y', d.ly);
+                        });
+                        return g;
+                    },
+                    update => update
+                        .call(sel => {
+                            sel.transition().duration(DURATION)
+                                .attr('opacity', d => d.opacity);
+                            sel.each(function(d) {
+                                const el = d3.select(this);
+                                el.select('circle').transition().duration(DURATION)
+                                    .attr('cx', d.mx).attr('cy', d.my).attr('fill', d.labelColor);
+                                el.select('text').transition().duration(DURATION)
+                                    .attr('x', d.lx).attr('y', d.ly).attr('fill', d.labelColor);
+                            });
+                        }),
+                    exit => exit
+                        .call(sel => sel.each(function(d) {
+                            const target = yearExitTargets.get(d.year);
+                            const el = d3.select(this);
+                            // Single transition handles both movement and removal
+                            el.transition().duration(DURATION).attr('opacity', 0).remove();
+                            if (target) {
+                                el.select('circle').transition().duration(DURATION)
+                                    .attr('cx', target.mx).attr('cy', target.my);
+                                el.select('text').transition().duration(DURATION)
+                                    .attr('x', target.lx).attr('y', target.ly);
+                            }
+                        }))
+                );
+
+            // ── DATA NODES (data-joined transition with enter/update/exit) ──
+            const frameDataStart = oldestYear + 1;
+            const frameDataEnd = newestYear;
+
+            // Previous visible range (for determining enter opacity)
+            const prevFrameStart = hasPrevGeom ? prevGeom.oldestYear + 1 : frameDataStart;
+            const prevFrameEnd = hasPrevGeom ? prevGeom.newestYear : frameDataEnd;
+
+            // dateToSpiral using previous geometry (for enter animations)
+            const dateToSpiralPrev = hasPrevGeom ? (date) => {
+                const yearDiff = date.getFullYear() - prevGeom.oldestYear;
+                const dayOfYear = d3.timeDay.count(d3.timeYear(date), date);
+                const yearProgress = dayOfYear / 365;
+                const totalRotations = yearDiff + yearProgress;
+                const angle = -Math.PI / 2 - totalRotations * 2 * Math.PI;
+                const radius = totalRotations * prevGeom.radiusIncrement;
+                return {
+                    x: Math.cos(angle) * radius,
+                    y: Math.sin(angle) * radius,
+                };
+            } : dateToSpiral;
+
+            const visibleData = data
+                .filter(node => {
+                    const y = node.date.getFullYear();
+                    return y >= frameDataStart && y < frameDataEnd;
+                })
+                .map(node => {
+                    const pos = dateToSpiral(node.date);
+                    const prevPos = dateToSpiralPrev(node.date);
+                    const typeConfig = getTypeConfig(node.type);
+                    // Was this item visible in the previous window?
+                    const y = node.date.getFullYear();
+                    const wasVisible = hasPrevGeom && y >= prevFrameStart && y < prevFrameEnd;
+                    return {
+                        ...node,
+                        id: node.title + '_' + node.date.getTime(),
+                        x: pos.x, y: pos.y,
+                        px: prevPos.x, py: prevPos.y,
+                        wasVisible,
+                        color: typeConfig.color,
+                        shape: typeConfig.shape,
+                    };
+                });
+
+
+            // Items use the same linear x,y interpolation as spiral segments
+            // (D3 .attr() transitions interpolate numbers linearly, so we match that)
+            const spiralTween = (d, startX, startY, endX, endY, scaleStart, scaleEnd) => {
+                const interpX = d3.interpolate(startX, endX);
+                const interpY = d3.interpolate(startY, endY);
+                const interpS = typeof scaleStart === 'number' && typeof scaleEnd === 'number'
+                    ? d3.interpolate(scaleStart, scaleEnd)
+                    : (t) => (typeof scaleEnd === 'function' ? scaleEnd(t) : scaleEnd);
+                return function(t) {
+                    return `translate(${interpX(t)},${interpY(t)}) scale(${interpS(t)})`;
+                };
+            };
+
+            layers.dataNodes.selectAll('g.data-node')
+                .data(visibleData, d => d.id)
+                .join(
+                    enter => {
+                        const g = enter.append('g')
+                            .attr('class', 'data-node node')
+                            .attr('tabindex', 0)
+                            .attr('role', 'button')
+                            .attr('aria-label', d => `${d.title} - ${d.date.toLocaleDateString('tr-TR')}`)
+                            .attr('transform', d => d.wasVisible
+                                ? `translate(${d.px},${d.py}) scale(1)`
+                                : `translate(${d.px},${d.py}) scale(0)`)
+                            .attr('opacity', d => d.wasVisible ? 1 : 0);
+
+                        g.each(function(d) {
+                            drawShape(d3.select(this), d.shape, 14, d.color);
+                        });
+
+                        g.on('mouseenter', function(event, d) {
+                            setHoveredNode(d);
+                            const [mx, my] = d3.pointer(event, svgRef.current);
+                            setTooltipPos({ x: mx, y: my });
+                        })
+                            .on('mouseleave', function() {
+                                setHoveredNode(null);
+                            })
+                            .on('click', function(event, d) {
+                                if (mergedConfig.onNodeClick) {
+                                    mergedConfig.onNodeClick(d, event);
+                                }
+                            });
+
+                        g.transition().duration(DURATION)
+                            .attrTween('transform', d =>
+                                spiralTween(d, d.px, d.py, d.x, d.y,
+                                    d.wasVisible ? 1 : 0, 1))
+                            .attr('opacity', 1);
+
+                        return g;
+                    },
+                    update => update
+                        .call(sel => sel.each(function(d) {
+                            // Read current position from the DOM to interpolate from
+                            const cur = d3.select(this).attr('transform');
+                            const m = cur.match(/translate\(([-\d.e+]+),([-\d.e+]+)\)/);
+                            const cx = m ? +m[1] : d.px;
+                            const cy = m ? +m[2] : d.py;
+                            d3.select(this).transition().duration(DURATION)
+                                .attrTween('transform', () =>
+                                    spiralTween(d, cx, cy, d.x, d.y, 1, 1))
+                                .attr('opacity', 1);
+                        })),
+                    exit => exit
+                        .call(sel => sel.each(function(d) {
+                            // Compute where this item ends up on NEW geometry
+                            const target = dateToSpiral(d.date);
+                            const cur = d3.select(this).attr('transform');
+                            const m = cur.match(/translate\(([-\d.e+]+),([-\d.e+]+)\)/);
+                            const cx = m ? +m[1] : 0;
+                            const cy = m ? +m[2] : 0;
+                            d3.select(this).transition().duration(DURATION)
+                                .attrTween('transform', () =>
+                                    spiralTween(d, cx, cy, target.x, target.y, 1, 0))
+                                .attr('opacity', 0)
+                                .remove();
+                        }))
+                );
+
+        }, [data, yearsToShow, windowStart, windowEnd, zoomDirection, monthDirection, fog, ringGradient]);
+
+        useEffect(() => {
+            if (tooltipRef.current) {
+                if (hoveredNode) {
+                    tooltipRef.current.classList.add('visible');
+                } else {
+                    tooltipRef.current.classList.remove('visible');
+                }
+            }
+        }, [hoveredNode]);
+
+        const handleZoomIn = () => {
+            setYearsToShow(prev => Math.max(1, prev - 1));
+        };
+
+        const handleZoomOut = () => {
+            setYearsToShow(prev => Math.min(totalDataYears, prev + 1));
+        };
+
+        const handleWheel = (e) => {
+            if (zoom.mouseWheel) {
+                e.preventDefault();
+                if (e.deltaY > 0) {
+                    // scroll down = zoom out (show more years)
+                    setYearsToShow(prev => Math.min(totalDataYears, prev + 1));
+                } else {
+                    // scroll up = zoom in (show fewer years)
+                    setYearsToShow(prev => Math.max(1, prev - 1));
+                }
+            }
+        };
+
+        // Time slider drag logic
+        const sliderTrackRef = useRef(null);
+        const isDragging = useRef(false);
+        const dragStartX = useRef(0);
+        const dragStartWindowStart = useRef(0);
+
+        const windowWidthPercent = (yearsToShow / totalDataYears) * 100;
+        const windowLeftPercent = ((windowStart - dataMinYear) / totalDataYears) * 100;
+
+        const handleSliderMouseDown = (e) => {
+            isDragging.current = true;
+            dragStartX.current = e.clientX;
+            dragStartWindowStart.current = windowStart;
+            document.body.style.cursor = 'grabbing';
+            e.preventDefault();
+        };
+
+        useEffect(() => {
+            const handleMouseMove = (e) => {
+                if (!isDragging.current || !sliderTrackRef.current) return;
+                const trackWidth = sliderTrackRef.current.getBoundingClientRect().width;
+                const dx = e.clientX - dragStartX.current;
+                const yearsDelta = Math.round((dx / trackWidth) * totalDataYears);
+                const newStart = Math.max(dataMinYear, Math.min(dataMaxYear - yearsToShow + 1, dragStartWindowStart.current + yearsDelta));
+                setWindowStart(newStart);
+            };
+            const handleMouseUp = () => {
+                isDragging.current = false;
+                document.body.style.cursor = '';
+            };
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            return () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+            };
+        }, [totalDataYears, yearsToShow, dataMinYear, dataMaxYear]);
+
+        const handleTrackClick = (e) => {
+            if (!sliderTrackRef.current) return;
+            const rect = sliderTrackRef.current.getBoundingClientRect();
+            const clickPercent = (e.clientX - rect.left) / rect.width;
+            const clickedYear = dataMinYear + clickPercent * totalDataYears;
+            // Center the window on the clicked position
+            const newStart = Math.round(clickedYear - yearsToShow / 2);
+            setWindowStart(Math.max(dataMinYear, Math.min(dataMaxYear - yearsToShow + 1, newStart)));
+        };
+
+        // Generate tick marks for all data years
+        const tickYears = [];
+        for (let y = dataMinYear; y <= dataMaxYear; y++) {
+            tickYears.push(y);
+        }
+
+        return (
+            <div className="spiral-container">
+                {zoom.buttons && (
+                    <div className="controls">
+                        <div className="control-group">
+                            <label>Gösterilecek Yıl Sayısı</label>
+                            <div className="button-group">
+                                <button onClick={handleZoomIn} disabled={yearsToShow <= 1}>➖</button>
+                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 18, color: 'var(--color-primary)', minWidth: 40 }}>{yearsToShow}</span>
+                                <button onClick={handleZoomOut} disabled={yearsToShow >= totalDataYears}>➕</button>
+                            </div>
+                        </div>
+                        {zoom.slider && (
+                            <div className="control-group">
+                                <label>Yıl Sayısı</label>
+                                <input
+                                    type="range"
+                                    min="1"
+                                    max={totalDataYears}
+                                    step="1"
+                                    value={yearsToShow}
+                                    onChange={(e) => setYearsToShow(parseInt(e.target.value))}
+                                />
+                                <div className="zoom-value">
+                                    {yearsToShow} yıl gösteriliyor ({windowStart}–{windowEnd})
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Time Slider at the bottom */}
+                <div className="time-slider-container">
+                    <div className="time-slider-label">
+                        <span>Zaman Penceresi</span>
+                        <span>{windowStart} — {windowEnd}</span>
+                    </div>
+                    <div className="time-slider-track" ref={sliderTrackRef} onClick={handleTrackClick}>
+                        {/* Tick marks for each year */}
+                        <div className="time-slider-ticks">
+                            {tickYears.map(y => {
+                                const leftPct = ((y - dataMinYear + 0.5) / totalDataYears) * 100;
+                                return (
+                                    <React.Fragment key={y}>
+                                        <div className="time-slider-tick" style={{ left: `${leftPct}%` }}>
+                                            <div className="time-slider-tick-label">{y}</div>
+                                        </div>
+                                    </React.Fragment>
+                                );
+                            })}
+                        </div>
+                        {/* Draggable window */}
+                        <div
+                            className="time-slider-window"
+                            style={{
+                                left: `${windowLeftPercent}%`,
+                                width: `${windowWidthPercent}%`,
+                            }}
+                            onMouseDown={handleSliderMouseDown}
+                        >
+                            <div className="time-slider-window-label">
+                                {windowStart === windowEnd ? windowStart : `${windowStart}–${windowEnd}`}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="time-slider-info">
+                        <span>Spiral: {yearsToShow + 1} halka + kuyruk (1 geçiş + {yearsToShow} gerçek)</span>
+                        <span>Toplam veri: {totalDataYears} yıl</span>
+                    </div>
+                </div>
+
+                <div className="svg-container" onWheel={handleWheel}>
+                    <svg ref={svgRef}></svg>
+                    <div
+                        ref={tooltipRef}
+                        className="tooltip"
+                        style={{
+                            left: `${tooltipPos.x + 10}px`,
+                            top: `${tooltipPos.y + 10}px`
+                        }}
+                    >
+                        {hoveredNode && (
+                            <>
+                                <div className="tooltip-title">{hoveredNode.title}</div>
+                                <div className="tooltip-content">{hoveredNode.content}</div>
+                                <div className="tooltip-date">
+                                    {hoveredNode.date.toLocaleDateString('tr-TR', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    function App() {
+        return <SpiralTimeline data={SAMPLE_DATA} config={DEFAULT_CONFIG} />;
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+</script>
+</body>
+</html>

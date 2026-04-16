@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import type { ContentIndex } from "../../hooks/useMdLoader";
+import type { ContentIndex } from "../../shared/types.ts";
 import ProgressPie from "../ProgressPie/ProgressPie";
 import "./NewContentModal.css";
 

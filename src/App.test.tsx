@@ -1,8 +1,19 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-// Mock virtual:md-content before importing App
-vi.mock("virtual:md-content", () => ({ default: {} }));
+// Mock virtual:burkut-content (used by useContentGraph)
+vi.mock("virtual:burkut-content", () => ({
+  default: { nodes: {}, days: [], undated: [], dateRange: null, stats: { totalFiles: 0, byType: { markdown: 0, image: 0, video: 0, audio: 0 }, datedFiles: 0, undatedFiles: 0 } },
+}));
+
+// Mock useContentGraph to avoid virtual module resolution
+vi.mock("./hooks/useContentGraph", () => ({
+  useContentGraph: () => ({
+    graph: { nodes: {}, days: [], undated: [], dateRange: null, stats: { totalFiles: 0, byType: { markdown: 0, image: 0, video: 0, audio: 0 }, datedFiles: 0, undatedFiles: 0 } },
+    legacyIndex: {},
+    getContent: () => null,
+  }),
+}));
 
 // Mock config — default export with draggableLayout: true; overridden per test
 vi.mock("./config", () => ({
@@ -13,8 +24,6 @@ vi.mock("./config", () => ({
       defaultLocale: "tr",
       supportedLocales: [{ code: "tr", label: "Türkçe" }],
     },
-    groups: [],
-    defaults: { activeGroup: "Dynasties and States" },
     features: {
       search: false,
       darkLightToggle: false,
@@ -63,14 +72,12 @@ import config from "./config";
 
 describe("App header controls", () => {
   it("reset button is visible when draggableLayout is true", () => {
-    // config mock has draggableLayout: true by default
     render(<App />);
     const btn = screen.getByRole("button", { name: "layout.reset" });
     expect(btn).toBeInTheDocument();
   });
 
   it("reset button is hidden when draggableLayout is false", () => {
-    // Temporarily override the feature flag
     const original = config.features.draggableLayout;
     config.features.draggableLayout = false;
 
@@ -83,7 +90,6 @@ describe("App header controls", () => {
   it("reset button uses i18n translation key as aria-label", () => {
     config.features.draggableLayout = true;
     render(<App />);
-    // t() returns the key as-is per setup.ts mock
     const btn = screen.getByRole("button", { name: "layout.reset" });
     expect(btn).toHaveAttribute("aria-label", "layout.reset");
   });
