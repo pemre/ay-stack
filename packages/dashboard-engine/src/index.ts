@@ -7,6 +7,35 @@ export type {
   GeneratedConfigPanelProps,
 } from "./ConfigPanel/GeneratedConfigPanel";
 export { GeneratedConfigPanel } from "./ConfigPanel/GeneratedConfigPanel";
+export type {
+  DashboardGridInstance,
+  DashboardGridPosition,
+  DashboardGridProps,
+} from "./DashboardGrid/DashboardGrid";
+export { DashboardGrid } from "./DashboardGrid/DashboardGrid";
+export { createWidgetRegistry } from "./registry/createWidgetRegistry";
+export type { WidgetRenderContext, WidgetSize, WidgetTypeDefinition } from "./registry/types";
+export { deriveValidator } from "./schema/deriveValidator";
+export {
+  booleanField,
+  dateStringField,
+  enumField,
+  numberField,
+  stringArrayField,
+  stringField,
+} from "./schema/fieldKinds";
+export type {
+  BooleanField,
+  DateStringField,
+  EnumField,
+  FieldDescriptor,
+  FieldKind,
+  NumberField,
+  OptionsSchema,
+  StringArrayField,
+  StringField,
+} from "./schema/types";
+export { validateWidgetConfig } from "./schema/validateWidgetConfig";
 export type { WidgetErrorBoundaryProps } from "./WidgetShell/WidgetErrorBoundary";
 export { WidgetErrorBoundary } from "./WidgetShell/WidgetErrorBoundary";
 export type { WidgetShellLabels, WidgetShellProps } from "./WidgetShell/WidgetShell";

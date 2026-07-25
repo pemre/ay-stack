@@ -160,29 +160,29 @@ typechecks and lints for the packages touched so far.
   - Run `pnpm --filter @ay/dashboard-engine test`; ensure all green. Ask the
     user if questions arise.
 
-- [ ] 8. Implement the widget-type registry and `DashboardGrid`
-  - [ ] 8.1 Create `src/registry/types.ts` (`WidgetTypeDefinition<TCtx>`) and
+- [x] 8. Implement the widget-type registry and `DashboardGrid`
+  - [x] 8.1 Create `src/registry/types.ts` (`WidgetTypeDefinition<TCtx>`) and
     `src/registry/createWidgetRegistry.ts` (`register`/`get`/`getAll`, plus the
     dev-mode `optionsSchema` consistency check on `register` — default values
     must pass their own field's validator)
     - _Requirements: 8.1, 4.4_
-  - [ ] 8.2 Write unit tests for `createWidgetRegistry`
+  - [x] 8.2 Write unit tests for `createWidgetRegistry`
     - Test: `register` then `get` returns the same definition
     - Test: `getAll` returns every registered definition
     - Test: registering a definition whose `optionsSchema` has a field default
       that fails its own validator throws in dev mode (mock
       `import.meta.env.DEV`)
     - _Requirements: 8.1, 4.4_
-  - [ ] 8.3 Create `src/DashboardGrid/DashboardGrid.tsx`: generalizes
+  - [x] 8.3 Create `src/DashboardGrid/DashboardGrid.tsx`: generalizes
     `apps/burkut/src/components/WidgetGrid/WidgetGrid.tsx` per the design —
     takes `instances`, `resolveType`, `renderContext`, `onLayoutChange`, and
     per-instance action callbacks; renders `react-grid-layout`'s `Responsive`
     with each instance wrapped in `WidgetShell`; imports nothing from Zustand or
     any app-specific type
     - _Requirements: 8.2_
-  - [ ] 8.4 Create `src/DashboardGrid/DashboardGrid.css` (port from
+  - [x] 8.4 Create `src/DashboardGrid/DashboardGrid.css` (port from
     `apps/burkut/src/components/WidgetGrid/WidgetGrid.css`)
-  - [ ] 8.5 Write unit tests for `DashboardGrid`
+  - [x] 8.5 Write unit tests for `DashboardGrid`
     (`src/DashboardGrid/DashboardGrid.test.tsx`), using fixture widget types and
     a fixture render context (not any Bürküt type):
     - Test: renders one `WidgetShell`-wrapped instance per item in `instances`
@@ -191,13 +191,13 @@ typechecks and lints for the packages touched so far.
     - Test: `onLayoutChange` fires with the updated layout on a layout change
     - Test: each instance's action callbacks are wired to its `WidgetShell`
     - _Requirements: 8.2_
-  - [ ] 8.6 Assemble `src/index.ts` barrel exporting `WidgetShell`,
+  - [x] 8.6 Assemble `src/index.ts` barrel exporting `WidgetShell`,
     `WidgetErrorBoundary`, `GeneratedConfigPanel`, `createWidgetRegistry`,
     `DashboardGrid`, all field-kind constructors, `deriveValidator`,
     `validateWidgetConfig`, and their public types
     - _Requirements: 9.1_
 
-- [ ] 9. Checkpoint — registry and grid
+- [x] 9. Checkpoint — registry and grid
   - Run `pnpm --filter @ay/dashboard-engine test`,
     `pnpm --filter @ay/dashboard-engine typecheck`,
     `pnpm --filter @ay/dashboard-engine lint`. Ensure all green. Ask the user if
