@@ -1,49 +1,50 @@
 import { Check, ChevronDown, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import type { ContentEntry, ContentIndex } from "../../shared/types.ts";
+import type { TreeNode } from "../../adapters/viewModels.ts";
 import "./Sidebar.css";
 
+// ── Labels ────────────────────────────────────────────────────────────────
+
+export interface SidebarLabels {
+  /** aria-label for the root nav element (default: "Content menu"). */
+  ariaLabel?: string;
+}
+
+export const DEFAULT_SIDEBAR_LABELS: Required<SidebarLabels> = {
+  ariaLabel: "Content menu",
+};
+
+// ── Config ────────────────────────────────────────────────────────────────
+
+export interface SidebarConfig {
+  labels?: SidebarLabels;
+}
+
+function mergeLabels(user?: SidebarLabels): Required<SidebarLabels> {
+  return { ...DEFAULT_SIDEBAR_LABELS, ...user };
+}
+
+// ── Props ─────────────────────────────────────────────────────────────────
+
 interface SidebarProps {
-  index: ContentIndex;
+  tree: TreeNode[];
   selectedId: string | null;
   activeGroup: string;
   onSelectItem: (id: string) => void;
   onSelectGroup: (group: string) => void;
-  completedSet?: Set<string>;
-}
-
-/**
- * Parse a front-matter `start` string (e.g. "-002070-01-01", "0581-01-01")
- * into a comparable numeric value. Handles negative (BCE) years correctly.
- * Returns NaN for missing/invalid values so they sort to the end.
- */
-function parseStartValue(start?: string): number {
-  if (!start) return NaN;
-  const match = start.match(/^(-?\d+)-(\d{2})-(\d{2})$/);
-  if (!match) return NaN;
-  return parseInt(match[1], 10);
+  config?: SidebarConfig;
 }
 
 export default function Sidebar({
-  index,
+  tree,
   selectedId,
   activeGroup,
   onSelectItem,
   onSelectGroup,
-  completedSet,
+  config,
 }: SidebarProps) {
-  const { t } = useTranslation();
+  const labels = useMemo(() => mergeLabels(config?.labels), [config?.labels]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({ [activeGroup]: true });
-
-  // Derive unique groups from the content index
-  const groups = useMemo(() => {
-    const seen = new Set<string>();
-    for (const item of Object.values(index)) {
-      if (item.group) seen.add(item.group);
-    }
-    return [...seen].sort((a, b) => a.localeCompare(b));
-  }, [index]);
 
   // Auto-expand the active group
   useEffect(() => {
@@ -57,75 +58,45 @@ export default function Sidebar({
     onSelectGroup(groupId);
   };
 
-  // Find the group header entry to read sidebarSort config
-  const getGroupHeader = (groupId: string): ContentEntry | undefined =>
-    Object.values(index).find((item) => item.group === groupId && item._isHeader);
-
-  // Filter items in a group (exclude headers)
-  const itemsInGroup = (groupId: string): ContentEntry[] => {
-    const header = getGroupHeader(groupId);
-    const sortMode = header?.sidebarSort;
-
-    const items = Object.values(index).filter((item) => item.group === groupId && !item._isHeader);
-
-    if (sortMode === "start") {
-      items.sort((a, b) => {
-        const aVal = parseStartValue(a.start);
-        const bVal = parseStartValue(b.start);
-        if (Number.isNaN(aVal) && Number.isNaN(bVal)) return 0;
-        if (Number.isNaN(aVal)) return 1;
-        if (Number.isNaN(bVal)) return -1;
-        if (aVal !== bVal) return aVal - bVal;
-        const aBg = a.type === "background" ? 0 : 1;
-        const bBg = b.type === "background" ? 0 : 1;
-        return aBg - bBg;
-      });
-    } else {
-      items.sort((a, b) => (a.title || a.id).localeCompare(b.title || b.id));
-    }
-
-    return items;
-  };
-
   return (
-    <nav className="sidebar" aria-label={t("aria.sidebar")}>
-      {groups.map((groupId) => (
-        <div key={groupId} className="sidebar-group">
+    <nav className="sidebar" aria-label={labels.ariaLabel}>
+      {tree.map((group) => (
+        <div key={group.id} className="sidebar-group">
           <button
             type="button"
-            className={`sidebar-group-btn ${activeGroup === groupId ? "active" : ""}`}
-            onClick={() => toggleGroup(groupId)}
-            aria-expanded={!!expanded[groupId]}
+            className={`sidebar-group-btn ${activeGroup === group.id ? "active" : ""}`}
+            onClick={() => toggleGroup(group.id)}
+            aria-expanded={!!expanded[group.id]}
           >
             <span className="sidebar-arrow">
-              {expanded[groupId] ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+              {expanded[group.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
             </span>
-            {groupId}
-            {completedSet?.has(groupId) && (
+            {group.label}
+            {group.completed && (
               <span className="sidebar-item-done" role="img" aria-label="read">
                 <Check size={12} />
               </span>
             )}
           </button>
 
-          {expanded[groupId] && (
+          {expanded[group.id] && (
             <ul className="sidebar-items">
-              {itemsInGroup(groupId).map((item) => (
+              {(group.children ?? []).map((item) => (
                 <li key={item.id}>
                   <button
                     type="button"
                     className={[
                       "sidebar-item-btn",
                       selectedId === item.id ? "selected" : "",
-                      item.type === "background" ? "sidebar-item-subheader" : "",
+                      item.isSubheading ? "sidebar-item-subheader" : "",
                     ]
                       .filter(Boolean)
                       .join(" ")}
                     onClick={() => onSelectItem(item.id)}
-                    title={item.subtitle || ""}
+                    title={item.tooltip || ""}
                   >
-                    {item.title || item.id}
-                    {completedSet?.has(item.id) && (
+                    {item.label}
+                    {item.completed && (
                       <span className="sidebar-item-done" role="img" aria-label="read">
                         <Check size={12} />
                       </span>

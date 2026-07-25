@@ -6,11 +6,19 @@ import type {
   WidgetConfig,
   WidgetInstance,
 } from "../shared/types.ts";
+import {
+  CURRENT_LAYOUT_VERSION,
+  migrateLayoutDocument,
+  V1_TO_V2_WIDGET_TYPE_ID_MAP,
+} from "./layoutMigrations.ts";
 
 const SESSION_KEY = "burkut-active-dashboard";
 const LEGACY_LAYOUTS_KEY = "burkut-widget-layouts";
 const LEGACY_VISIBILITY_KEY = "burkut-widget-visibility";
-const KNOWN_WIDGET_TYPE_IDS = new Set(["sidebar", "content", "map", "timeline"]);
+// Pre-dashboard localStorage layouts predate the widget-purity-contract rename,
+// so their widgetTypeId values are the old (v1) IDs -- map them through the
+// same table the v1→v2 document migration uses, rather than duplicating it.
+const KNOWN_WIDGET_TYPE_IDS = new Set(Object.keys(V1_TO_V2_WIDGET_TYPE_ID_MAP));
 
 interface StoreWithPersistence {
   dashboards: Dashboard[];
@@ -67,12 +75,13 @@ export function migrateFromLocalStorage(): { dashboards: Dashboard[] } | null {
 
     const instances: WidgetInstance[] = [];
     for (const item of lgItems) {
-      const widgetTypeId = item.i;
-      if (!KNOWN_WIDGET_TYPE_IDS.has(widgetTypeId)) continue;
+      const legacyWidgetTypeId = item.i;
+      if (!KNOWN_WIDGET_TYPE_IDS.has(legacyWidgetTypeId)) continue;
+      const widgetTypeId = V1_TO_V2_WIDGET_TYPE_ID_MAP[legacyWidgetTypeId];
 
       // If visibility data exists, skip hidden widgets
       const isVisible =
-        Object.keys(visibility).length > 0 ? visibility[widgetTypeId] !== false : true;
+        Object.keys(visibility).length > 0 ? visibility[legacyWidgetTypeId] !== false : true;
       if (!isVisible) continue;
 
       const typeDef = getWidgetType(widgetTypeId);
@@ -148,7 +157,7 @@ function createDebouncedPersist(delayMs: number) {
     const backoffDelays = [1000, 2000, 4000];
 
     const payload: PersistedDashboardState = {
-      version: 1,
+      version: CURRENT_LAYOUT_VERSION,
       dashboards,
     };
 
@@ -197,7 +206,11 @@ async function hydrateFromServer(): Promise<Dashboard[] | null> {
       "dashboards" in data &&
       Array.isArray((data as PersistedDashboardState).dashboards)
     ) {
-      return (data as PersistedDashboardState).dashboards;
+      // Upgrade documents written by an older version of the app (e.g. one
+      // that still used pre-rename widgetTypeId values) before they reach
+      // the store, so a stale on-disk version never surfaces "Unknown Widget".
+      const { dashboards } = migrateLayoutDocument(data);
+      return dashboards;
     }
     return null;
   } catch {

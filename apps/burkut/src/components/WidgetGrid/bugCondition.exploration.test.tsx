@@ -285,7 +285,7 @@ describe("Bug Condition Exploration — Test 3: Widget Removal via Dashboard Sto
     const state = useDashboardStore.getState();
     const activeDash =
       state.dashboards.find((d) => d.id === state.activeDashboardId) ?? state.dashboards[0];
-    const sidebarInstance = activeDash.instances.find((i) => i.widgetTypeId === "sidebar");
+    const sidebarInstance = activeDash.instances.find((i) => i.widgetTypeId === "tree-list");
 
     // Remove the sidebar widget instance via the store (wrapped in act for re-render)
     await act(async () => {

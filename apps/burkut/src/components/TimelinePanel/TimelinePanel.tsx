@@ -1,57 +1,77 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { useTranslation } from "react-i18next";
 import { DataSet, Timeline } from "vis-timeline/standalone";
 import "vis-timeline/styles/vis-timeline-graph2d.min.css";
+import type { TimelineItem } from "../../adapters/viewModels.ts";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
-import type { ContentEntry, ContentIndex } from "../../shared/types.ts";
 import "./TimelinePanel.css";
 
-interface TimelineItem {
+// ── Labels ────────────────────────────────────────────────────────────────
+
+export interface TimelinePanelLabels {
+  /** aria-label for the root section element (default: "Timeline"). */
+  ariaLabel?: string;
+}
+
+export const DEFAULT_TIMELINE_PANEL_LABELS: Required<TimelinePanelLabels> = {
+  ariaLabel: "Timeline",
+};
+
+// ── Config ────────────────────────────────────────────────────────────────
+
+export interface TimelinePanelConfig {
+  labels?: TimelinePanelLabels;
+  /** Timeline min/max bounds, ISO date strings (default: "-001800-01-01".."2100-01-01"). */
+  minDate?: string;
+  maxDate?: string;
+}
+
+const DEFAULT_MIN_DATE = "-001800-01-01";
+const DEFAULT_MAX_DATE = "2100-01-01";
+
+interface MergedConfig {
+  labels: Required<TimelinePanelLabels>;
+  minDate: string;
+  maxDate: string;
+}
+
+function mergeConfig(user?: TimelinePanelConfig): MergedConfig {
+  return {
+    labels: { ...DEFAULT_TIMELINE_PANEL_LABELS, ...user?.labels },
+    minDate: user?.minDate ?? DEFAULT_MIN_DATE,
+    maxDate: user?.maxDate ?? DEFAULT_MAX_DATE,
+  };
+}
+
+// ── Component ─────────────────────────────────────────────────────────────
+
+interface TimelineGroup {
   id: string;
   content: string;
-  start: string;
-  end: string;
-  group: string;
-  className: string;
-  type: string;
+  visible: boolean;
 }
 
 interface TimelineRef {
   tl: Timeline;
   ds: DataSet<TimelineItem>;
-  gs: DataSet;
-}
-
-export function buildItems(index: ContentIndex): TimelineItem[] {
-  return Object.values(index)
-    .filter((m: ContentEntry) => m.start && m.end && m.group)
-    .map((m: ContentEntry) => ({
-      id: m.id,
-      content: m.subtitle
-        ? `${m.title || m.id}<br><small>${m.subtitle}</small>`
-        : ((m.title || m.id) as string),
-      start: m.start as string,
-      end: m.end as string,
-      group: m.group as string,
-      className: m.className || "",
-      type: m.type || "range",
-    }));
+  gs: DataSet<TimelineGroup>;
 }
 
 interface TimelinePanelProps {
-  index: ContentIndex;
+  items: TimelineItem[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   hiddenGroups: Set<string>;
+  config?: TimelinePanelConfig;
 }
 
 export default function TimelinePanel({
-  index,
+  items,
   selectedId,
   onSelect,
   hiddenGroups,
+  config,
 }: TimelinePanelProps) {
-  const { t } = useTranslation();
+  const cfg = useMemo(() => mergeConfig(config), [config]);
   const containerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<TimelineRef | null>(null);
   const onSelectRef = useRef(onSelect);
@@ -59,10 +79,9 @@ export default function TimelinePanel({
   // Track whether we've done the initial init so we don't re-init on every resize
   const initDoneRef = useRef(false);
 
-  const items = useMemo(() => buildItems(index), [index]);
   const translatedGroups = useMemo(() => {
     const seen = new Set<string>();
-    for (const item of Object.values(index)) {
+    for (const item of items) {
       if (item.group) seen.add(item.group);
     }
     return [...seen].sort().map((gid) => ({
@@ -70,7 +89,7 @@ export default function TimelinePanel({
       content: gid,
       visible: !hiddenGroups.has(gid),
     }));
-  }, [index, hiddenGroups]);
+  }, [items, hiddenGroups]);
 
   // Store latest items/groups in refs so the init function can access them
   const itemsRef = useRef(items);
@@ -95,10 +114,10 @@ export default function TimelinePanel({
     initItemsRef.current = itemsRef.current;
     initGroupsRef.current = groupsRef.current;
     const tl = new Timeline(el, ds, gs, {
-      start: "-001800-01-01",
-      end: "2100-01-01",
-      min: "-001800-01-01",
-      max: "2100-01-01",
+      start: cfg.minDate,
+      end: cfg.maxDate,
+      min: cfg.minDate,
+      max: cfg.maxDate,
       height: "100%",
       groupHeightMode: "fixed",
       orientation: "top",
@@ -143,7 +162,7 @@ export default function TimelinePanel({
         /* item may not exist */
       }
     }
-  }, []);
+  }, [cfg.minDate, cfg.maxDate]);
 
   // Mount/unmount effect — try to init immediately if container has size
   useEffect(() => {
@@ -222,7 +241,7 @@ export default function TimelinePanel({
   useResizeObserver(containerRef, handleResize, 50);
 
   return (
-    <section className="timeline-panel" aria-label={t("aria.timeline")}>
+    <section className="timeline-panel" aria-label={cfg.labels.ariaLabel}>
       <div ref={containerRef} className="timeline-container" />
     </section>
   );

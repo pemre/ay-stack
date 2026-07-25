@@ -54,6 +54,10 @@ vi.mock("react-grid-layout", () => ({
   useContainerWidth: () => ({ width: 1280, containerRef: { current: null }, mounted: true }),
 }));
 
+vi.mock("../../hooks/useTheme.tsx", () => ({
+  useTheme: () => ({ theme: "light", toggleTheme: vi.fn() }),
+}));
+
 vi.mock("react-leaflet", () => ({
   MapContainer: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="map-container">{children}</div>
@@ -87,35 +91,35 @@ vi.mock("vis-timeline/standalone", () => ({
 const emptyIndex: ContentIndex = {};
 
 const TITLE_KEYS: Record<string, string> = {
-  sidebar: "panels.sidebar",
-  content: "panels.content",
-  map: "panels.map",
-  timeline: "panels.timeline",
+  "tree-list": "panels.sidebar",
+  "markdown-viewer": "panels.content",
+  "geo-map": "panels.map",
+  "linear-timeline": "panels.timeline",
 };
 
 function createDashboard(instanceIds?: string[]): Dashboard {
   const allInstances = [
     {
       instanceId: "inst-sidebar",
-      widgetTypeId: "sidebar",
+      widgetTypeId: "tree-list",
       position: { x: 0, y: 0, w: 3, h: 8, minW: 2, minH: 2 },
       config: { type: "sidebar" as const, tags: [] as string[], contentType: null },
     },
     {
       instanceId: "inst-content",
-      widgetTypeId: "content",
+      widgetTypeId: "markdown-viewer",
       position: { x: 3, y: 0, w: 5, h: 8, minW: 2, minH: 2 },
       config: { type: "content" as const, pinnedItemId: null },
     },
     {
       instanceId: "inst-map",
-      widgetTypeId: "map",
+      widgetTypeId: "geo-map",
       position: { x: 8, y: 0, w: 4, h: 8, minW: 2, minH: 2 },
       config: { type: "map" as const, boundingBox: null, zoomLevel: null },
     },
     {
       instanceId: "inst-timeline",
-      widgetTypeId: "timeline",
+      widgetTypeId: "linear-timeline",
       position: { x: 0, y: 8, w: 12, h: 4, minW: 2, minH: 2 },
       config: { type: "timeline" as const, startDate: null, endDate: null },
     },
@@ -165,19 +169,19 @@ describe("Preservation Property 5a — WidgetGrid renders correct number of widg
   }> = [
     {
       label: "all four widgets",
-      instanceIds: ["sidebar", "content", "map", "timeline"],
+      instanceIds: ["tree-list", "markdown-viewer", "geo-map", "linear-timeline"],
     },
     {
       label: "single widget — only sidebar",
-      instanceIds: ["sidebar"],
+      instanceIds: ["tree-list"],
     },
     {
       label: "two widgets — content and map",
-      instanceIds: ["content", "map"],
+      instanceIds: ["markdown-viewer", "geo-map"],
     },
     {
       label: "three widgets — sidebar, content, timeline",
-      instanceIds: ["sidebar", "content", "timeline"],
+      instanceIds: ["tree-list", "markdown-viewer", "linear-timeline"],
     },
   ];
 
@@ -190,7 +194,7 @@ describe("Preservation Property 5a — WidgetGrid renders correct number of widg
         expect(screen.getByText(TITLE_KEYS[id])).toBeInTheDocument();
       }
 
-      const allIds = ["sidebar", "content", "map", "timeline"];
+      const allIds = ["tree-list", "markdown-viewer", "geo-map", "linear-timeline"];
       const hiddenIds = allIds.filter((id) => !instanceIds.includes(id));
       for (const id of hiddenIds) {
         expect(screen.queryByText(TITLE_KEYS[id])).not.toBeInTheDocument();

@@ -96,6 +96,14 @@ export default defineConfig({
   // Explicit so a root-level invocation cannot drift to the workspace root.
   root: import.meta.dirname,
   base: process.env.GITHUB_PAGES ? "/ay-stack/burkut/" : "/",
+  // react-draggable (a react-grid-layout dependency) reads
+  // `process.env.DRAGGABLE_DEBUG` inside its drag-start handler. Vite doesn't
+  // polyfill `process` for the browser, so without this the reference throws
+  // `process is not defined`, the drag-start handler aborts, and widgets can
+  // no longer be dragged or resized.
+  define: {
+    "process.env": {},
+  },
   plugins: [
     tailwindcss(),
     react(),
@@ -104,6 +112,16 @@ export default defineConfig({
   ],
   resolve: {
     ...ayResolve(),
+  },
+  server: {
+    // devLayoutsApi() writes .burkut/layouts/dashboard.json on every
+    // POST /api/layouts (triggered by the persistence middleware whenever
+    // dashboard state changes). Without this exclusion, Vite's watcher sees
+    // that write and issues a full reload, which re-hydrates from the
+    // server and can trigger another persist — a reload loop.
+    watch: {
+      ignored: ["**/.burkut/**"],
+    },
   },
   test: {
     globals: true,

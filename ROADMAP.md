@@ -11,7 +11,8 @@ a phase without reconstructing the reasoning.
 
 ## Where we are
 
-`ay-monorepo-foundation` is complete. The
+`ay-monorepo-foundation` is complete.
+`widget-purity-contract` is complete. The
 workspace is a pnpm monorepo; design tokens are extracted to a single publishable
 package; the component library is renamed to the `@ay/` scope; Bürküt lives under
 `apps/burkut/`.
@@ -24,7 +25,7 @@ deviation. That guard must stay green through every phase below.
 | Phase | Spec | Status |
 |-------|------|--------|
 | 0 | `ay-monorepo-foundation` | finished |
-| 1 | `widget-purity-contract` | not started |
+| 1 | `widget-purity-contract` | finished |
 | 2 | `dashboard-engine-extraction` | not started |
 | 3 | `burkut-repo-extraction` | not started |
 | 4 | second app | not started |

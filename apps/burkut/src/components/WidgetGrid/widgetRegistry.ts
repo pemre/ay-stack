@@ -1,8 +1,8 @@
 export const WIDGET_IDS = {
-  sidebar: "sidebar",
-  content: "content",
-  map: "map",
-  timeline: "timeline",
+  sidebar: "tree-list",
+  content: "markdown-viewer",
+  map: "geo-map",
+  timeline: "linear-timeline",
 } as const;
 
 export type WidgetId = (typeof WIDGET_IDS)[keyof typeof WIDGET_IDS];

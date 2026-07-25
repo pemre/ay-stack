@@ -22,17 +22,17 @@ function registerBuiltInTemplates(): void {
       descriptionKey: "template.daily.description",
       instances: [
         {
-          widgetTypeId: "sidebar",
+          widgetTypeId: "tree-list",
           position: { x: 0, y: 0, w: 3, h: 8, minW: 2, minH: 2 },
           config: { type: "sidebar", tags: [], contentType: null },
         },
         {
-          widgetTypeId: "content",
+          widgetTypeId: "markdown-viewer",
           position: { x: 3, y: 0, w: 5, h: 8, minW: 2, minH: 2 },
           config: { type: "content", pinnedItemId: null },
         },
         {
-          widgetTypeId: "timeline",
+          widgetTypeId: "linear-timeline",
           position: { x: 0, y: 8, w: 12, h: 4, minW: 2, minH: 2 },
           config: { type: "timeline", startDate: null, endDate: null },
         },
@@ -45,12 +45,12 @@ function registerBuiltInTemplates(): void {
       descriptionKey: "template.monthly.description",
       instances: [
         {
-          widgetTypeId: "timeline",
+          widgetTypeId: "linear-timeline",
           position: { x: 0, y: 0, w: 8, h: 6, minW: 2, minH: 2 },
           config: { type: "timeline", startDate: null, endDate: null },
         },
         {
-          widgetTypeId: "map",
+          widgetTypeId: "geo-map",
           position: { x: 8, y: 0, w: 4, h: 6, minW: 2, minH: 2 },
           config: { type: "map", boundingBox: null, zoomLevel: null },
         },
@@ -63,17 +63,17 @@ function registerBuiltInTemplates(): void {
       descriptionKey: "template.travel.description",
       instances: [
         {
-          widgetTypeId: "map",
+          widgetTypeId: "geo-map",
           position: { x: 0, y: 0, w: 6, h: 8, minW: 2, minH: 2 },
           config: { type: "map", boundingBox: null, zoomLevel: null },
         },
         {
-          widgetTypeId: "content",
+          widgetTypeId: "markdown-viewer",
           position: { x: 6, y: 0, w: 6, h: 8, minW: 2, minH: 2 },
           config: { type: "content", pinnedItemId: null },
         },
         {
-          widgetTypeId: "sidebar",
+          widgetTypeId: "tree-list",
           position: { x: 0, y: 8, w: 12, h: 4, minW: 2, minH: 2 },
           config: { type: "sidebar", tags: ["travel"], contentType: null },
         },
@@ -86,22 +86,22 @@ function registerBuiltInTemplates(): void {
       descriptionKey: "template.overview.description",
       instances: [
         {
-          widgetTypeId: "sidebar",
+          widgetTypeId: "tree-list",
           position: { x: 0, y: 0, w: 3, h: 8, minW: 2, minH: 2 },
           config: { type: "sidebar", tags: [], contentType: null },
         },
         {
-          widgetTypeId: "content",
+          widgetTypeId: "markdown-viewer",
           position: { x: 3, y: 0, w: 5, h: 8, minW: 2, minH: 2 },
           config: { type: "content", pinnedItemId: null },
         },
         {
-          widgetTypeId: "map",
+          widgetTypeId: "geo-map",
           position: { x: 8, y: 0, w: 4, h: 8, minW: 2, minH: 2 },
           config: { type: "map", boundingBox: null, zoomLevel: null },
         },
         {
-          widgetTypeId: "timeline",
+          widgetTypeId: "linear-timeline",
           position: { x: 0, y: 8, w: 12, h: 4, minW: 2, minH: 2 },
           config: { type: "timeline", startDate: null, endDate: null },
         },

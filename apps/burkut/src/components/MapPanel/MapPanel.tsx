@@ -1,10 +1,8 @@
 import L from "leaflet";
-import { type RefObject, useCallback, useEffect, useRef } from "react";
-import { useTranslation } from "react-i18next";
+import { type RefObject, useCallback, useEffect, useMemo, useRef } from "react";
 import { MapContainer, Marker, Polygon, Popup, TileLayer, useMap } from "react-leaflet";
+import type { GeoFeature } from "../../adapters/viewModels.ts";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
-import { useTheme } from "../../hooks/useTheme";
-import type { ContentIndex } from "../../shared/types.ts";
 import "./MapPanel.css";
 
 // Leaflet default icon fix (Vite asset pipeline compatibility)
@@ -16,32 +14,78 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-const CHINA_CENTER: [number, number] = [35.86, 104.19];
-const CHINA_ZOOM = 4;
-
-// OpenStreetMaps are using local language for China, I preferred English.
-// It can be a feature in the future to select the style...
-const TILE_LIGHT = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
-const TILE_DARK = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
 const TILE_ATTR =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
 
-const ACCENT_COLOR = "#c9a84c";
+// ── Labels ────────────────────────────────────────────────────────────────
+
+export interface MapPanelLabels {
+  /** aria-label for the root section element (default: "Map panel"). */
+  ariaLabel?: string;
+  /** aria-label for the Leaflet map container (default: "Map"). */
+  mapContainerAriaLabel?: string;
+}
+
+export const DEFAULT_MAP_PANEL_LABELS: Required<MapPanelLabels> = {
+  ariaLabel: "Map panel",
+  mapContainerAriaLabel: "Map",
+};
+
+// ── Config ────────────────────────────────────────────────────────────────
+
+export interface MapPanelConfig {
+  labels?: MapPanelLabels;
+  /** Map center when no feature is selected (default: [35.86, 104.19] -- China). */
+  center?: [number, number];
+  /** Zoom level when no feature is selected (default: 4). */
+  zoom?: number;
+  /** Tile layer URL template (default: light Carto Voyager tiles). */
+  tileUrl?: string;
+  /** Stroke/fill color for polygon overlays (default: "#c9a84c"). */
+  accentColor?: string;
+}
+
+const DEFAULT_CENTER: [number, number] = [35.86, 104.19];
+const DEFAULT_ZOOM = 4;
+const DEFAULT_TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+const DEFAULT_ACCENT_COLOR = "#c9a84c";
+
+interface MergedConfig {
+  labels: Required<MapPanelLabels>;
+  center: [number, number];
+  zoom: number;
+  tileUrl: string;
+  accentColor: string;
+}
+
+function mergeConfig(user?: MapPanelConfig): MergedConfig {
+  return {
+    labels: { ...DEFAULT_MAP_PANEL_LABELS, ...user?.labels },
+    center: user?.center ?? DEFAULT_CENTER,
+    zoom: user?.zoom ?? DEFAULT_ZOOM,
+    tileUrl: user?.tileUrl ?? DEFAULT_TILE_URL,
+    accentColor: user?.accentColor ?? DEFAULT_ACCENT_COLOR,
+  };
+}
+
+// ── Component ─────────────────────────────────────────────────────────────
 
 interface FlyToProps {
   position: { lat: number; lng: number } | null;
+  fallbackCenter: [number, number];
+  fallbackZoom: number;
 }
 
-/** Fly the map to the selected item's position */
-function FlyTo({ position }: FlyToProps) {
+/** Fly the map to the selected feature's position, or back to the fallback view. */
+function FlyTo({ position, fallbackCenter, fallbackZoom }: FlyToProps) {
   const map = useMap();
   useEffect(() => {
     if (position) {
       map.flyTo([position.lat, position.lng], 6, { duration: 1.2 });
     } else {
-      map.flyTo(CHINA_CENTER, CHINA_ZOOM, { duration: 1.2 });
+      map.flyTo(fallbackCenter, fallbackZoom, { duration: 1.2 });
     }
-  }, [position, map]);
+  }, [position, fallbackCenter, fallbackZoom, map]);
   return null;
 }
 
@@ -57,48 +101,46 @@ function MapResizeWatcher({ containerRef }: { containerRef: RefObject<HTMLDivEle
 
 interface MapPanelProps {
   selectedId: string | null;
-  index: ContentIndex;
+  features: GeoFeature[];
+  config?: MapPanelConfig;
 }
 
-export default function MapPanel({ selectedId, index }: MapPanelProps) {
-  const { t } = useTranslation();
-  const { theme } = useTheme();
+export default function MapPanel({ selectedId, features, config }: MapPanelProps) {
+  const cfg = useMemo(() => mergeConfig(config), [config]);
   const containerRef = useRef<HTMLDivElement>(null);
-  const meta = selectedId ? index[selectedId] : null;
-  const location = meta?.location || null;
-  const polygon = (meta?.polygon as [number, number][] | undefined) || null;
-
-  const tileUrl = theme === "dark" ? TILE_DARK : TILE_LIGHT;
+  const selected = selectedId ? features.find((f) => f.id === selectedId) : undefined;
+  const location = selected ? { lat: selected.lat, lng: selected.lng } : null;
+  const polygon = selected?.polygon ?? null;
 
   return (
-    <section className="map-panel" ref={containerRef} aria-label={t("aria.map")}>
+    <section className="map-panel" ref={containerRef} aria-label={cfg.labels.ariaLabel}>
       <MapContainer
-        center={CHINA_CENTER}
-        zoom={CHINA_ZOOM}
+        center={cfg.center}
+        zoom={cfg.zoom}
         scrollWheelZoom
         style={{ width: "100%", height: "100%" }}
-        aria-label={t("aria.mapContainer")}
+        aria-label={cfg.labels.mapContainerAriaLabel}
       >
-        <TileLayer key={theme} attribution={TILE_ATTR} url={tileUrl} />
+        <TileLayer key={cfg.tileUrl} attribution={TILE_ATTR} url={cfg.tileUrl} />
 
-        <FlyTo position={location} />
+        <FlyTo position={location} fallbackCenter={cfg.center} fallbackZoom={cfg.zoom} />
         <MapResizeWatcher containerRef={containerRef} />
 
-        {location && (
-          <Marker position={[location.lat, location.lng]}>
-            <Popup>{location.label || meta?.title}</Popup>
+        {selected && (
+          <Marker position={[selected.lat, selected.lng]}>
+            <Popup>{selected.label || selected.title}</Popup>
           </Marker>
         )}
 
         {polygon && (
-          <Polygon positions={polygon} pathOptions={{ color: ACCENT_COLOR, fillOpacity: 0.1 }} />
+          <Polygon positions={polygon} pathOptions={{ color: cfg.accentColor, fillOpacity: 0.1 }} />
         )}
       </MapContainer>
 
-      {location && (
+      {selected && (
         <div className="map-info">
-          📍 <strong>{location.label}</strong>
-          &nbsp;—&nbsp;{location.lat.toFixed(2)}°N, {location.lng.toFixed(2)}°E
+          📍 <strong>{selected.label}</strong>
+          &nbsp;—&nbsp;{selected.lat.toFixed(2)}°N, {selected.lng.toFixed(2)}°E
         </div>
       )}
     </section>

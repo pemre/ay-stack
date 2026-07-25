@@ -50,6 +50,11 @@ vi.mock("react-grid-layout", () => ({
   useContainerWidth: () => ({ width: 1280, containerRef: { current: null }, mounted: true }),
 }));
 
+// Mock useTheme (WidgetGrid now resolves the map tile URL from theme itself)
+vi.mock("../../hooks/useTheme.tsx", () => ({
+  useTheme: () => ({ theme: "light", toggleTheme: vi.fn() }),
+}));
+
 // Mock react-leaflet (MapPanel uses it)
 vi.mock("react-leaflet", () => ({
   MapContainer: ({ children }: { children: React.ReactNode }) => (
@@ -91,25 +96,25 @@ function createTestDashboard(): Dashboard {
     instances: [
       {
         instanceId: "inst-sidebar-1",
-        widgetTypeId: "sidebar",
+        widgetTypeId: "tree-list",
         position: { x: 0, y: 0, w: 3, h: 8, minW: 2, minH: 2 },
         config: { type: "sidebar", tags: [], contentType: null },
       },
       {
         instanceId: "inst-content-1",
-        widgetTypeId: "content",
+        widgetTypeId: "markdown-viewer",
         position: { x: 3, y: 0, w: 5, h: 8, minW: 2, minH: 2 },
         config: { type: "content", pinnedItemId: null },
       },
       {
         instanceId: "inst-map-1",
-        widgetTypeId: "map",
+        widgetTypeId: "geo-map",
         position: { x: 8, y: 0, w: 4, h: 8, minW: 2, minH: 2 },
         config: { type: "map", boundingBox: null, zoomLevel: null },
       },
       {
         instanceId: "inst-timeline-1",
-        widgetTypeId: "timeline",
+        widgetTypeId: "linear-timeline",
         position: { x: 0, y: 8, w: 12, h: 4, minW: 2, minH: 2 },
         config: { type: "timeline", startDate: null, endDate: null },
       },

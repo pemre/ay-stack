@@ -3,20 +3,14 @@ import type { Layout, ResponsiveLayouts } from "react-grid-layout";
 import { Responsive, useContainerWidth } from "react-grid-layout";
 import { useTranslation } from "react-i18next";
 import config from "../../config";
+import { useTheme } from "../../hooks/useTheme.tsx";
 import type { ContentIndex, Dashboard, WidgetInstance } from "../../shared/types.ts";
 import { useDashboardStore } from "../../stores/dashboardStore.ts";
 import { applyFilter, resolveFilter } from "../../utils/contentFilter.ts";
 import { WidgetHeader } from "../WidgetHeader/WidgetHeader";
 import { WidgetPicker } from "../WidgetPicker/WidgetPicker.tsx";
 import "./WidgetGrid.css";
-import {
-  ContentConfigPanel,
-  MapConfigPanel,
-  SidebarConfigPanel,
-  TimelineConfigPanel,
-} from "./configPanels/index.ts";
-import type { WidgetConfigPanelProps } from "./configPanels/types.ts";
-import { getWidgetType } from "./widgetTypeRegistry.ts";
+import { getWidgetType, type WidgetRenderContext } from "./widgetTypeRegistry.ts";
 
 interface WidgetGridProps {
   dashboard: Dashboard;
@@ -34,13 +28,6 @@ const COLS = { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 };
 
 const EMPTY_HIDDEN_GROUPS = new Set<string>();
 
-const CONFIG_PANELS: Record<string, React.ComponentType<WidgetConfigPanelProps>> = {
-  sidebar: SidebarConfigPanel,
-  content: ContentConfigPanel,
-  map: MapConfigPanel,
-  timeline: TimelineConfigPanel,
-};
-
 export function WidgetGrid({
   dashboard,
   index,
@@ -52,6 +39,7 @@ export function WidgetGrid({
   completedSet,
 }: WidgetGridProps) {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const { width, containerRef } = useContainerWidth();
   const draggable = config.features.draggableLayout;
 
@@ -102,45 +90,20 @@ export function WidgetGrid({
     }
 
     const WidgetComponent = typeDef.component;
-
-    // Pass existing props based on widget type
-    switch (instance.widgetTypeId) {
-      case "sidebar":
-        return (
-          <WidgetComponent
-            index={filteredIndex}
-            selectedId={selectedId}
-            activeGroup=""
-            onSelectItem={onSelectItem}
-            onSelectGroup={() => {}}
-            completedSet={completedSet}
-          />
-        );
-      case "content":
-        return (
-          <WidgetComponent
-            index={filteredIndex}
-            selectedId={selectedId}
-            activeGroup=""
-            getContent={getContent}
-            isComplete={isComplete}
-            onToggleComplete={onToggleComplete}
-          />
-        );
-      case "map":
-        return <WidgetComponent index={filteredIndex} selectedId={selectedId} />;
-      case "timeline":
-        return (
-          <WidgetComponent
-            index={filteredIndex}
-            selectedId={selectedId}
-            onSelect={onSelectItem}
-            hiddenGroups={EMPTY_HIDDEN_GROUPS}
-          />
-        );
-      default:
-        return <WidgetComponent index={filteredIndex} />;
-    }
+    const ctx: WidgetRenderContext = {
+      index: filteredIndex,
+      getContent,
+      selectedId,
+      onSelectItem,
+      isComplete,
+      onToggleComplete,
+      completedSet,
+      hiddenGroups: EMPTY_HIDDEN_GROUPS,
+      theme,
+      t,
+    };
+    const props = typeDef.buildProps(ctx, instance.config);
+    return <WidgetComponent {...props} />;
   };
 
   return (
@@ -175,6 +138,7 @@ export function WidgetGrid({
           const filteredIndex = applyFilter(index, resolvedFilter);
           const typeDef = getWidgetType(instance.widgetTypeId);
           const titleKey = typeDef?.titleKey ?? "widget.unknown";
+          const ConfigPanel = typeDef?.configPanel;
 
           return (
             <div key={instance.instanceId} className="widget-item">
@@ -199,18 +163,13 @@ export function WidgetGrid({
               <div className="widget-item__body">
                 {renderWidgetContent(instance, filteredIndex)}
               </div>
-              {configInstanceId === instance.instanceId &&
-                (() => {
-                  const ConfigPanel = CONFIG_PANELS[instance.widgetTypeId];
-                  if (!ConfigPanel) return null;
-                  return (
-                    <ConfigPanel
-                      instance={instance}
-                      onUpdate={(cfg) => updateWidgetConfig(dashboard.id, instance.instanceId, cfg)}
-                      onClose={() => setConfigInstanceId(null)}
-                    />
-                  );
-                })()}
+              {configInstanceId === instance.instanceId && ConfigPanel && (
+                <ConfigPanel
+                  instance={instance}
+                  onUpdate={(cfg) => updateWidgetConfig(dashboard.id, instance.instanceId, cfg)}
+                  onClose={() => setConfigInstanceId(null)}
+                />
+              )}
             </div>
           );
         })}

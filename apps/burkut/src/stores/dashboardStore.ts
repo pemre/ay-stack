@@ -57,10 +57,10 @@ const DEFAULT_INSTANCE_DEFS: {
   widgetTypeId: string;
   position: GridPosition;
 }[] = [
-  { widgetTypeId: "sidebar", position: { x: 0, y: 0, w: 3, h: 8, minW: 2, minH: 2 } },
-  { widgetTypeId: "content", position: { x: 3, y: 0, w: 5, h: 8, minW: 2, minH: 2 } },
-  { widgetTypeId: "map", position: { x: 8, y: 0, w: 4, h: 8, minW: 2, minH: 2 } },
-  { widgetTypeId: "timeline", position: { x: 0, y: 8, w: 12, h: 4, minW: 2, minH: 2 } },
+  { widgetTypeId: "tree-list", position: { x: 0, y: 0, w: 3, h: 8, minW: 2, minH: 2 } },
+  { widgetTypeId: "markdown-viewer", position: { x: 3, y: 0, w: 5, h: 8, minW: 2, minH: 2 } },
+  { widgetTypeId: "geo-map", position: { x: 8, y: 0, w: 4, h: 8, minW: 2, minH: 2 } },
+  { widgetTypeId: "linear-timeline", position: { x: 0, y: 8, w: 12, h: 4, minW: 2, minH: 2 } },
 ];
 
 // ── Helpers ──

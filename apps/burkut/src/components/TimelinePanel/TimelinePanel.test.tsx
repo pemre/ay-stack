@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import type { ContentEntry, ContentIndex } from "../../shared/types.ts";
+import { buildTimelineItems } from "../../adapters/contentAdapters.ts";
+import type { ContentIndex } from "../../shared/types.ts";
 
 /**
- * SPEC: TimelinePanel / buildItems util + group visibility
+ * SPEC: TimelinePanel / buildTimelineItems adapter + group visibility
  * ---------------------------------------------------------
  * 1. Index entries with start+end+group are converted to items
  * 2. Entries missing start/end are filtered out
@@ -12,28 +13,12 @@ import type { ContentEntry, ContentIndex } from "../../shared/types.ts";
  * 6. hiddenGroups persisted to / restored from localStorage
  *
  * NOTE: vis-timeline requires DOM in jsdom, so Timeline init
- * is left for integration tests.
- * This file only tests the pure buildItems and buildTranslatedGroups functions.
+ * is left for integration tests. This file tests the buildTimelineItems
+ * adapter (imported from contentAdapters.ts, not duplicated) and a local
+ * copy of the pure group-visibility helper.
  */
 
-// Isolated buildItems for direct testing
-function buildItems(index: ContentIndex) {
-  return Object.values(index)
-    .filter((m: ContentEntry) => m.start && m.end && m.group)
-    .map((m: ContentEntry) => ({
-      id: m.id,
-      content: m.subtitle
-        ? `${m.title || m.id}<br><small>${m.subtitle}</small>`
-        : ((m.title || m.id) as string),
-      start: m.start as string,
-      end: m.end as string,
-      group: m.group as string,
-      className: m.className || "",
-      type: m.type || "range",
-    }));
-}
-
-describe("buildItems", () => {
+describe("buildTimelineItems", () => {
   it("converts valid items", () => {
     const index: ContentIndex = {
       xia: {
@@ -47,7 +32,7 @@ describe("buildItems", () => {
         _isHeader: false,
       },
     };
-    const result = buildItems(index);
+    const result = buildTimelineItems(index);
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("xia");
     expect(result[0].content).toContain("2070–1600 BCE");
@@ -64,7 +49,7 @@ describe("buildItems", () => {
         _isHeader: false,
       },
     };
-    expect(buildItems(index)).toHaveLength(0);
+    expect(buildTimelineItems(index)).toHaveLength(0);
   });
 
   it("reads className from frontmatter", () => {
@@ -79,7 +64,7 @@ describe("buildItems", () => {
         _isHeader: false,
       },
     };
-    expect(buildItems(index)[0].className).toBe("semi-legendary");
+    expect(buildTimelineItems(index)[0].className).toBe("semi-legendary");
   });
 
   it("shows only title when subtitle is absent", () => {
@@ -94,7 +79,7 @@ describe("buildItems", () => {
         _isHeader: false,
       },
     };
-    expect(buildItems(index)[0].content).toBe("Test Item");
+    expect(buildTimelineItems(index)[0].content).toBe("Test Item");
   });
 });
 

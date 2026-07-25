@@ -1,49 +1,75 @@
 import { Check } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { ContentIndex } from "../../shared/types.ts";
+import type { ContentViewModel } from "../../adapters/viewModels.ts";
 import "./ContentPanel.css";
 
+// ── Labels ────────────────────────────────────────────────────────────────
+
+export interface ContentPanelLabels {
+  /** aria-label for the root article element (default: "Content panel"). */
+  ariaLabel?: string;
+  /** Rendered when the resolved content has no body (default: "*Content not found.*"). */
+  notFound?: string;
+  /** aria-label/title for the mark-as-read toggle when unread (default: "Mark as read"). */
+  markRead?: string;
+  /** aria-label/title for the mark-as-read toggle when read (default: "Mark as unread"). */
+  markUnread?: string;
+}
+
+export const DEFAULT_CONTENT_PANEL_LABELS: Required<ContentPanelLabels> = {
+  ariaLabel: "Content panel",
+  notFound: "*Content not found.*",
+  markRead: "Mark as read",
+  markUnread: "Mark as unread",
+};
+
+// ── Config ────────────────────────────────────────────────────────────────
+
+export interface ContentPanelConfig {
+  labels?: ContentPanelLabels;
+}
+
+function mergeLabels(user?: ContentPanelLabels): Required<ContentPanelLabels> {
+  return { ...DEFAULT_CONTENT_PANEL_LABELS, ...user };
+}
+
+// ── Props ─────────────────────────────────────────────────────────────────
+
 interface ContentPanelProps {
-  selectedId: string | null;
-  activeGroup: string;
-  index: ContentIndex;
-  getContent: (id: string) => string | null;
+  content: ContentViewModel;
   isComplete?: (id: string) => boolean;
   onToggleComplete?: (id: string) => void;
+  config?: ContentPanelConfig;
 }
 
 export default function ContentPanel({
-  selectedId,
-  activeGroup,
-  index,
-  getContent,
+  content,
   isComplete,
   onToggleComplete,
+  config,
 }: ContentPanelProps) {
-  const { t } = useTranslation();
+  const labels = useMemo(() => mergeLabels(config?.labels), [config?.labels]);
 
-  const currentId = selectedId || activeGroup;
-  const markdown = getContent(currentId) || t("content.notFound");
-  const meta = selectedId ? index[selectedId] : null;
-  const completed = isComplete ? isComplete(currentId) : false;
+  const markdown = content.markdown ?? labels.notFound;
+  const completed = isComplete ? isComplete(content.id) : false;
 
   return (
-    <article className="content-panel" aria-label={t("aria.contentPanel")}>
-      {meta && (
+    <article className="content-panel" aria-label={labels.ariaLabel}>
+      {(content.tags || content.subtitle) && (
         <header className="content-meta">
           <div className="content-meta__left">
-            {meta.tags && (
+            {content.tags && (
               <div className="content-tags">
-                {meta.tags.map((tag) => (
+                {content.tags.map((tag) => (
                   <span key={tag} className="tag">
                     #{tag}
                   </span>
                 ))}
               </div>
             )}
-            {meta.subtitle && <p className="content-subtitle">{meta.subtitle}</p>}
+            {content.subtitle && <p className="content-subtitle">{content.subtitle}</p>}
           </div>
         </header>
       )}
@@ -53,9 +79,9 @@ export default function ContentPanel({
           <button
             type="button"
             className={`read-toggle ${completed ? "read-toggle--done" : ""}`}
-            onClick={() => onToggleComplete(currentId)}
-            aria-label={completed ? t("progress.markUnread") : t("progress.markRead")}
-            title={completed ? t("progress.markUnread") : t("progress.markRead")}
+            onClick={() => onToggleComplete(content.id)}
+            aria-label={completed ? labels.markUnread : labels.markRead}
+            title={completed ? labels.markUnread : labels.markRead}
           >
             <Check size={16} />
           </button>
