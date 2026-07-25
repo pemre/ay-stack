@@ -203,14 +203,14 @@ typechecks and lints for the packages touched so far.
     `pnpm --filter @ay/dashboard-engine lint`. Ensure all green. Ask the user if
     questions arise.
 
-- [ ] 10. Implement the pluggable persistence and broadcast middleware factories
-  - [ ] 10.1 Create `src/persistence/types.ts` (`PersistenceAdapter<T>`)
+- [x] 10. Implement the pluggable persistence and broadcast middleware factories
+  - [x] 10.1 Create `src/persistence/types.ts` (`PersistenceAdapter<T>`)
     - _Requirements: 6.1_
-  - [ ] 10.2 Create `src/persistence/createMigrationRunner.ts` generalizing
+  - [x] 10.2 Create `src/persistence/createMigrationRunner.ts` generalizing
     `apps/burkut/src/stores/layoutMigrations.ts#migrateLayoutDocument`'s loop
     over an arbitrary `T`
     - _Requirements: 6.5_
-  - [ ] 10.3 Write property test for `createMigrationRunner`
+  - [x] 10.3 Write property test for `createMigrationRunner`
     (`src/persistence/createMigrationRunner.property.test.ts`)
     - **Property: migration chain never skips a version and always
       terminates.** For an arbitrary set of registered migration versions and an
@@ -218,12 +218,12 @@ typechecks and lints for the packages touched so far.
       is either `currentVersion` or the first version with no registered
       migration — it is never skipped past.
     - **Validates: Requirements 6.5**
-  - [ ] 10.4 Create `src/persistence/createPersistenceMiddleware.ts`
+  - [x] 10.4 Create `src/persistence/createPersistenceMiddleware.ts`
     generalizing `apps/burkut/src/stores/persistenceMiddleware.ts`'s debounce
     (default 500ms) / retry-with-backoff (`[1000, 2000, 4000]`, 3 attempts, skip
     retry on 404) / hydrate-on-load logic over `PersistenceAdapter<T>`
     - _Requirements: 6.2_
-  - [ ] 10.5 Write unit tests for `createPersistenceMiddleware`
+  - [x] 10.5 Write unit tests for `createPersistenceMiddleware`
     - Test: debounces multiple rapid state changes into one `adapter.save()`
       call
     - Test: retries `adapter.save()` up to 3 times with the documented backoff
@@ -233,18 +233,18 @@ typechecks and lints for the packages touched so far.
     - Test: on creation, calls `adapter.load()` and merges the result into the
       store via the supplied `mergeHydratedState`
     - _Requirements: 6.2_
-  - [ ] 10.6 Create `src/persistence/createBroadcastMiddleware.ts` generalizing
+  - [x] 10.6 Create `src/persistence/createBroadcastMiddleware.ts` generalizing
     `apps/burkut/src/stores/broadcastMiddleware.ts` over `T` and a channel name
     - _Requirements: 6.3_
-  - [ ] 10.7 Write unit tests for `createBroadcastMiddleware`
+  - [x] 10.7 Write unit tests for `createBroadcastMiddleware`
     - Test: a state change posts a message on the named `BroadcastChannel`
     - Test: an incoming message from a different sender calls `mergeIncoming`
     - Test: an incoming message with this instance's own `senderId` is ignored
     - Test: gracefully no-ops when `BroadcastChannel` is unavailable
     - _Requirements: 6.3_
-  - [ ] 10.8 Add the four persistence/broadcast exports to `src/index.ts`
+  - [x] 10.8 Add the four persistence/broadcast exports to `src/index.ts`
 
-- [ ] 11. Checkpoint — persistence module and full engine package
+- [x] 11. Checkpoint — persistence module and full engine package
   - Run `pnpm --filter @ay/dashboard-engine verify`-equivalent
     (`typecheck && lint && test && build`). Ensure all green, including that
     `vite build` produces `dist/index.es.js`, `dist/index.cjs.js`,
@@ -357,8 +357,7 @@ typechecks and lints for the packages touched so far.
     pair round-trips a representative `WidgetConfig` value for its widget type
     - _Requirements: 2.5_
 
-- [ ] 19. Rewire `apps/burkut`'s registry onto `createWidgetRegistry` and the
-      moved Blocks
+- [ ] 19. Rewire `apps/burkut`'s registry onto `createWidgetRegistry` and the moved Blocks
   - [ ] 19.1 Add `"@ay/dashboard-engine": "workspace:^"` to
     `apps/burkut/package.json` dependencies; run `pnpm install`
     - _Requirements: 8.1_

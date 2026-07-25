@@ -13,6 +13,16 @@ export type {
   DashboardGridProps,
 } from "./DashboardGrid/DashboardGrid";
 export { DashboardGrid } from "./DashboardGrid/DashboardGrid";
+export { createBroadcastMiddleware } from "./persistence/createBroadcastMiddleware";
+export type { MigrationResult } from "./persistence/createMigrationRunner";
+export { createMigrationRunner } from "./persistence/createMigrationRunner";
+export { createPersistenceMiddleware } from "./persistence/createPersistenceMiddleware";
+export type {
+  CreatePersistenceMiddlewareOptions,
+  MiddlewareStateCreator,
+  PersistenceAdapter,
+  StoreSetState,
+} from "./persistence/types";
 export { createWidgetRegistry } from "./registry/createWidgetRegistry";
 export type { WidgetRenderContext, WidgetSize, WidgetTypeDefinition } from "./registry/types";
 export { deriveValidator } from "./schema/deriveValidator";
