@@ -42,3 +42,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/packages/*/.idea/
+/packages/*/node_modules/
+/packages/*/dist/
+/packages/ui-library/storybook-static/
+/apps/*/node_modules/
+/apps/*/dist/
