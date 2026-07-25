@@ -1,0 +1,430 @@
+{/* SpiralTimeline MDX Documentation */}
+import { Meta, Canvas, Controls, Story, Source } from "@storybook/blocks";
+import * as SpiralTimelineStories from "./SpiralTimeline.stories";
+
+<Meta of={SpiralTimelineStories} />
+
+# SpiralTimeline
+
+A D3-powered spiral timeline visualization for React. Each concentric ring represents one calendar year, months are arranged as radial sectors, and data nodes are plotted at their calendar positions.
+
+<Canvas of={SpiralTimelineStories.Default} />
+
+## Usage
+
+```tsx
+import { SpiralTimeline } from "@ay/ui-library";
+import "@ay/ui-library/styles.css";
+import "@ay/tokens";
+
+const data = [
+  {
+    date: new Date("2024-03-15"),
+    type: "history",
+    title: "Spring Equinox",
+    content: "The vernal equinox marks the start of spring.",
+  },
+  {
+    date: new Date("2024-07-20"),
+    type: "science",
+    title: "Moon Landing Anniversary",
+    content: "Celebrating the Apollo 11 mission.",
+  },
+];
+
+function App() {
+  return (
+    <SpiralTimeline
+      data={data}
+      config={{ yearsToShow: 3 }}
+      locale="en"
+      onNodeClick={(node) => console.log("Clicked:", node.title)}
+    />
+  );
+}
+```
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>data</code></td>
+      <td><code>DataNode[]</code></td>
+      <td>(required)</td>
+      <td>Array of data items to plot on the spiral</td>
+    </tr>
+    <tr>
+      <td><code>config</code></td>
+      <td><code>SpiralTimelineConfig</code></td>
+      <td><code>{"{}"}</code></td>
+      <td>Configuration object — all fields optional</td>
+    </tr>
+    <tr>
+      <td><code>locale</code></td>
+      <td><code>string</code></td>
+      <td>Browser locale</td>
+      <td>Locale for month labels and date formatting</td>
+    </tr>
+    <tr>
+      <td><code>className</code></td>
+      <td><code>string</code></td>
+      <td>—</td>
+      <td>Additional CSS class for the root container</td>
+    </tr>
+  </tbody>
+</table>
+
+## Data Format
+
+Each item in the `data` array must conform to the `DataNode` interface:
+
+```ts
+interface DataNode {
+  date: Date;       // Calendar date for spiral positioning
+  type: string;     // Maps to a TypeConfig entry for color/shape
+  title: string;    // Shown in tooltip and aria-label
+  content: string;  // Shown in tooltip body
+  id?: string;      // Optional stable key for data updates
+  metadata?: Record<string, unknown>; // Pass-through for extra fields
+}
+```
+
+
+The `type` field maps to entries in `config.types` to determine the node's color and shape. If no match is found, the first entry in `types` is used as a fallback.
+
+## Configuration
+
+All configuration fields are optional. Unspecified fields use sensible defaults.
+
+### General
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>yearsToShow</code></td>
+      <td><code>number</code></td>
+      <td><code>2</code></td>
+      <td>Number of visible year rings</td>
+    </tr>
+    <tr>
+      <td><code>yearLabelPosition</code></td>
+      <td><code>YearLabelPosition</code></td>
+      <td><code>"top"</code></td>
+      <td>Angle for year labels: top, right, bottom, left, top-right, top-left, bottom-right, bottom-left</td>
+    </tr>
+    <tr>
+      <td><code>onNodeClick</code></td>
+      <td><code>(node, event) =&gt; void</code></td>
+      <td>—</td>
+      <td>Callback when a data node is clicked</td>
+    </tr>
+  </tbody>
+</table>
+
+### Zoom
+
+Control zoom behavior via `config.zoom`:
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>speed</code></td>
+      <td><code>number</code></td>
+      <td><code>1.0</code></td>
+      <td>Zoom speed multiplier</td>
+    </tr>
+    <tr>
+      <td><code>mouseWheel</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Enable mouse wheel zoom on SVG</td>
+    </tr>
+    <tr>
+      <td><code>slider</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show zoom range slider</td>
+    </tr>
+    <tr>
+      <td><code>buttons</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show +/− zoom buttons</td>
+    </tr>
+  </tbody>
+</table>
+
+### Fog
+
+Control the depth/fog effect via `config.fog`:
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>enabled</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Enable fog on outer rings</td>
+    </tr>
+    <tr>
+      <td><code>startRing</code></td>
+      <td><code>number</code></td>
+      <td><code>2</code></td>
+      <td>Ring index where fog begins</td>
+    </tr>
+    <tr>
+      <td><code>intensity</code></td>
+      <td><code>number</code></td>
+      <td><code>0.8</code></td>
+      <td>Fog intensity (0–1)</td>
+    </tr>
+  </tbody>
+</table>
+
+<Canvas of={SpiralTimelineStories.NoFog} />
+
+### Ring Gradient
+
+Control ring coloring via `config.ringGradient`:
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>enabled</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Enable ring color gradient</td>
+    </tr>
+    <tr>
+      <td><code>scale</code></td>
+      <td><code>ColorScale</code></td>
+      <td><code>"spectral"</code></td>
+      <td>D3 interpolator: spectral, rainbow, cool, warm</td>
+    </tr>
+    <tr>
+      <td><code>applyTo</code></td>
+      <td><code>GradientTarget[]</code></td>
+      <td><code>["grid", "labels"]</code></td>
+      <td>Elements that receive the gradient</td>
+    </tr>
+  </tbody>
+</table>
+
+<Canvas of={SpiralTimelineStories.RainbowGradient} />
+
+### Animations
+
+Control transitions via `config.animations`:
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>enabled</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Enable animated transitions</td>
+    </tr>
+    <tr>
+      <td><code>duration</code></td>
+      <td><code>number</code></td>
+      <td><code>400</code></td>
+      <td>Transition duration in ms</td>
+    </tr>
+  </tbody>
+</table>
+
+### Type Mapping
+
+Map data-node types to visual representations via `config.types`:
+
+```ts
+const config = {
+  types: [
+    { key: "history", color: "#3b82f6", shape: "circle" },
+    { key: "cinema",  color: "#f59e0b", shape: "star" },
+    { key: "science", color: "#8b5cf6", shape: "triangle" },
+  ],
+};
+```
+
+Available shapes: `circle`, `square`, `triangle`, `star`, `pentagon`.
+
+### Labels
+
+Override UI strings via `config.labels` for localization:
+
+```ts
+const config = {
+  labels: {
+    zoomTitle: "Gösterilecek Yıl",
+    timeWindowTitle: "Zaman Penceresi",
+    ringSummaryTemplate: "Spiral: {rings} halka + kuyruk",
+    totalYearsTemplate: "Toplam veri: {years} yıl",
+  },
+};
+```
+
+## Theming
+
+SpiralTimeline is themed through CSS custom properties. The tiers, their naming patterns, and their ownership rules are documented once, in `@ay/tokens`: see [TOKEN-ARCHITECTURE.md](https://github.com/pemre/ay-stack/blob/main/packages/tokens/TOKEN-ARCHITECTURE.md).
+
+The component reads semantic tokens from `@ay/tokens` and maps them to `--spiral-*` component tokens. Override any component token to customize the look:
+
+```css
+.my-wrapper .spiral-timeline {
+  --spiral-bg: #0a0a1a;
+  --spiral-primary: hotpink;
+  --spiral-tooltip-bg: #1a1a2e;
+  --spiral-tooltip-border: #333;
+}
+```
+
+Theme switching works automatically via the `data-theme` attribute on a parent element:
+
+```html
+<div data-theme="dark">
+  <SpiralTimeline data={data} />
+</div>
+```
+
+### Available Component Tokens
+
+<table>
+  <thead>
+    <tr>
+      <th>Token</th>
+      <th>Maps to</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--spiral-bg</code></td>
+      <td><code>--color-bg-body</code></td>
+      <td>Container background</td>
+    </tr>
+    <tr>
+      <td><code>--spiral-surface</code></td>
+      <td><code>--color-bg-surface</code></td>
+      <td>Surface elements</td>
+    </tr>
+    <tr>
+      <td><code>--spiral-text</code></td>
+      <td><code>--color-text-primary</code></td>
+      <td>Primary text</td>
+    </tr>
+    <tr>
+      <td><code>--spiral-text-secondary</code></td>
+      <td><code>--color-text-secondary</code></td>
+      <td>Secondary text</td>
+    </tr>
+    <tr>
+      <td><code>--spiral-primary</code></td>
+      <td><code>--color-primary</code></td>
+      <td>Accent color</td>
+    </tr>
+    <tr>
+      <td><code>--spiral-border</code></td>
+      <td><code>--color-border-default</code></td>
+      <td>Borders</td>
+    </tr>
+    <tr>
+      <td><code>--spiral-tooltip-bg</code></td>
+      <td><code>--color-bg-surface</code></td>
+      <td>Tooltip background</td>
+    </tr>
+    <tr>
+      <td><code>--spiral-tooltip-border</code></td>
+      <td><code>--color-border-default</code></td>
+      <td>Tooltip border</td>
+    </tr>
+    <tr>
+      <td><code>--spiral-control-bg</code></td>
+      <td><code>--color-bg-surface</code></td>
+      <td>Control panel background</td>
+    </tr>
+    <tr>
+      <td><code>--spiral-control-border</code></td>
+      <td><code>--color-border-default</code></td>
+      <td>Control panel border</td>
+    </tr>
+  </tbody>
+</table>
+
+<Canvas of={SpiralTimelineStories.DarkTheme} />
+
+## Responsive Behavior
+
+The component adapts to its container size automatically via `ResizeObserver`. The spiral radius is computed as `min(width, height) × 0.4` to prevent overflow.
+
+When the container width drops below 300px, zoom controls are hidden to avoid clutter.
+
+<Canvas of={SpiralTimelineStories.SmallContainer} />
+
+## Accessibility
+
+- Data nodes have `role="button"`, `tabindex="0"`, and `aria-label` with the node title and formatted date
+- Keyboard navigation: Enter or Space on a focused node triggers `onNodeClick`
+- Tooltip appears on focus and hides on blur
+- The time window slider has `role="slider"` with proper ARIA attributes
+
+## Locale Support
+
+Pass a locale string to render month labels and format tooltip dates in any language:
+
+<Canvas of={SpiralTimelineStories.TurkishLocale} />
+
+## Interactive Controls
+
+Use the controls panel below to experiment with all configuration options:
+
+<Controls />

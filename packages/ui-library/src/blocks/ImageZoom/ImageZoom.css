@@ -1,0 +1,38 @@
+/* ═══════════════════════════════════════════════════════════════
+   ImageZoom — Component-level CSS custom properties
+   Maps semantic tokens → component tokens for easy overrides.
+   ═══════════════════════════════════════════════════════════════ */
+
+.image-zoom {
+  /* ── Component tokens mapped to semantic tokens ── */
+  --image-zoom-bg: var(--color-bg-body);
+  --image-zoom-surface: var(--color-bg-surface);
+  --image-zoom-text: var(--color-text-primary);
+  --image-zoom-border: var(--color-border-default);
+  --image-zoom-placeholder-bg: var(--color-bg-surface-alt);
+  --image-zoom-placeholder-text: var(--color-text-secondary);
+}
+
+/* ── Placeholder state (no src provided) ── */
+.image-zoom__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  background: var(--image-zoom-placeholder-bg);
+  color: var(--image-zoom-placeholder-text);
+}
+
+/* ── Error fallback state (image failed to load) ── */
+.image-zoom__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  background: var(--image-zoom-placeholder-bg);
+  color: var(--image-zoom-placeholder-text);
+}

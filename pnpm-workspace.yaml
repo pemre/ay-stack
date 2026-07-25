@@ -1,0 +1,28 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+
+# Single source of truth for every shared tool version (Requirement 10).
+# Each package writes "catalog:" instead of a version range, so exactly one
+# version exists by construction rather than by convention.
+catalog:
+  "@biomejs/biome": "^2.4.6"
+  # @testing-library/dom is a peer dependency of @testing-library/react@16
+  "@testing-library/dom": "^10.4.0"
+  "@testing-library/jest-dom": "^6.9.1"
+  "@testing-library/react": "^16.3.2"
+  # @types/node is not in the design's catalog list; it is catalogued here
+  # because the root tests/ suite reads the filesystem and shells out to git.
+  "@types/node": "^25.3.3"
+  "@types/react": "^18.3.28"
+  "@types/react-dom": "^18.3.7"
+  "@vitejs/plugin-react": "^4.7.0"
+  d3: "^7.9.0"
+  fast-check: "^4.6.0"
+  jsdom: "^28.1.0"
+  react: "^18.3.1"
+  react-dom: "^18.3.1"
+  tailwindcss: "^4.2.1"
+  typescript: "^5.9.3"
+  vite: "^5.4.21"
+  vitest: "^1.6.1"

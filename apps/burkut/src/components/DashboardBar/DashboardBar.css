@@ -1,0 +1,194 @@
+/* ── DashboardBar — horizontal tab strip in the app header ── */
+
+.dashboard-bar {
+  --dashboard-bar-height: 28px;
+  --dashboard-bar-gap: var(--space-2);
+
+  display: flex;
+  align-items: center;
+  gap: var(--dashboard-bar-gap);
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+  scrollbar-width: thin;
+}
+
+.dashboard-bar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.dashboard-bar::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: var(--radius-control);
+}
+
+/* ── Individual dashboard tab ── */
+
+.dashboard-bar__tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--dashboard-bar-height);
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast),
+    border-color var(--duration-fast),
+    color var(--duration-fast);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.dashboard-bar__tab:hover {
+  background: var(--color-hover-bg);
+  color: var(--color-text-primary);
+}
+
+.dashboard-bar__tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* ── Active tab ── */
+
+.dashboard-bar__tab--active {
+  background: var(--color-bg-surface-alt);
+  border-color: var(--color-border-default);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.dashboard-bar__tab--active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 4px;
+  right: 4px;
+  height: 2px;
+  background: var(--color-primary);
+  border-radius: 1px;
+}
+
+/* ── Inline rename input ── */
+
+.dashboard-bar__rename-input {
+  height: calc(var(--dashboard-bar-height) - 4px);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-control);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  outline: none;
+  min-width: 60px;
+  max-width: 160px;
+}
+
+/* ── Close icon button ── */
+
+.dashboard-bar__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity var(--duration-fast),
+    background var(--duration-fast);
+  flex-shrink: 0;
+}
+
+.dashboard-bar__tab:hover .dashboard-bar__close,
+.dashboard-bar__tab:focus-within .dashboard-bar__close {
+  opacity: 1;
+}
+
+.dashboard-bar__close:hover {
+  background: var(--color-hover-bg);
+  color: var(--color-text-primary);
+}
+
+/* ── Add dashboard button ── */
+
+.dashboard-bar__add-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.dashboard-bar__add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dashboard-bar-height);
+  height: var(--dashboard-bar-height);
+  padding: 0;
+  border: 1px dashed var(--color-border-default);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast),
+    border-color var(--duration-fast),
+    color var(--duration-fast);
+}
+
+.dashboard-bar__add:hover {
+  background: var(--color-hover-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.dashboard-bar__add:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* ── Template dropdown ── */
+
+.dashboard-bar__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 100;
+  min-width: 160px;
+  padding: var(--space-2) 0;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-control);
+  background: var(--color-bg-surface);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-bar__dropdown-item {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dashboard-bar__dropdown-item:hover,
+.dashboard-bar__dropdown-item:focus-visible {
+  background: var(--color-hover-bg);
+}

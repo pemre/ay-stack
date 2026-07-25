@@ -1,0 +1,278 @@
+{/* ImageZoom MDX Documentation */}
+import { Meta, Canvas, Controls } from "@storybook/blocks";
+import * as ImageZoomStories from "./ImageZoom.stories";
+
+<Meta of={ImageZoomStories} />
+
+# ImageZoom
+
+A mouse-tracking zoom-on-hover image component for React. Hover over the image and the area under your cursor magnifies — letting users inspect detail without leaving the page.
+
+<Canvas of={ImageZoomStories.Default} />
+
+## Prerequisites
+
+ImageZoom uses a **hybrid styling approach**: Tailwind CSS utility classes handle layout and the scale transform, while the library's CSS custom property system handles theming. Your consumer project must have Tailwind CSS configured for the hover-zoom effect to work.
+
+```bash
+pnpm add tailwindcss @tailwindcss/vite
+```
+
+Make sure the Tailwind classes used by ImageZoom are included in your content paths. If you use Tailwind v4, no extra configuration is needed beyond the standard setup. For Tailwind v3, add the library's source to your `content` array:
+
+```js
+// tailwind.config.js (v3)
+module.exports = {
+  content: [
+    "./src/**/*.{ts,tsx}",
+    "./node_modules/@ay/ui-library/dist/**/*.js",
+  ],
+};
+```
+
+> Without Tailwind configured, the image still renders correctly but the hover-zoom and layout utilities will not apply.
+
+## Usage
+
+```tsx
+import { ImageZoom } from "@ay/ui-library";
+import "@ay/ui-library/styles.css";
+import "@ay/tokens";
+
+function App() {
+  return (
+    <ImageZoom
+      src="https://example.com/photo.jpg"
+      alt="Mountain landscape at sunset"
+    />
+  );
+}
+```
+
+### Custom Zoom Level and Transition
+
+```tsx
+<ImageZoom
+  src="/images/product-detail.jpg"
+  alt="Product close-up"
+  config={{ zoomLevel: 2, transitionDuration: 500 }}
+/>
+```
+
+### With Custom Class Names
+
+```tsx
+<ImageZoom
+  src="/images/hero.jpg"
+  alt="Hero banner"
+  className="rounded-lg shadow-xl"
+  imageClassName="object-cover"
+/>
+```
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>src</code></td>
+      <td><code>string</code></td>
+      <td>(required)</td>
+      <td>Image source URL</td>
+    </tr>
+    <tr>
+      <td><code>alt</code></td>
+      <td><code>string</code></td>
+      <td>(required)</td>
+      <td>Alt text for accessibility. Pass empty string for decorative images.</td>
+    </tr>
+    <tr>
+      <td><code>config</code></td>
+      <td><code>ImageZoomConfig</code></td>
+      <td><code>{"{}"}</code></td>
+      <td>Configuration object — all fields optional</td>
+    </tr>
+    <tr>
+      <td><code>className</code></td>
+      <td><code>string</code></td>
+      <td>—</td>
+      <td>Additional CSS class for the root container</td>
+    </tr>
+    <tr>
+      <td><code>imageClassName</code></td>
+      <td><code>string</code></td>
+      <td>—</td>
+      <td>Additional CSS class for the <code>&lt;img&gt;</code> element</td>
+    </tr>
+  </tbody>
+</table>
+
+## Configuration
+
+All configuration fields are optional. Unspecified fields use sensible defaults via `DEFAULT_CONFIG`.
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>zoomLevel</code></td>
+      <td><code>number</code></td>
+      <td><code>3</code></td>
+      <td>Zoom magnification level. Clamped to nearest supported value: 1.5, 2, 2.5, or 3.</td>
+    </tr>
+    <tr>
+      <td><code>transitionDuration</code></td>
+      <td><code>number</code></td>
+      <td><code>300</code></td>
+      <td>Transition duration in milliseconds for the zoom animation.</td>
+    </tr>
+  </tbody>
+</table>
+
+### Supported Zoom Levels
+
+The component supports four discrete zoom levels. Any numeric value is clamped to the nearest supported level (ties break upward).
+
+<table>
+  <thead>
+    <tr>
+      <th>Level</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>1.5</code></td>
+      <td>Subtle magnification</td>
+    </tr>
+    <tr>
+      <td><code>2</code></td>
+      <td>Moderate magnification</td>
+    </tr>
+    <tr>
+      <td><code>2.5</code></td>
+      <td>Strong magnification</td>
+    </tr>
+    <tr>
+      <td><code>3</code></td>
+      <td>Maximum magnification (default)</td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+ImageZoom is themed through CSS custom properties. The tiers, their naming patterns, and their ownership rules are documented once, in `@ay/tokens`: see [TOKEN-ARCHITECTURE.md](https://github.com/pemre/ay-stack/blob/main/packages/tokens/TOKEN-ARCHITECTURE.md).
+
+What matters here: the block consumes semantic tokens from `@ay/tokens` and exposes its own `--image-zoom-*` component tokens for overrides.
+
+Override any component token to customize the look:
+
+```css
+.my-wrapper .image-zoom {
+  --image-zoom-bg: #0a0a1a;
+  --image-zoom-border: #333;
+  --image-zoom-placeholder-bg: #1a1a2e;
+  --image-zoom-placeholder-text: #aaa;
+}
+```
+
+Theme switching works automatically via the `data-theme` attribute on a parent element:
+
+```html
+<div data-theme="dark">
+  <ImageZoom src="/photo.jpg" alt="Night sky" />
+</div>
+```
+
+### Available Component Tokens
+
+<table>
+  <thead>
+    <tr>
+      <th>Token</th>
+      <th>Maps to</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--image-zoom-bg</code></td>
+      <td><code>--color-bg-body</code></td>
+      <td>Container background</td>
+    </tr>
+    <tr>
+      <td><code>--image-zoom-surface</code></td>
+      <td><code>--color-bg-surface</code></td>
+      <td>Surface elements</td>
+    </tr>
+    <tr>
+      <td><code>--image-zoom-text</code></td>
+      <td><code>--color-text-primary</code></td>
+      <td>Primary text</td>
+    </tr>
+    <tr>
+      <td><code>--image-zoom-border</code></td>
+      <td><code>--color-border-default</code></td>
+      <td>Borders</td>
+    </tr>
+    <tr>
+      <td><code>--image-zoom-placeholder-bg</code></td>
+      <td><code>--color-bg-surface-alt</code></td>
+      <td>Placeholder / error fallback background</td>
+    </tr>
+    <tr>
+      <td><code>--image-zoom-placeholder-text</code></td>
+      <td><code>--color-text-secondary</code></td>
+      <td>Placeholder / error fallback text</td>
+    </tr>
+  </tbody>
+</table>
+
+## Edge Cases
+
+### Empty Source
+
+When no `src` is provided, the component renders a placeholder state instead of an `<img>` element:
+
+<Canvas of={ImageZoomStories.EmptySrc} />
+
+### Image Load Failure
+
+If the image fails to load, the `alt` text is displayed as visible fallback content inside the container, styled with the placeholder tokens.
+
+### Decorative Images
+
+Pass an empty `alt` string for decorative images. The container receives `role="img"` to maintain accessibility semantics.
+
+```tsx
+<ImageZoom src="/decorative-bg.jpg" alt="" />
+```
+
+## Accessibility
+
+- The `alt` prop is applied directly to the `<img>` element
+- Decorative images (`alt=""`) set `role="img"` on the container
+- The container cursor is set to `zoom-in` to signal interactivity
+- On image load failure, the alt text is rendered as visible fallback content
+
+## Interactive Controls
+
+Use the controls panel below to experiment with all configuration options:
+
+<Controls />
