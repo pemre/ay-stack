@@ -250,8 +250,8 @@ typechecks and lints for the packages touched so far.
     `vite build` produces `dist/index.es.js`, `dist/index.cjs.js`,
     `dist/index.d.ts`. Ask the user if questions arise.
 
-- [ ] 12. Move `Sidebar` → `TreeList` into `@ay/ui-library`
-  - [ ] 12.1 Move `apps/burkut/src/components/Sidebar/Sidebar.tsx` to
+- [x] 12. Move `Sidebar` → `TreeList` into `@ay/ui-library`
+  - [x] 12.1 Move `apps/burkut/src/components/Sidebar/Sidebar.tsx` to
     `packages/ui-library/src/blocks/TreeList/TreeList.tsx`, renaming the
     component to `TreeList` and its types (`SidebarLabels` → `TreeListLabels`,
     `SidebarConfig` → `TreeListConfig`, `DEFAULT_SIDEBAR_LABELS` →
@@ -261,13 +261,13 @@ typechecks and lints for the packages touched so far.
     implementation, prefer renaming to `tree-list-*` if the baseline diff stays
     green)
     - _Requirements: 7.1_
-  - [ ] 12.2 Move `Sidebar.test.tsx` → `TreeList.test.tsx`, updating imports and
+  - [x] 12.2 Move `Sidebar.test.tsx` → `TreeList.test.tsx`, updating imports and
     names
-  - [ ] 12.3 Create `packages/ui-library/src/blocks/TreeList/TreeList.stories.tsx`
+  - [x] 12.3 Create `packages/ui-library/src/blocks/TreeList/TreeList.stories.tsx`
     following `SpiralTimeline.stories.tsx`'s structure (default export with
     `component: TreeList`, a couple of representative story exports)
     - _Requirements: 7.6_
-  - [ ] 12.4 Add `TreeList` and its public types to
+  - [x] 12.4 Add `TreeList` and its public types to
     `packages/ui-library/src/index.ts`
     - _Requirements: 7.7_
 

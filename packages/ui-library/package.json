@@ -39,7 +39,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@ay/tokens": "workspace:^"
+    "@ay/tokens": "workspace:^",
+    "lucide-react": "^0.575.0"
   },
   "peerDependencies": {
     "d3": "^7.0.0",

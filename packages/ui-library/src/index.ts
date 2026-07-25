@@ -19,3 +19,11 @@ export type {
   YearLabelPosition,
   ZoomConfig,
 } from "./blocks/SpiralTimeline/types.ts";
+export { TreeList } from "./blocks/TreeList/TreeList.tsx";
+export {
+  DEFAULT_TREE_LIST_LABELS,
+  type TreeListConfig,
+  type TreeListLabels,
+  type TreeListProps,
+  type TreeNode,
+} from "./blocks/TreeList/types.ts";
