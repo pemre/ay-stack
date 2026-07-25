@@ -1,0 +1,164 @@
+/* ═══════════════════════════════════════════════════════════════
+   Bürküt — application tier
+
+   Two things live here and nothing else:
+
+   1. The Legacy Alias block. These names exist for backward compatibility with
+      older Bürküt CSS. Every one of them now resolves through a semantic token
+      from @ay/tokens — no hex or rgba() literal remains, which is what makes the
+      tiers unbypassable. Values are unchanged in both themes.
+   2. Application-specific tokens: the six --tl-bg-* timeline layers, the six
+      --vis-* vis-timeline overrides, and --font-serif. These carry meaning only
+      inside Bürküt, so they stay in Bürküt rather than in the shared package.
+
+   Core and semantic tokens are declared by @ay/tokens and by nothing here.
+   Tier definitions and ownership: packages/tokens/TOKEN-ARCHITECTURE.md
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Light theme (default) ──────────────────────────────────── */
+:root {
+  /* ── Legacy Aliases ──────────────────────────────────────── */
+
+  --accent: var(--color-primary);
+  --accent-a12: var(--color-amber-500-a12);
+  --accent-a15: var(--color-amber-500-a15);
+  --accent-a20: var(--color-amber-500-a20);
+  --accent-a30: var(--color-amber-500-a30);
+  --accent-a44: var(--color-amber-500-a44);
+  --accent-a66: var(--color-amber-500-a66);
+
+  --bg-body: var(--color-bg-body);
+  --bg-surface: var(--color-bg-surface);
+  --bg-surface-alt: var(--color-bg-surface-alt);
+  /* Was the literal #f6f8fa, which is --color-bg-surface-alt in light. The dark
+     block maps this alias to a different semantic token; see there. */
+  --bg-sidebar: var(--color-bg-surface-alt);
+
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+  --text-on-accent: var(--color-text-on-primary);
+
+  --border-default: var(--color-border-default);
+  --border-subtle: var(--color-border-subtle);
+
+  --code-bg: var(--color-bg-code);
+  --hover-bg: var(--color-hover-bg);
+
+  --success: var(--color-status-success);
+  --success-a30: var(--color-status-success-subtle);
+
+  /* ── End Legacy Aliases ──────────────────────────────────── */
+
+  /* ── App-Specific Tokens ─────────────────────────────────── */
+
+  /* Timeline background layers — light */
+  /* 🟢 green   */
+  --tl-bg-ancient: rgba(56, 161, 74, 0.14);
+  /* 🟠 orange  */
+  --tl-bg-early: rgba(220, 110, 20, 0.14);
+  /* 🟤 brown   */
+  --tl-bg-fragment: rgba(140, 88, 44, 0.18);
+  /* 🔵 blue    */
+  --tl-bg-mid: rgba(30, 120, 210, 0.14);
+  /* 🟣 purple  */
+  --tl-bg-late: rgba(140, 60, 185, 0.14);
+  /* 🔴 red     */
+  --tl-bg-modern: rgba(210, 40, 40, 0.14);
+
+  /* vis-timeline overrides */
+  --vis-bg: #ffffff;
+  --vis-text: #57606a;
+  --vis-border: #d1d9e0;
+  --vis-item-bg: #dce6f0;
+  --vis-item-border: #97b0f8;
+  --vis-item-text: #1f2328;
+
+  /* Font families — the face itself is loaded in main.tsx */
+  --font-serif: "Crimson Pro", serif;
+
+  /* ── End App-Specific Tokens ─────────────────────────────── */
+}
+
+/* ── Dark theme ─────────────────────────────────────────────── */
+[data-theme="dark"] {
+  /* ── Legacy Aliases ──────────────────────────────────────── */
+
+  --accent: var(--color-primary);
+  --accent-a12: var(--color-amber-400-a12);
+  --accent-a15: var(--color-amber-400-a15);
+  --accent-a20: var(--color-amber-400-a20);
+  --accent-a30: var(--color-amber-400-a30);
+  --accent-a44: var(--color-amber-400-a44);
+  /* --accent-a66 is deliberately NOT redeclared here. Dark inherits the
+     amber-500 value from :root, exactly as it did pre-migration; redeclaring it
+     to amber-400 would change what renders. The asymmetry is intentional. */
+
+  --bg-body: var(--color-bg-body);
+  --bg-surface: var(--color-bg-surface);
+  --bg-surface-alt: var(--color-bg-surface-alt);
+  /* Was the literal #22272e — that is --color-bg-surface in dark, not
+     surface-alt (#2d333b). Hence the per-theme difference in this alias. */
+  --bg-sidebar: var(--color-bg-surface);
+
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+  --text-on-accent: var(--color-text-on-primary);
+
+  --border-default: var(--color-border-default);
+  --border-subtle: var(--color-border-subtle);
+
+  --code-bg: var(--color-bg-code);
+  --hover-bg: var(--color-hover-bg);
+
+  --success: var(--color-status-success);
+  --success-a30: var(--color-status-success-subtle);
+
+  /* ── End Legacy Aliases ──────────────────────────────────── */
+
+  /* ── App-Specific Tokens ─────────────────────────────────── */
+
+  /* Timeline background layers — dark (higher opacity for visibility) */
+  --tl-bg-ancient: rgba(80, 200, 95, 0.24);
+  /* 🟢 green   */
+  --tl-bg-early: rgba(255, 145, 45, 0.24);
+  /* 🟠 orange  */
+  --tl-bg-fragment: rgba(185, 125, 70, 0.22);
+  /* 🟤 brown   */
+  --tl-bg-mid: rgba(66, 160, 250, 0.24);
+  /* 🔵 blue    */
+  --tl-bg-late: rgba(185, 100, 230, 0.24);
+  /* 🟣 purple  */
+  --tl-bg-modern: rgba(240, 75, 75, 0.24);
+  /* 🔴 red     */
+
+  /* vis-timeline overrides */
+  --vis-bg: #22272e;
+  --vis-text: #768390;
+  --vis-border: #444c56;
+  --vis-item-bg: #3b4450;
+  --vis-item-border: #5a6a7a;
+  --vis-item-text: #adbac7;
+
+  /* ── End App-Specific Tokens ─────────────────────────────── */
+}
+
+/* ── Base rules ─────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg-body);
+  color: var(--text-primary);
+}

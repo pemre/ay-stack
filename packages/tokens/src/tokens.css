@@ -1,0 +1,16 @@
+/* 🌜 @ay/tokens — plain entry (source form), used when the Local Dev Alias is
+   active and `@ay/tokens` resolves to this file instead of dist/tokens.css.
+
+   It composes the same two authored files rather than restating the core tier as
+   a hand-written `:root` block: src/core.css is the single authoring site, and
+   duplicating its values here would be a second place for them to drift. The
+   plain/Tailwind split is therefore a property of dist/, where
+   scripts/build-css.mjs derives the `:root` copy mechanically —
+   dist/tokens.css is the Tailwind-free artifact external consumers get.
+
+   Consequence worth knowing: under the alias, the `@theme static` block in
+   core.css is resolved by the consuming project's Tailwind pipeline. Both
+   in-workspace consumers (Bürküt and Storybook) run Tailwind, so this holds. */
+
+@import "./core.css";
+@import "./semantic.css";

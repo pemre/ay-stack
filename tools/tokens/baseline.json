@@ -1,9 +1,6 @@
 {
   "capturedAt": "2026-07-25T12:01:23.715Z",
-  "sources": [
-    "src/styles/global.css",
-    "ay-ui-library/src/styles/tokens.css"
-  ],
+  "sources": ["src/styles/global.css", "ay-ui-library/src/styles/tokens.css"],
   "mergeStrategy": "first-source-wins: sources are independent consumers rather than a cascade, so on a conflicting name the earliest --in source's resolved value is recorded in the merged map. Every disagreement is listed under `conflicts` and every source's own resolution is preserved under `perSource`.",
   "light": {
     "--accent": "#f29b17",
