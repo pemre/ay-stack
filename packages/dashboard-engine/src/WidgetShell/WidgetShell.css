@@ -1,0 +1,163 @@
+/* ═══════════════════════════════════════════════════════════════
+   WidgetShell — Widget container with header, error boundary, and empty states
+   Ports styling from Bürküt's WidgetHeader and WidgetGrid components.
+   Uses semantic tokens from @ay/tokens for theme support.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Widget shell container ──────────────────────────────────── */
+.widget-item {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.widget-item:hover {
+  box-shadow: 0 0 10px var(--color-amber-500-a12);
+  border-color: var(--color-amber-500-a66);
+}
+
+[data-theme="dark"] .widget-item:hover {
+  box-shadow: 0 0 10px var(--color-amber-400-a12);
+  border-color: var(--color-amber-400-a66);
+}
+
+/* ── Widget body (content wrapper) ────────────────────────────── */
+.widget-item__body {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+/* ── Widget header (title + action buttons) ──────────────────── */
+.widget-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--color-bg-surface-alt);
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  user-select: none;
+  min-height: 36px;
+}
+
+/* ── Draggable header (grab cursor for react-grid-layout) ────── */
+.widget-header.drag-handle {
+  cursor: grab;
+}
+
+.widget-header.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* ── Header title ───────────────────────────────────────────── */
+.widget-header h3 {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Action buttons container ────────────────────────────────── */
+.widget-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+}
+
+/* ── Individual action buttons (config, duplicate, remove, close) */
+.widget-action-config,
+.widget-action-duplicate,
+.widget-action-remove,
+.widget-action-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color 0.15s ease-in-out,
+    color 0.15s ease-in-out;
+}
+
+.widget-action-config:hover,
+.widget-action-duplicate:hover,
+.widget-action-remove:hover,
+.widget-action-close:hover {
+  background: var(--color-border-subtle);
+  color: var(--color-text-primary);
+}
+
+/* ── Error state layout ──────────────────────────────────────── */
+.widget-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px 16px;
+  min-height: 200px;
+  background: var(--color-bg-surface);
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.widget-error-state p {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.widget-error-state button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 4px;
+  background: var(--color-bg-surface-alt);
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out;
+}
+
+.widget-error-state button:hover {
+  background: var(--color-border-subtle);
+  border-color: var(--color-border-default);
+}
+
+.widget-error-state button:active {
+  background: var(--color-border-default);
+}
+
+/* ── Empty state layout (shown when isEmpty === true) ───────── */
+.widget-item__body:empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}

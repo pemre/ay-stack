@@ -1,0 +1,156 @@
+/* ── Generated Config Panel — field controls and panel container ── */
+
+.config-panel__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.config-panel__label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Screen-reader only label */
+.config-panel__label--sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.config-panel__description {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+
+.config-panel__input,
+.config-panel__select {
+  height: 28px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-control);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+}
+
+.config-panel__input:focus,
+.config-panel__select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  border-color: var(--color-primary);
+}
+
+/* ── Tag chips — for stringArray field kind ── */
+
+.config-panel__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.config-panel__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-control);
+  background: var(--color-bg-surface-alt);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xs);
+}
+
+.config-panel__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.config-panel__chip-remove:hover {
+  background: var(--color-hover-bg);
+  color: var(--color-text-primary);
+}
+
+/* ── Row layout for multi-column fields (e.g., bounding box) ── */
+
+.config-panel__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+/* ── Generated Config Panel — main container and header ── */
+
+.generated-config-panel {
+  --config-panel-padding: var(--space-4);
+  --config-panel-gap: var(--space-3);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--config-panel-gap);
+  padding: var(--config-panel-padding);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-control);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  min-width: 220px;
+}
+
+.generated-config-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.generated-config-panel__title {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.generated-config-panel__close-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  line-height: 1;
+}
+
+.generated-config-panel__close-button:hover {
+  background: var(--color-hover-bg);
+  color: var(--color-text-primary);
+}
+
+.generated-config-panel__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--config-panel-gap);
+}

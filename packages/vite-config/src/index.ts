@@ -25,6 +25,7 @@ import { fileURLToPath } from "node:url";
  */
 export const AY_LOCAL_ENTRIES: Record<string, string> = {
   "@ay/ui-library": "packages/ui-library/src/index.ts",
+  "@ay/dashboard-engine": "packages/dashboard-engine/src/index.ts",
   "@ay/tokens": "packages/tokens/src/tokens.css",
   "@ay/tokens/theme.css": "packages/tokens/src/theme.css",
   "@ay/tokens/core.css": "packages/tokens/src/core.css",
@@ -76,8 +77,8 @@ export function ayLocalAlias(
   if (missing.length > 0) {
     throw new Error(
       "[@ay/vite-config] AY_LOCAL=1 but these package sources are missing:\n  " +
-        missing.join("\n  ") +
-        "\nUnset AY_LOCAL to resolve @ay/* through published entry points instead.",
+      missing.join("\n  ") +
+      "\nUnset AY_LOCAL to resolve @ay/* through published entry points instead.",
     );
   }
 
