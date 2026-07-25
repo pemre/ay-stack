@@ -1,8 +1,7 @@
 # ay-stack Roadmap
 
 Roadmap for the **shared stack** — `@ay/tokens`, `@ay/ui-library`, and the
-`@ay/dashboard-engine` to come. Bürküt's own product roadmap lives at
-[`apps/burkut/ROADMAP.md`](apps/burkut/ROADMAP.md).
+`@ay/dashboard-engine` to come.
 
 This document is written to be delegated. Each phase states its entry criteria,
 scope, explicit non-scope, exit criteria, and known risks, so an agent can pick up
@@ -12,7 +11,7 @@ a phase without reconstructing the reasoning.
 
 ## Where we are
 
-`ay-monorepo-foundation` is complete apart from three manual checkpoints. The
+`ay-monorepo-foundation` is complete. The
 workspace is a pnpm monorepo; design tokens are extracted to a single publishable
 package; the component library is renamed to the `@ay/` scope; Bürküt lives under
 `apps/burkut/`.
@@ -24,32 +23,11 @@ deviation. That guard must stay green through every phase below.
 
 | Phase | Spec | Status |
 |-------|------|--------|
-| 0 | `ay-monorepo-foundation` | 3 manual checkpoints open |
+| 0 | `ay-monorepo-foundation` | finished |
 | 1 | `widget-purity-contract` | not started |
 | 2 | `dashboard-engine-extraction` | not started |
 | 3 | `burkut-repo-extraction` | not started |
 | 4 | second app | not started |
-
----
-
-## Phase 0 — Close out `ay-monorepo-foundation`
-
-Three tasks remain, all human-performed.
-
-1. **Task 20** — `npm deprecate ay-ui-library "Renamed to @ay/ui-library"`, then
-   verify with `npm view ay-ui-library deprecated`. Authenticated registry
-   mutation; nothing in the workspace can do it.
-2. **Task 21** — side-by-side visual parity check, Storybook and Bürküt, **both
-   light and dark**. This is the only check covering Tailwind preflight, which is
-   new to Bürküt and normalizes heading sizes, list bullets, media `display`, and
-   form-control chrome independently of any token. If it changed appearance, scope
-   preflight out via a layered import rather than accepting the change.
-   The one expected difference is the accepted dark `--color-border-hover` shift on
-   `.btn:hover` and `.language-select:hover`.
-3. **Task 22** — `pnpm verify` at the root, then confirm the deployed Pages URLs
-   serve Storybook at `/ay-stack/` and Bürküt at `/ay-stack/burkut/`.
-
-**Exit:** all three checked off, `pnpm verify` green, both URLs live.
 
 ---
 
@@ -59,8 +37,7 @@ Three tasks remain, all human-performed.
 `SpiralTimeline` already implements, so they can become library Blocks.
 
 **Why now.** This is the actual blocker for a shared component library, and it is
-independent of the engine. `MIGRATION_PLAN.md` assumed the widgets were already
-pure; they are not.
+independent of the engine.
 
 **Entry criteria.** Phase 0 complete.
 
