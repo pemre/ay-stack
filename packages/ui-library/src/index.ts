@@ -2,6 +2,14 @@
 
 export { ImageZoom } from "./blocks/ImageZoom/ImageZoom.tsx";
 export type { ImageZoomConfig, ImageZoomProps, ZoomLevel } from "./blocks/ImageZoom/types.ts";
+export { GeoMap } from "./blocks/GeoMap/GeoMap.tsx";
+export {
+  DEFAULT_GEOMAP_LABELS,
+  type GeoFeature,
+  type GeoMapConfig,
+  type GeoMapLabels,
+  type GeoMapProps,
+} from "./blocks/GeoMap/types.ts";
 export { MarkdownViewer } from "./blocks/MarkdownViewer/MarkdownViewer.tsx";
 export type {
   ContentViewModel,

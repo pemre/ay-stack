@@ -1,9 +1,11 @@
 import L from "leaflet";
 import { type RefObject, useCallback, useEffect, useMemo, useRef } from "react";
 import { MapContainer, Marker, Polygon, Popup, TileLayer, useMap } from "react-leaflet";
-import type { GeoFeature } from "../../adapters/viewModels.ts";
-import { useResizeObserver } from "../../hooks/useResizeObserver";
-import "./MapPanel.css";
+import "leaflet/dist/leaflet.css";
+import { useResizeObserver } from "../../hooks/useResizeObserver.ts";
+import type { GeoMapConfig, GeoMapLabels, GeoMapProps } from "./types.ts";
+import { DEFAULT_GEOMAP_LABELS } from "./types.ts";
+import "./GeoMap.css";
 
 // Leaflet default icon fix (Vite asset pipeline compatibility)
 // biome-ignore lint/suspicious/noExplicitAny: Leaflet internal API requires prototype mutation
@@ -17,50 +19,22 @@ L.Icon.Default.mergeOptions({
 const TILE_ATTR =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
 
-// ── Labels ────────────────────────────────────────────────────────────────
-
-export interface MapPanelLabels {
-  /** aria-label for the root section element (default: "Map panel"). */
-  ariaLabel?: string;
-  /** aria-label for the Leaflet map container (default: "Map"). */
-  mapContainerAriaLabel?: string;
-}
-
-export const DEFAULT_MAP_PANEL_LABELS: Required<MapPanelLabels> = {
-  ariaLabel: "Map panel",
-  mapContainerAriaLabel: "Map",
-};
-
-// ── Config ────────────────────────────────────────────────────────────────
-
-export interface MapPanelConfig {
-  labels?: MapPanelLabels;
-  /** Map center when no feature is selected (default: [35.86, 104.19] -- China). */
-  center?: [number, number];
-  /** Zoom level when no feature is selected (default: 4). */
-  zoom?: number;
-  /** Tile layer URL template (default: light Carto Voyager tiles). */
-  tileUrl?: string;
-  /** Stroke/fill color for polygon overlays (default: "#c9a84c"). */
-  accentColor?: string;
-}
-
 const DEFAULT_CENTER: [number, number] = [35.86, 104.19];
 const DEFAULT_ZOOM = 4;
 const DEFAULT_TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
 const DEFAULT_ACCENT_COLOR = "#c9a84c";
 
 interface MergedConfig {
-  labels: Required<MapPanelLabels>;
+  labels: Required<GeoMapLabels>;
   center: [number, number];
   zoom: number;
   tileUrl: string;
   accentColor: string;
 }
 
-function mergeConfig(user?: MapPanelConfig): MergedConfig {
+function mergeConfig(user?: GeoMapConfig): MergedConfig {
   return {
-    labels: { ...DEFAULT_MAP_PANEL_LABELS, ...user?.labels },
+    labels: { ...DEFAULT_GEOMAP_LABELS, ...user?.labels },
     center: user?.center ?? DEFAULT_CENTER,
     zoom: user?.zoom ?? DEFAULT_ZOOM,
     tileUrl: user?.tileUrl ?? DEFAULT_TILE_URL,
@@ -68,15 +42,12 @@ function mergeConfig(user?: MapPanelConfig): MergedConfig {
   };
 }
 
-// ── Component ─────────────────────────────────────────────────────────────
-
 interface FlyToProps {
   position: { lat: number; lng: number } | null;
   fallbackCenter: [number, number];
   fallbackZoom: number;
 }
 
-/** Fly the map to the selected feature's position, or back to the fallback view. */
 function FlyTo({ position, fallbackCenter, fallbackZoom }: FlyToProps) {
   const map = useMap();
   useEffect(() => {
@@ -89,7 +60,6 @@ function FlyTo({ position, fallbackCenter, fallbackZoom }: FlyToProps) {
   return null;
 }
 
-/** Watches the map container for size changes and calls invalidateSize */
 function MapResizeWatcher({ containerRef }: { containerRef: RefObject<HTMLDivElement | null> }) {
   const map = useMap();
   const handleResize = useCallback(() => {
@@ -99,16 +69,10 @@ function MapResizeWatcher({ containerRef }: { containerRef: RefObject<HTMLDivEle
   return null;
 }
 
-interface MapPanelProps {
-  selectedId: string | null;
-  features: GeoFeature[];
-  config?: MapPanelConfig;
-}
-
-export default function MapPanel({ selectedId, features, config }: MapPanelProps) {
+export function GeoMap({ selectedId, features, config }: GeoMapProps) {
   const cfg = useMemo(() => mergeConfig(config), [config]);
   const containerRef = useRef<HTMLDivElement>(null);
-  const selected = selectedId ? features.find((f) => f.id === selectedId) : undefined;
+  const selected = selectedId ? features.find((feature) => feature.id === selectedId) : undefined;
   const location = selected ? { lat: selected.lat, lng: selected.lng } : null;
   const polygon = selected?.polygon ?? null;
 
@@ -122,7 +86,6 @@ export default function MapPanel({ selectedId, features, config }: MapPanelProps
         aria-label={cfg.labels.mapContainerAriaLabel}
       >
         <TileLayer key={cfg.tileUrl} attribution={TILE_ATTR} url={cfg.tileUrl} />
-
         <FlyTo position={location} fallbackCenter={cfg.center} fallbackZoom={cfg.zoom} />
         <MapResizeWatcher containerRef={containerRef} />
 

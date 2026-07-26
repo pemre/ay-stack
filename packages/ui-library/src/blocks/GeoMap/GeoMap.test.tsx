@@ -1,19 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import type { GeoFeature } from "../../adapters/viewModels.ts";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { GeoFeature } from "./types.ts";
 
-/**
- * SPEC: MapPanel component
- * -----------------------
- * 1. Location info is shown when the selected feature has coordinates
- * 2. Map still renders without a selected feature (fallback)
- * 3. MapContainer is rendered
- *
- * NOTE: react-leaflet does not fully render in jsdom;
- * we test basic DOM presence and prop passing.
- */
-
-// react-leaflet mock
 vi.mock("react-leaflet", () => ({
   MapContainer: ({
     children,
@@ -32,10 +20,20 @@ vi.mock("react-leaflet", () => ({
   ),
   Popup: ({ children }: { children: React.ReactNode }) => <div data-testid="popup">{children}</div>,
   Polygon: () => <div data-testid="polygon" />,
-  useMap: () => ({ flyTo: vi.fn() }),
+  useMap: () => ({ flyTo: vi.fn(), invalidateSize: vi.fn() }),
 }));
 
-import MapPanel from "./MapPanel";
+import { GeoMap } from "./GeoMap.tsx";
+
+beforeEach(() => {
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      disconnect() {}
+    },
+  );
+});
 
 const mockFeatures: GeoFeature[] = [
   {
@@ -47,20 +45,20 @@ const mockFeatures: GeoFeature[] = [
   },
 ];
 
-describe("MapPanel", () => {
+describe("GeoMap", () => {
   it("map container renders", () => {
-    render(<MapPanel selectedId={null} features={[]} />);
+    render(<GeoMap selectedId={null} features={[]} />);
     expect(screen.getByTestId("map-container")).toBeInTheDocument();
   });
 
   it("shows coordinates when the selected feature has a location", () => {
-    render(<MapPanel selectedId="shang" features={mockFeatures} />);
+    render(<GeoMap selectedId="shang" features={mockFeatures} />);
     expect(screen.getByText(/36.10/)).toBeInTheDocument();
     expect(screen.getAllByText(/Yinxu/).length).toBeGreaterThanOrEqual(1);
   });
 
   it("does not render map-info when no feature is selected", () => {
-    render(<MapPanel selectedId={null} features={[]} />);
+    render(<GeoMap selectedId={null} features={[]} />);
     expect(screen.queryByText(/°N/)).not.toBeInTheDocument();
   });
 });

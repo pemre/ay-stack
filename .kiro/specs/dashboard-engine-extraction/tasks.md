@@ -284,18 +284,18 @@ typechecks and lints for the packages touched so far.
     `packages/ui-library/src/index.ts`
     - _Requirements: 7.7_
 
-- [ ] 14. Move `MapPanel` → `GeoMap` into `@ay/ui-library`
-  - [ ] 14.1 Move and rename `MapPanel.tsx` →
+- [x] 14. Move `MapPanel` → `GeoMap` into `@ay/ui-library`
+  - [x] 14.1 Move and rename `MapPanel.tsx` →
     `packages/ui-library/src/blocks/GeoMap/GeoMap.tsx` (`MapPanelLabels` →
     `GeoMapLabels`, `MapPanelConfig` → `GeoMapConfig`, etc.); move `MapPanel.css`
     - Add `import "leaflet/dist/leaflet.css";` at the top of `GeoMap.tsx` (moved
       from `apps/burkut/src/main.tsx`), matching the self-import pattern
       `TimelinePanel.tsx` already uses for `vis-timeline`'s CSS
     - _Requirements: 7.3_
-  - [ ] 14.2 Move and update `MapPanel.test.tsx` → `GeoMap.test.tsx`
-  - [ ] 14.3 Create `GeoMap.stories.tsx`
+  - [x] 14.2 Move and update `MapPanel.test.tsx` → `GeoMap.test.tsx`
+  - [x] 14.3 Create `GeoMap.stories.tsx`
     - _Requirements: 7.6_
-  - [ ] 14.4 Add `GeoMap` and its types to `packages/ui-library/src/index.ts`
+  - [x] 14.4 Add `GeoMap` and its types to `packages/ui-library/src/index.ts`
     - _Requirements: 7.7_
 
 - [ ] 15. Move `TimelinePanel` → `LinearTimeline` into `@ay/ui-library`

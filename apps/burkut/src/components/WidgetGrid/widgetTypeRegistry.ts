@@ -1,5 +1,6 @@
 import type { TFunction } from "i18next";
 import type { ComponentType } from "react";
+import { GeoMap, MarkdownViewer } from "@ay/ui-library";
 import {
   buildContentViewModel,
   buildGeoFeatures,
@@ -7,8 +8,6 @@ import {
   buildTimelineItems,
 } from "../../adapters/contentAdapters.ts";
 import type { ContentIndex, WidgetConfig } from "../../shared/types.ts";
-import ContentPanel from "../ContentPanel/ContentPanel.tsx";
-import MapPanel from "../MapPanel/MapPanel.tsx";
 import Sidebar from "../Sidebar/Sidebar.tsx";
 import TimelinePanel from "../TimelinePanel/TimelinePanel.tsx";
 import { ContentConfigPanel } from "./configPanels/ContentConfigPanel.tsx";
@@ -80,7 +79,7 @@ function registerBuiltInTypes(): void {
       typeId: "markdown-viewer",
       titleKey: "panels.content",
       descriptionKey: "panels.content.description",
-      component: ContentPanel,
+      component: MarkdownViewer,
       defaultSize: { w: 5, h: 8 },
       minSize: { w: 2, h: 2 },
       defaultConfig: { type: "content", pinnedItemId: null },
@@ -103,7 +102,7 @@ function registerBuiltInTypes(): void {
       typeId: "geo-map",
       titleKey: "panels.map",
       descriptionKey: "panels.map.description",
-      component: MapPanel,
+      component: GeoMap,
       defaultSize: { w: 4, h: 8 },
       minSize: { w: 2, h: 2 },
       defaultConfig: { type: "map", boundingBox: null, zoomLevel: null },
