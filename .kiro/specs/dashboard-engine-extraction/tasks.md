@@ -443,7 +443,7 @@ typechecks and lints for the packages touched so far.
     thin wrappers rather than duplicating the engine's own tests)
     - _Requirements: 6.2, 6.3_
 
-- [ ] 22. Checkpoint — persistence rewired
+- [x] 22. Checkpoint — persistence rewired
   - Run `pnpm --filter burkut test`; ensure all green, including that a manual
     check of `.burkut/layouts/dashboard.json` (already at `version: 2`) still
     loads correctly via `pnpm dev` (start dev server, confirm dashboard renders
@@ -470,8 +470,8 @@ typechecks and lints for the packages touched so far.
   - [x] 23.4 Run `pnpm install` at the root to update the lockfile after
     dependency removals
 
-- [ ] 24. Final verification
-  - [ ] 24.1 Run `pnpm verify` (`typecheck` → `lint` → `test` → `build`, every
+- [x] 24. Final verification
+  - [x] 24.1 Run `pnpm verify` (`typecheck` → `lint` → `test` → `build`, every
     package) at the workspace root; fix anything red
     - _Requirements: 10.6_
   - [x] 24.2 Run the token-architecture baseline diff
@@ -479,13 +479,13 @@ typechecks and lints for the packages touched so far.
     invokes) and confirm it stays green — this refactor moved component code and
     CSS verbatim, so no new baseline diff is expected
     - _Requirements: 10.5_
-  - [ ] 24.3 Manually verify (or ask the user to verify) `pnpm dev`: dashboard
+  - [x] 24.3 Manually verify (or ask the user to verify) `pnpm dev`: dashboard
     renders the same four widgets at the same default sizes; drag, resize,
     add/remove/duplicate widget, and open each widget's config panel all work;
     a deliberately-thrown error in one widget (temporary test hook) shows the
     shell error state without blanking the rest of the grid
     - _Requirements: 10.1, 10.2, 10.3, 1.2_
-  - [ ] 24.4 Confirm `AY_LOCAL=1 pnpm dev` resolves `@ay/dashboard-engine` and
+  - [x] 24.4 Confirm `AY_LOCAL=1 pnpm dev` resolves `@ay/dashboard-engine` and
     `@ay/ui-library` to source (edit a Block or engine file, confirm HMR picks
     it up in the running Bürküt dev server) per the Local Dev Alias steering
     document
