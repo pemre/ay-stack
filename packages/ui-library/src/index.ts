@@ -1,6 +1,6 @@
 // Barrel export — will re-export all blocks and public types
 
-export { GeoMap } from "./blocks/GeoMap/GeoMap.tsx";
+export { PublicGeoMap as GeoMap } from "./blocks/GeoMap/PublicGeoMap.tsx";
 export {
   DEFAULT_GEOMAP_LABELS,
   type GeoFeature,
@@ -21,7 +21,7 @@ export {
   type LinearTimelineLabels,
   type LinearTimelineProps,
 } from "./blocks/LinearTimeline/types.ts";
-export { MarkdownViewer } from "./blocks/MarkdownViewer/MarkdownViewer.tsx";
+export { PublicMarkdownViewer as MarkdownViewer } from "./blocks/MarkdownViewer/PublicMarkdownViewer.tsx";
 export type {
   ContentViewModel,
   MarkdownViewerConfig,

@@ -1,13 +1,21 @@
 import type { RefObject } from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { DataSet, Timeline } from "vis-timeline/standalone";
+import type { DataSet } from "vis-data";
 import "vis-timeline/styles/vis-timeline-graph2d.min.css";
+import type { Timeline } from "vis-timeline/standalone";
 import type { LinearTimelineConfig, LinearTimelineItem, LinearTimelineProps } from "./types.ts";
 import { DEFAULT_LINEAR_TIMELINE_LABELS } from "./types.ts";
 import "./LinearTimeline.css";
 
 const DEFAULT_MIN_DATE = "-001800-01-01";
 const DEFAULT_MAX_DATE = "2100-01-01";
+
+let visTimelineModule: Promise<typeof import("vis-timeline/standalone")> | null = null;
+
+function loadVisTimeline() {
+  visTimelineModule ??= import("vis-timeline/standalone");
+  return visTimelineModule;
+}
 
 interface MergedConfig {
   labels: Required<import("./types.ts").LinearTimelineLabels>;
@@ -107,9 +115,12 @@ export function LinearTimeline({
 
   // Initialize vis-timeline. Called either from the mount effect (if container
   // already has dimensions) or from the resize observer (first non-zero size).
-  const initTimeline = useCallback(() => {
+  const initTimeline = useCallback(async () => {
     const el = containerRef.current;
     if (!el || timelineRef.current) return;
+
+    const { DataSet, Timeline } = await loadVisTimeline();
+    if (!containerRef.current || timelineRef.current) return;
 
     const ds = new DataSet(itemsRef.current);
     const gs = new DataSet(groupsRef.current);

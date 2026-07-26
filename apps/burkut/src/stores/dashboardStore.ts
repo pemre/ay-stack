@@ -1,3 +1,4 @@
+import { validateWidgetConfig } from "@ay/dashboard-engine";
 import { create } from "zustand";
 import { getWidgetType } from "../components/WidgetGrid/widgetTypeRegistry.ts";
 import type {
@@ -97,11 +98,6 @@ export function findNearestDashboard(
   if (dashboards.length === 0) return undefined;
   if (deletedIndex > 0) return dashboards[deletedIndex - 1];
   return dashboards[0];
-}
-
-/** Extracts only the shared state slice (for sync/persistence). */
-export function getSharedState(state: DashboardStore): SharedState {
-  return { dashboards: state.dashboards };
 }
 
 function mapDashboard(
@@ -299,7 +295,13 @@ export const useDashboardStore = create<DashboardStore>()(
             ...d,
             instances: d.instances.map((inst) =>
               inst.instanceId === instanceId
-                ? { ...inst, config: { ...inst.config, ...config } as WidgetConfig }
+                ? {
+                    ...inst,
+                    config: validateWidgetConfig(
+                      getWidgetType(inst.widgetTypeId) ?? { defaultConfig: inst.config },
+                      { ...inst.config, ...config },
+                    ) as WidgetConfig,
+                  }
                 : inst,
             ),
           })),

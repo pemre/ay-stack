@@ -408,18 +408,18 @@ typechecks and lints for the packages touched so far.
   - Run `pnpm --filter burkut typecheck` and fix all import-path fallout from
     tasks 12–19 before proceeding. Ask the user if questions arise.
 
-- [ ] 21. Wire pluggable persistence into Bürküt
-  - [ ] 21.1 Create `apps/burkut/src/stores/httpPersistenceAdapter.ts`
+- [x] 21. Wire pluggable persistence into Bürküt
+  - [x] 21.1 Create `apps/burkut/src/stores/httpPersistenceAdapter.ts`
     implementing `PersistenceAdapter<PersistedDashboardState>` per the design,
     wrapping the existing `GET`/`POST /api/layouts` calls (including calling
     the existing `migrateLayoutDocument` on `load()`)
     - _Requirements: 6.4_
-  - [ ] 21.2 Update `apps/burkut/src/stores/layoutMigrations.ts` to build
+  - [x] 21.2 Update `apps/burkut/src/stores/layoutMigrations.ts` to build
     `migrateLayoutDocument` on top of the engine's `createMigrationRunner`,
     keeping `CURRENT_LAYOUT_VERSION`, `V1_TO_V2_WIDGET_TYPE_ID_MAP`,
     `migrateDashboardV1ToV2`/`migrateInstanceV1ToV2` exactly as they are today
     - _Requirements: 6.5_
-  - [ ] 21.3 Update `apps/burkut/src/stores/persistenceMiddleware.ts` to call
+  - [x] 21.3 Update `apps/burkut/src/stores/persistenceMiddleware.ts` to call
     the engine's `createPersistenceMiddleware` with `httpLayoutPersistenceAdapter`,
     keeping `migrateFromLocalStorage` (the pre-dashboard-store legacy migration)
     as Bürküt-local code that runs before falling back to the adapter, exactly
@@ -428,15 +428,15 @@ typechecks and lints for the packages touched so far.
       `migrateLayoutDocument` resolves, before `_mergeSharedState` — satisfying
       Requirement 4.1
     - _Requirements: 6.2, 4.1_
-  - [ ] 21.4 Update `apps/burkut/src/stores/broadcastMiddleware.ts` to call the
+  - [x] 21.4 Update `apps/burkut/src/stores/broadcastMiddleware.ts` to call the
     engine's `createBroadcastMiddleware` with the existing channel name
     (`"burkut-dashboard-sync"`)
     - _Requirements: 6.3_
-  - [ ] 21.5 Update `apps/burkut/src/stores/dashboardStore.ts#updateWidgetConfig`
+  - [x] 21.5 Update `apps/burkut/src/stores/dashboardStore.ts#updateWidgetConfig`
     to call `validateWidgetConfig` on the merged config before writing to state
     — satisfying Requirement 4.3's "once per explicit config update"
     - _Requirements: 4.3_
-  - [ ] 21.6 Update or write unit/integration tests for
+  - [x] 21.6 Update or write unit/integration tests for
     `httpPersistenceAdapter`, the updated `persistenceMiddleware.ts`, and
     `broadcastMiddleware.ts`, verifying the same debounce/retry/hydrate/broadcast
     behavior the pre-refactor tests verified (retarget assertions at the new
@@ -450,31 +450,31 @@ typechecks and lints for the packages touched so far.
     with existing layout, ask user to confirm visually if automated coverage is
     insufficient here). Ask the user if questions arise.
 
-- [ ] 23. Clean up `apps/burkut`'s dependencies and global CSS imports
-  - [ ] 23.1 Remove `leaflet`, `react-leaflet`, `vis-timeline`, `vis-data`,
+- [x] 23. Clean up `apps/burkut`'s dependencies and global CSS imports
+  - [x] 23.1 Remove `leaflet`, `react-leaflet`, `vis-timeline`, `vis-data`,
     `react-markdown`, `remark-gfm` from `apps/burkut/package.json` dependencies
     (confirm via grep that nothing under `apps/burkut/src` imports them
     directly anymore)
     - _Requirements: 7.8_
-  - [ ] 23.2 Remove `import "leaflet/dist/leaflet.css";` from
+  - [x] 23.2 Remove `import "leaflet/dist/leaflet.css";` from
     `apps/burkut/src/main.tsx` (now self-imported by `GeoMap.tsx` inside
     `@ay/ui-library`)
     - _Requirements: (design) Findings — CSS import ownership_
-  - [ ] 23.3 Confirm `react-grid-layout`'s CSS imports
+  - [x] 23.3 Confirm `react-grid-layout`'s CSS imports
     (`react-grid-layout/css/styles.css`, `react-resizable/css/styles.css`) are
     still needed in `apps/burkut/src/main.tsx` (they are — `DashboardGrid` uses
     `react-grid-layout` but does not import its CSS, matching how
     `@ay/ui-library` doesn't self-import Tailwind); leave them in place unless
     moving them into the engine's own entry point is cleaner — decide during
     implementation and note the choice in a comment
-  - [ ] 23.4 Run `pnpm install` at the root to update the lockfile after
+  - [x] 23.4 Run `pnpm install` at the root to update the lockfile after
     dependency removals
 
 - [ ] 24. Final verification
   - [ ] 24.1 Run `pnpm verify` (`typecheck` → `lint` → `test` → `build`, every
     package) at the workspace root; fix anything red
     - _Requirements: 10.6_
-  - [ ] 24.2 Run the token-architecture baseline diff
+  - [x] 24.2 Run the token-architecture baseline diff
     (`tools/tokens/resolve.mjs` / whatever command `tests/token-architecture.property.test.ts`
     invokes) and confirm it stays green — this refactor moved component code and
     CSS verbatim, so no new baseline diff is expected
@@ -489,7 +489,7 @@ typechecks and lints for the packages touched so far.
     `@ay/ui-library` to source (edit a Block or engine file, confirm HMR picks
     it up in the running Bürküt dev server) per the Local Dev Alias steering
     document
-  - [ ] 24.5 Update `ROADMAP.md`: mark Phase 2 (`dashboard-engine-extraction`)
+  - [x] 24.5 Update `ROADMAP.md`: mark Phase 2 (`dashboard-engine-extraction`)
     as finished in the "Where we are" table
 
 ## Notes

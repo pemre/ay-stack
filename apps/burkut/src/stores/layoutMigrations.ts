@@ -8,6 +8,7 @@
  * layouts into "Unknown Widget" placeholders or silently drop data.
  */
 
+import { createMigrationRunner } from "@ay/dashboard-engine";
 import type { Dashboard, PersistedDashboardState, WidgetInstance } from "../shared/types.ts";
 
 /** The current persisted-document schema version. Bump when adding a migration. */
@@ -45,12 +46,15 @@ function migrateV1ToV2(state: { dashboards: Dashboard[] }): { dashboards: Dashbo
   return { dashboards: state.dashboards.map(migrateDashboardV1ToV2) };
 }
 
-type Migration = (state: { dashboards: Dashboard[] }) => { dashboards: Dashboard[] };
+type LayoutState = { dashboards: Dashboard[] };
+type Migration = (state: LayoutState) => LayoutState;
 
 /** Keyed by the version a migration upgrades FROM. */
 const MIGRATIONS: Record<number, Migration> = {
   1: migrateV1ToV2,
 };
+
+const runMigrations = createMigrationRunner(CURRENT_LAYOUT_VERSION, MIGRATIONS);
 
 /**
  * Upgrades a persisted dashboard document to `CURRENT_LAYOUT_VERSION` by
@@ -64,15 +68,10 @@ const MIGRATIONS: Record<number, Migration> = {
  */
 export function migrateLayoutDocument(input: unknown): PersistedDashboardState {
   const raw = (input ?? {}) as Partial<PersistedDashboardState>;
-  let version = typeof raw.version === "number" ? raw.version : 1;
-  let dashboards = Array.isArray(raw.dashboards) ? raw.dashboards : [];
-
-  while (version < CURRENT_LAYOUT_VERSION) {
-    const migrate = MIGRATIONS[version];
-    if (!migrate) break;
-    ({ dashboards } = migrate({ dashboards }));
-    version += 1;
-  }
-
-  return { version, dashboards };
+  const document = {
+    version: typeof raw.version === "number" ? raw.version : 1,
+    dashboards: Array.isArray(raw.dashboards) ? raw.dashboards : [],
+  };
+  const result = runMigrations(document, { dashboards: [] });
+  return { version: result.version, dashboards: result.state.dashboards };
 }

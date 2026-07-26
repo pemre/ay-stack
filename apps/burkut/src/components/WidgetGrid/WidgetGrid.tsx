@@ -1,4 +1,9 @@
-import { DashboardGrid, type DashboardGridInstance } from "@ay/dashboard-engine";
+import {
+  DashboardGrid,
+  type DashboardGridInstance,
+  type DashboardGridProps,
+  type WidgetTypeDefinition as EngineWidgetTypeDefinition,
+} from "@ay/dashboard-engine";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import config from "../../config";
@@ -28,6 +33,7 @@ interface WidgetGridProps {
 
 const EMPTY_HIDDEN_GROUPS = new Set<string>();
 type EngineInstance = DashboardGridInstance<SchemaConfig> & { source: WidgetInstance };
+type EngineWidgetDefinition = EngineWidgetTypeDefinition<WidgetRenderContext>;
 
 function getConfigPanelLabels(
   t: (key: string, options?: Record<string, unknown>) => string,
@@ -106,7 +112,7 @@ export function WidgetGrid({
         return {
           ...source,
           source,
-          config: typeDef?.toSchemaConfig(source.config) ?? source.config,
+          config: (typeDef?.toSchemaConfig(source.config) ?? source.config) as SchemaConfig,
         };
       }),
     [dashboard.instances],
@@ -138,7 +144,9 @@ export function WidgetGrid({
       )}
       <DashboardGrid
         instances={instances}
-        resolveType={getWidgetType}
+        resolveType={
+          getWidgetType as unknown as (typeId: string) => EngineWidgetDefinition | undefined
+        }
         renderContext={renderContext}
         draggable={draggable}
         shellLabels={{
@@ -158,7 +166,11 @@ export function WidgetGrid({
         onRemove={(instance) =>
           useDashboardStore.getState().removeWidgetInstance(dashboard.id, instance.instanceId)
         }
-        onUpdateInstanceConfig={handleUpdateConfig}
+        onUpdateInstanceConfig={
+          handleUpdateConfig as unknown as NonNullable<
+            DashboardGridProps<WidgetRenderContext, EngineInstance>["onUpdateInstanceConfig"]
+          >
+        }
         getConfigPanelLabels={(instance) => getConfigPanelLabels(t, instance.widgetTypeId)}
       />
     </div>

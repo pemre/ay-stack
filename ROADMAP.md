@@ -26,7 +26,7 @@ deviation. That guard must stay green through every phase below.
 |-------|------|--------|
 | 0 | `ay-monorepo-foundation` | finished |
 | 1 | `widget-purity-contract` | finished |
-| 2 | `dashboard-engine-extraction` | not started |
+| 2 | `dashboard-engine-extraction` | finished |
 | 3 | `burkut-repo-extraction` | not started |
 | 4 | second app | not started |
 
@@ -126,7 +126,7 @@ means extracting coupling into a shared package.
 
 **Consider splitting the library.** `@ay/ui-library` currently mixes primitives
 with heavy blocks. `Timeline` drags vis-timeline, `Map` drags Leaflet. Splitting
-`@ay/ui` (primitives — Bürküt's `src/components/ui/` is the seed) from
+`@ay/ui` (primitives — Bürküt's `apps/burkut/src/components/ui/` is the seed) from
 `@ay/widgets` (heavy blocks) stops every app paying for both. Make
 `react-leaflet` / `vis-timeline` optional peers or separate entry points.
 

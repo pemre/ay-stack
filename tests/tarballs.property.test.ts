@@ -92,8 +92,9 @@ describe("Property 11: publishable tarball contents", () => {
         for (const pkg of publishable()) packed.set(pkg.name, pack(pkg));
     }, 300_000);
 
-    it("finds the two publishable packages", () => {
+    it("finds the three publishable packages", () => {
         expect(publishable().map((pkg) => pkg.name).sort()).toEqual([
+            "@ay/dashboard-engine",
             "@ay/tokens",
             "@ay/ui-library",
         ]);

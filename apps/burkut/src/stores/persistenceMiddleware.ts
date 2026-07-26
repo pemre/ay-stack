@@ -1,3 +1,5 @@
+import type { PersistenceAdapter } from "@ay/dashboard-engine";
+import { createPersistenceMiddleware, validateWidgetConfig } from "@ay/dashboard-engine";
 import type { StateCreator, StoreMutatorIdentifier } from "zustand";
 import { getWidgetType } from "../components/WidgetGrid/widgetTypeRegistry.ts";
 import type {
@@ -6,11 +8,24 @@ import type {
   WidgetConfig,
   WidgetInstance,
 } from "../shared/types.ts";
-import {
-  CURRENT_LAYOUT_VERSION,
-  migrateLayoutDocument,
-  V1_TO_V2_WIDGET_TYPE_ID_MAP,
-} from "./layoutMigrations.ts";
+import { httpLayoutPersistenceAdapter } from "./httpPersistenceAdapter.ts";
+import { CURRENT_LAYOUT_VERSION, V1_TO_V2_WIDGET_TYPE_ID_MAP } from "./layoutMigrations.ts";
+
+const persistenceAdapter: PersistenceAdapter<PersistedDashboardState> = {
+  async load() {
+    let persisted: PersistedDashboardState | null = null;
+    try {
+      persisted = await httpLayoutPersistenceAdapter.load();
+    } catch {
+      // The dev endpoint may be unavailable when the app is opened statically.
+    }
+    if (persisted) return persisted;
+
+    const migrated = migrateFromLocalStorage();
+    return migrated ? { version: CURRENT_LAYOUT_VERSION, ...migrated } : null;
+  },
+  save: (state) => httpLayoutPersistenceAdapter.save(state),
+};
 
 const SESSION_KEY = "burkut-active-dashboard";
 const LEGACY_LAYOUTS_KEY = "burkut-widget-layouts";
@@ -80,8 +95,7 @@ export function migrateFromLocalStorage(): { dashboards: Dashboard[] } | null {
       const widgetTypeId = V1_TO_V2_WIDGET_TYPE_ID_MAP[legacyWidgetTypeId];
 
       // If visibility data exists, skip hidden widgets
-      const isVisible =
-        Object.keys(visibility).length > 0 ? visibility[legacyWidgetTypeId] !== false : true;
+      const isVisible = Object.keys(visibility).length > 0 ? visibility[legacyWidgetTypeId] : true;
       if (!isVisible) continue;
 
       const typeDef = getWidgetType(widgetTypeId);
@@ -147,151 +161,50 @@ function writeSessionActiveDashboard(id: string): void {
   }
 }
 
-// ── Debounced persist with retry ──
-
-function createDebouncedPersist(delayMs: number) {
-  let timer: ReturnType<typeof setTimeout> | null = null;
-
-  async function persistWithRetry(dashboards: Dashboard[], attempt = 0): Promise<void> {
-    const maxAttempts = 3;
-    const backoffDelays = [1000, 2000, 4000];
-
-    const payload: PersistedDashboardState = {
-      version: CURRENT_LAYOUT_VERSION,
-      dashboards,
-    };
-
-    try {
-      const response = await fetch("/api/layouts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) {
-        // 404 means the endpoint doesn't exist (not running via burkut serve) — don't retry
-        if (response.status === 404) {
-          return;
-        }
-        throw new Error(`POST /api/layouts failed: ${response.status}`);
-      }
-    } catch (err) {
-      if (attempt < maxAttempts - 1) {
-        const delay = backoffDelays[attempt] ?? 4000;
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        return persistWithRetry(dashboards, attempt + 1);
-      }
-      console.warn("Failed to persist dashboard layouts after retries:", err);
-    }
-  }
-
-  return (dashboards: Dashboard[]) => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
-      persistWithRetry(dashboards);
-    }, delayMs);
-  };
-}
-
-// ── Hydration ──
-
-async function hydrateFromServer(): Promise<Dashboard[] | null> {
-  try {
-    const response = await fetch("/api/layouts");
-    if (!response.ok) return null;
-
-    const data: unknown = await response.json();
-    if (
-      data &&
-      typeof data === "object" &&
-      "dashboards" in data &&
-      Array.isArray((data as PersistedDashboardState).dashboards)
-    ) {
-      // Upgrade documents written by an older version of the app (e.g. one
-      // that still used pre-rename widgetTypeId values) before they reach
-      // the store, so a stale on-disk version never surfaces "Unknown Widget".
-      const { dashboards } = migrateLayoutDocument(data);
-      return dashboards;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 // ── Middleware implementation ──
 
-const persistenceMiddlewareImpl: PersistenceMiddleware = (f) => (set, get, api) => {
-  let prevDashboards: Dashboard[] | null = null;
-  const debouncedPersist = createDebouncedPersist(500);
-
-  // biome-ignore lint/suspicious/noExplicitAny: Zustand v5 set() overloads require cast for middleware wrapping
-  const wrappedSet: typeof set = ((partial: any, replace: any) => {
-    // biome-ignore lint/suspicious/noExplicitAny: forwarding args to original set
-    (set as any)(partial, replace);
-
-    const state = get();
-    const currentDashboards = state.dashboards;
-
-    // Persist shared state on dashboards change (shallow reference check)
-    if (currentDashboards !== prevDashboards) {
-      prevDashboards = currentDashboards;
-      debouncedPersist(currentDashboards);
-    }
-
-    // Persist active dashboard ID to sessionStorage on change
-    writeSessionActiveDashboard(state.activeDashboardId);
-  }) as typeof set;
-
-  const initialState = f(wrappedSet, get, api);
-  prevDashboards = initialState.dashboards ?? null;
-
-  // Async hydration — runs after store creation without blocking
-  queueMicrotask(async () => {
-    // 1. Try server hydration
-    let dashboards = await hydrateFromServer();
-
-    // 2. If server has no data, try legacy migration
-    if (!dashboards) {
-      const migrated = migrateFromLocalStorage();
-      if (migrated) {
-        dashboards = migrated.dashboards;
-        // Persist the migrated data to server
-        debouncedPersist(dashboards);
-      }
-    }
-
-    // 3. If we got dashboards, hydrate the store
-    if (dashboards && dashboards.length > 0) {
-      const state = get();
-      state._mergeSharedState({ dashboards });
-      prevDashboards = dashboards;
-
-      // Resolve active dashboard from sessionStorage
-      const storedActiveId = readSessionActiveDashboard();
-      const activeExists = storedActiveId ? dashboards.some((d) => d.id === storedActiveId) : false;
-
-      const resolvedActiveId = activeExists && storedActiveId ? storedActiveId : dashboards[0].id;
-
-      // biome-ignore lint/suspicious/noExplicitAny: need to set activeDashboardId directly
-      (set as any)({ activeDashboardId: resolvedActiveId });
-      writeSessionActiveDashboard(resolvedActiveId);
-    } else {
-      // No persisted data — resolve active dashboard from sessionStorage against defaults
-      const state = get();
-      const storedActiveId = readSessionActiveDashboard();
-      const activeExists = storedActiveId
-        ? state.dashboards.some((d) => d.id === storedActiveId)
-        : false;
-
-      if (activeExists && storedActiveId !== state.activeDashboardId) {
-        // biome-ignore lint/suspicious/noExplicitAny: need to set activeDashboardId directly
-        (set as any)({ activeDashboardId: storedActiveId });
-      }
-      writeSessionActiveDashboard(state.activeDashboardId);
-    }
+const persistenceMiddlewareImpl = (f: StateCreator<StoreWithPersistence>) =>
+  (
+    createPersistenceMiddleware<PersistedDashboardState, StoreWithPersistence>({
+      adapter: persistenceAdapter,
+      currentVersion: CURRENT_LAYOUT_VERSION,
+      migrations: {},
+      getPersistedSlice: (state) => ({
+        version: CURRENT_LAYOUT_VERSION,
+        dashboards: state.dashboards,
+      }),
+      mergeHydratedState: (set, hydrated) => {
+        const dashboards = hydrated.dashboards.map((dashboard) => ({
+          ...dashboard,
+          instances: dashboard.instances.map((instance) => {
+            const typeDef = getWidgetType(instance.widgetTypeId);
+            return typeDef
+              ? {
+                  ...instance,
+                  config: validateWidgetConfig(typeDef, instance.config) as WidgetConfig,
+                }
+              : instance;
+          }),
+        }));
+        const storedActiveId = readSessionActiveDashboard();
+        const activeDashboardId =
+          storedActiveId && dashboards.some((dashboard) => dashboard.id === storedActiveId)
+            ? storedActiveId
+            : dashboards[0]?.id;
+        set({ dashboards, ...(activeDashboardId ? { activeDashboardId } : {}) });
+        if (activeDashboardId) writeSessionActiveDashboard(activeDashboardId);
+      },
+    }) as unknown as (
+      creator: StateCreator<StoreWithPersistence>,
+    ) => StateCreator<StoreWithPersistence>
+  )((set, get, api) => {
+    const wrappedSet: typeof set = ((partial, replace) => {
+      (set as (partial: unknown, replace?: boolean) => void)(partial, replace);
+      writeSessionActiveDashboard(get().activeDashboardId);
+    }) as typeof set;
+    const initialState = f(wrappedSet, get, api);
+    writeSessionActiveDashboard(initialState.activeDashboardId);
+    return initialState;
   });
 
-  return initialState;
-};
-
-export const persistenceMiddleware = persistenceMiddlewareImpl as PersistenceMiddleware;
+export const persistenceMiddleware = persistenceMiddlewareImpl as unknown as PersistenceMiddleware;
