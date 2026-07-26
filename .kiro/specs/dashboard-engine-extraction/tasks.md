@@ -332,8 +332,8 @@ typechecks and lints for the packages touched so far.
     `pnpm --filter @ay/ui-library storybook` (or `build-storybook`) succeeds
     with the four new stories present. Ask the user if questions arise.
 
-- [ ] 18. Declare `optionsSchema` for each of Bürküt's four widget types
-  - [ ] 18.1 In `apps/burkut/src/components/WidgetGrid/widgetTypeRegistry.ts`
+- [x] 18. Declare `optionsSchema` for each of Bürküt's four widget types
+  - [x] 18.1 In `apps/burkut/src/components/WidgetGrid/widgetTypeRegistry.ts`
     (still at its current location for now), add a `treeListOptionsSchema`
     covering `tags: stringArray` and `contentType: enum` (`all`/`markdown`/
     `image`/`video`/`audio`, default `"all"`), plus a small
@@ -341,27 +341,27 @@ typechecks and lints for the packages touched so far.
     `contentType: ContentType | null` to/from the schema's `"all"`-as-null
     convention (per the design's table)
     - _Requirements: 2.5_
-  - [ ] 18.2 Add `markdownViewerOptionsSchema` covering `pinnedItemId: string`
+  - [x] 18.2 Add `markdownViewerOptionsSchema` covering `pinnedItemId: string`
     (default `""`, mapped to `null` when empty) plus its
     `toSchemaConfig`/`fromSchemaConfig` pair
     - _Requirements: 2.5_
-  - [ ] 18.3 Add `geoMapOptionsSchema` covering `boundingBoxNorth/South/East/West:
+  - [x] 18.3 Add `geoMapOptionsSchema` covering `boundingBoxNorth/South/East/West:
     number` and `zoomLevel: number` (min 0, max 20, step 1) plus its
     `toSchemaConfig`/`fromSchemaConfig` pair assembling/disassembling
     `MapWidgetConfig.boundingBox`
     - _Requirements: 2.5_
-  - [ ] 18.4 Add `linearTimelineOptionsSchema` covering `startDate: dateString`
+  - [x] 18.4 Add `linearTimelineOptionsSchema` covering `startDate: dateString`
     and `endDate: dateString` plus its `toSchemaConfig`/`fromSchemaConfig` pair
     - _Requirements: 2.5_
-  - [ ] 18.5 Write unit tests confirming each `toSchemaConfig`/`fromSchemaConfig`
+  - [x] 18.5 Write unit tests confirming each `toSchemaConfig`/`fromSchemaConfig`
     pair round-trips a representative `WidgetConfig` value for its widget type
     - _Requirements: 2.5_
 
-- [ ] 19. Rewire `apps/burkut`'s registry onto `createWidgetRegistry` and the moved Blocks
-  - [ ] 19.1 Add `"@ay/dashboard-engine": "workspace:^"` to
+- [x] 19. Rewire `apps/burkut`'s registry onto `createWidgetRegistry` and the moved Blocks
+  - [x] 19.1 Add `"@ay/dashboard-engine": "workspace:^"` to
     `apps/burkut/package.json` dependencies; run `pnpm install`
     - _Requirements: 8.1_
-  - [ ] 19.2 Update `widgetTypeRegistry.ts` imports: `Sidebar`/`ContentPanel`/
+  - [x] 19.2 Update `widgetTypeRegistry.ts` imports: `Sidebar`/`ContentPanel`/
     `MapPanel`/`TimelinePanel` from `apps/burkut/src/components/*` become
     `TreeList`/`MarkdownViewer`/`GeoMap`/`LinearTimeline` from
     `@ay/ui-library`; the module-level `widgetTypes: Record<...>` and manual
@@ -371,22 +371,22 @@ typechecks and lints for the packages touched so far.
     - Remove the now-unused `configPanel` field from each registration (no
       `ComponentType<WidgetConfigPanelProps>` reference remains)
     - _Requirements: 8.1, 8.3_
-  - [ ] 19.3 Update `WidgetGrid.tsx` to import `DashboardGrid`,
+  - [x] 19.3 Update `WidgetGrid.tsx` to import `DashboardGrid`,
     `WidgetShell`, and `GeneratedConfigPanel` from `@ay/dashboard-engine`;
     assemble `WidgetRenderContext` as before and pass it plus the registry into
     `DashboardGrid`; render the config panel via `GeneratedConfigPanel` using
     `typeDef.optionsSchema` instead of `typeDef.configPanel`
     - _Requirements: 3.3, 8.4_
-  - [ ] 19.4 Delete `apps/burkut/src/components/WidgetGrid/configPanels/`
+  - [x] 19.4 Delete `apps/burkut/src/components/WidgetGrid/configPanels/`
     (`SidebarConfigPanel.tsx`, `ContentConfigPanel.tsx`, `MapConfigPanel.tsx`,
     `TimelineConfigPanel.tsx`, `types.ts`, `configPanels.css`) and their test
     files
     - _Requirements: 3.4_
-  - [ ] 19.5 Delete `apps/burkut/src/components/WidgetHeader/` (`WidgetHeader.tsx`,
+  - [x] 19.5 Delete `apps/burkut/src/components/WidgetHeader/` (`WidgetHeader.tsx`,
     `WidgetHeader.css`, and its test file); confirm no remaining import
     references it
     - _Requirements: 8.5_
-  - [ ] 19.6 Delete the dead legacy registry and its sole consumers:
+  - [x] 19.6 Delete the dead legacy registry and its sole consumers:
     `apps/burkut/src/components/WidgetGrid/widgetRegistry.ts`,
     `apps/burkut/src/components/WidgetVisibilityMenu/` (component + CSS + test),
     `apps/burkut/src/hooks/useLayoutPersistence.ts` and its test,
@@ -395,7 +395,7 @@ typechecks and lints for the packages touched so far.
     `apps/burkut/src/components/WidgetGrid/bugCondition.exploration.test.tsx`
     (documents a bug in code being deleted)
     - _Requirements: 8.6_
-  - [ ] 19.7 Delete `apps/burkut/src/components/Sidebar/`,
+  - [x] 19.7 Delete `apps/burkut/src/components/Sidebar/`,
     `apps/burkut/src/components/ContentPanel/`, `apps/burkut/src/components/MapPanel/`,
     `apps/burkut/src/components/TimelinePanel/` (now that their contents live in
     `@ay/ui-library`) and update any remaining import in
@@ -404,7 +404,7 @@ typechecks and lints for the packages touched so far.
     `apps/burkut/src/adapters/viewModels.ts` are unaffected — they were never
     co-located with the widgets)
 
-- [ ] 20. Checkpoint — Bürküt compiles against the new registry
+- [x] 20. Checkpoint — Bürküt compiles against the new registry
   - Run `pnpm --filter burkut typecheck` and fix all import-path fallout from
     tasks 12–19 before proceeding. Ask the user if questions arise.
 

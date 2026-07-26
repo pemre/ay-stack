@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@ay/tokens": "workspace:^",
+    "@ay/dashboard-engine": "workspace:^",
     "@ay/ui-library": "workspace:^",
     "@fontsource/crimson-pro": "^5.2.8",
     "cac": "^7.0.0",

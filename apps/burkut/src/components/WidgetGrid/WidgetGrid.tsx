@@ -1,16 +1,19 @@
+import { DashboardGrid, type DashboardGridInstance } from "@ay/dashboard-engine";
 import { useMemo, useState } from "react";
-import type { Layout, ResponsiveLayouts } from "react-grid-layout";
-import { Responsive, useContainerWidth } from "react-grid-layout";
 import { useTranslation } from "react-i18next";
 import config from "../../config";
 import { useTheme } from "../../hooks/useTheme.tsx";
-import type { ContentIndex, Dashboard, WidgetInstance } from "../../shared/types.ts";
+import type { ContentIndex, Dashboard, WidgetConfig, WidgetInstance } from "../../shared/types.ts";
 import { useDashboardStore } from "../../stores/dashboardStore.ts";
 import { applyFilter, resolveFilter } from "../../utils/contentFilter.ts";
-import { WidgetHeader } from "../WidgetHeader/WidgetHeader";
 import { WidgetPicker } from "../WidgetPicker/WidgetPicker.tsx";
 import "./WidgetGrid.css";
-import { getWidgetType, type WidgetRenderContext } from "./widgetTypeRegistry.ts";
+import {
+  getWidgetType,
+  type SchemaConfig,
+  type WidgetRenderContext,
+  type WidgetTypeDefinition,
+} from "./widgetTypeRegistry.ts";
 
 interface WidgetGridProps {
   dashboard: Dashboard;
@@ -23,10 +26,33 @@ interface WidgetGridProps {
   completedSet?: Set<string>;
 }
 
-const BREAKPOINTS = { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 };
-const COLS = { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 };
-
 const EMPTY_HIDDEN_GROUPS = new Set<string>();
+type EngineInstance = DashboardGridInstance<SchemaConfig> & { source: WidgetInstance };
+
+function getConfigPanelLabels(
+  t: (key: string, options?: Record<string, unknown>) => string,
+  typeId: string,
+) {
+  const labelsByType: Record<
+    string,
+    { title: string; addTagPlaceholder?: string; removeTagAriaLabel?: (tag: string) => string }
+  > = {
+    "tree-list": {
+      title: t("config.sidebar.title"),
+      addTagPlaceholder: t("config.sidebar.tagPlaceholder"),
+      removeTagAriaLabel: (tag) => t("config.sidebar.removeTag", { tag }),
+    },
+    "markdown-viewer": { title: t("config.content.title") },
+    "geo-map": { title: t("config.map.title") },
+    "linear-timeline": { title: t("config.timeline.title") },
+  };
+  return {
+    title: labelsByType[typeId]?.title ?? t("widget.config"),
+    closeAriaLabel: t("widget.close"),
+    addTagPlaceholder: labelsByType[typeId]?.addTagPlaceholder,
+    removeTagAriaLabel: labelsByType[typeId]?.removeTagAriaLabel,
+  };
+}
 
 export function WidgetGrid({
   dashboard,
@@ -40,58 +66,15 @@ export function WidgetGrid({
 }: WidgetGridProps) {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const { width, containerRef } = useContainerWidth();
   const draggable = config.features.draggableLayout;
-
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [configInstanceId, setConfigInstanceId] = useState<string | null>(null);
+  const updateWidgetConfig = useDashboardStore((state) => state.updateWidgetConfig);
 
-  const updateWidgetConfig = useDashboardStore((s) => s.updateWidgetConfig);
-
-  // Generate layout items from dashboard instances
-  const layoutItems = useMemo(
-    () =>
-      dashboard.instances.map((inst) => ({
-        i: inst.instanceId,
-        x: inst.position.x,
-        y: inst.position.y,
-        w: inst.position.w,
-        h: inst.position.h,
-        minW: inst.position.minW,
-        minH: inst.position.minH,
-        static: !draggable,
-      })),
-    [dashboard.instances, draggable],
-  );
-
-  // react-grid-layout v2 hands the callback a readonly `Layout`; the store reads
-  // a mutable array, so copy on the way through. Behavior is unchanged.
-  const handleLayoutChange = (currentLayout: Layout, _allLayouts: ResponsiveLayouts): void => {
-    useDashboardStore.getState().onLayoutChange(dashboard.id, [...currentLayout]);
-  };
-
-  const renderWidgetContent = (instance: WidgetInstance, filteredIndex: ContentIndex) => {
-    const typeDef = getWidgetType(instance.widgetTypeId);
-
-    if (!typeDef) {
-      return (
-        <div style={{ padding: "1rem", textAlign: "center" }}>
-          <p>{t("widget.unknown", { type: instance.widgetTypeId })}</p>
-          <button
-            type="button"
-            onClick={() =>
-              useDashboardStore.getState().removeWidgetInstance(dashboard.id, instance.instanceId)
-            }
-          >
-            {t("widget.remove")}
-          </button>
-        </div>
-      );
-    }
-
-    const WidgetComponent = typeDef.component;
-    const ctx: WidgetRenderContext = {
-      index: filteredIndex,
+  const renderContext = useMemo<WidgetRenderContext>(
+    () => ({
+      index,
+      getFilteredIndex: (widgetConfig) =>
+        applyFilter(index, resolveFilter(dashboard.filter, widgetConfig)),
       getContent,
       selectedId,
       onSelectItem,
@@ -101,13 +84,45 @@ export function WidgetGrid({
       hiddenGroups: EMPTY_HIDDEN_GROUPS,
       theme,
       t,
-    };
-    const props = typeDef.buildProps(ctx, instance.config);
-    return <WidgetComponent {...props} />;
+    }),
+    [
+      index,
+      dashboard.filter,
+      getContent,
+      selectedId,
+      onSelectItem,
+      isComplete,
+      onToggleComplete,
+      completedSet,
+      theme,
+      t,
+    ],
+  );
+
+  const instances = useMemo<EngineInstance[]>(
+    () =>
+      dashboard.instances.map((source) => {
+        const typeDef = getWidgetType(source.widgetTypeId);
+        return {
+          ...source,
+          source,
+          config: typeDef?.toSchemaConfig(source.config) ?? source.config,
+        };
+      }),
+    [dashboard.instances],
+  );
+
+  const handleUpdateConfig = (
+    instance: EngineInstance,
+    partial: Record<string, unknown>,
+    typeDef: WidgetTypeDefinition,
+  ) => {
+    const domainConfig = typeDef.fromSchemaConfig({ ...instance.config, ...partial });
+    updateWidgetConfig(dashboard.id, instance.instanceId, domainConfig as Partial<WidgetConfig>);
   };
 
   return (
-    <div className="widget-grid-container" ref={containerRef as React.RefObject<HTMLDivElement>}>
+    <div className="widget-grid-container">
       {draggable && (
         <button
           type="button"
@@ -118,62 +133,34 @@ export function WidgetGrid({
           + {t("widgetPicker.add")}
         </button>
       )}
-
       {pickerOpen && (
         <WidgetPicker dashboardId={dashboard.id} onClose={() => setPickerOpen(false)} />
       )}
-
-      <Responsive
-        width={width}
-        breakpoints={BREAKPOINTS}
-        cols={COLS}
-        layouts={{ lg: layoutItems }}
-        rowHeight={60}
-        onLayoutChange={handleLayoutChange}
-        dragConfig={draggable ? { handle: ".widget-header", enabled: true } : { enabled: false }}
-        resizeConfig={{ enabled: draggable }}
-      >
-        {dashboard.instances.map((instance) => {
-          const resolvedFilter = resolveFilter(dashboard.filter, instance.config);
-          const filteredIndex = applyFilter(index, resolvedFilter);
-          const typeDef = getWidgetType(instance.widgetTypeId);
-          const titleKey = typeDef?.titleKey ?? "widget.unknown";
-          const ConfigPanel = typeDef?.configPanel;
-
-          return (
-            <div key={instance.instanceId} className="widget-item">
-              <WidgetHeader
-                titleKey={titleKey}
-                onConfigClick={() =>
-                  setConfigInstanceId(
-                    configInstanceId === instance.instanceId ? null : instance.instanceId,
-                  )
-                }
-                onDuplicateClick={() =>
-                  useDashboardStore
-                    .getState()
-                    .duplicateWidgetInstance(dashboard.id, instance.instanceId)
-                }
-                onRemoveClick={() =>
-                  useDashboardStore
-                    .getState()
-                    .removeWidgetInstance(dashboard.id, instance.instanceId)
-                }
-              />
-              <div className="widget-item__body">
-                {renderWidgetContent(instance, filteredIndex)}
-              </div>
-              {configInstanceId === instance.instanceId && ConfigPanel && (
-                <ConfigPanel
-                  instance={instance}
-                  onUpdate={(cfg) => updateWidgetConfig(dashboard.id, instance.instanceId, cfg)}
-                  onClose={() => setConfigInstanceId(null)}
-                />
-              )}
-            </div>
-          );
-        })}
-      </Responsive>
+      <DashboardGrid
+        instances={instances}
+        resolveType={getWidgetType}
+        renderContext={renderContext}
+        draggable={draggable}
+        shellLabels={{
+          configAriaLabel: t("widget.config"),
+          duplicateAriaLabel: t("widget.duplicate"),
+          removeAriaLabel: t("widget.remove"),
+          closeAriaLabel: t("widget.close"),
+        }}
+        getWidgetTitle={(_instance, typeDef) => t(typeDef?.titleKey ?? "widget.unknown")}
+        getUnknownWidgetMessage={(instance) => t("widget.unknown", { type: instance.widgetTypeId })}
+        onLayoutChange={(layout) =>
+          useDashboardStore.getState().onLayoutChange(dashboard.id, [...layout])
+        }
+        onDuplicate={(instance) =>
+          useDashboardStore.getState().duplicateWidgetInstance(dashboard.id, instance.instanceId)
+        }
+        onRemove={(instance) =>
+          useDashboardStore.getState().removeWidgetInstance(dashboard.id, instance.instanceId)
+        }
+        onUpdateInstanceConfig={handleUpdateConfig}
+        getConfigPanelLabels={(instance) => getConfigPanelLabels(t, instance.widgetTypeId)}
+      />
     </div>
   );
 }
