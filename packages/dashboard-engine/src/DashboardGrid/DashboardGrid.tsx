@@ -149,7 +149,7 @@ export function DashboardGrid<
   );
 
   return (
-    <div className="widget-grid-container" ref={containerRef as RefObject<HTMLDivElement>}>
+    <div className="dashboard-grid-container" ref={containerRef as RefObject<HTMLDivElement>}>
       <Responsive
         width={width}
         breakpoints={BREAKPOINTS}
@@ -190,45 +190,46 @@ export function DashboardGrid<
               : undefined;
 
           return (
-            <WidgetShell
-              key={instance.instanceId}
-              title={title}
-              labels={shellLabels}
-              draggable={draggable}
-              onConfigClick={handleConfigClick}
-              onDuplicateClick={onDuplicate ? () => onDuplicate(instance) : undefined}
-              onRemoveClick={onRemove ? () => onRemove(instance) : undefined}
-              onClose={onClose ? () => onClose(instance) : undefined}
-              isEmpty={isInstanceEmpty?.(instance, typeDef)}
-              emptyState={renderEmptyState?.(instance, typeDef)}
-              loadingState={getLoadingState?.(instance, typeDef)}
-            >
-              {typeDef ? (
-                <ResolvedWidget
-                  instance={instance}
-                  typeDef={typeDef}
-                  renderContext={renderContext}
-                />
-              ) : (
-                <UnknownWidgetContent
-                  instance={instance}
-                  getUnknownWidgetMessage={getUnknownWidgetMessage}
-                />
-              )}
-              {typeDef?.optionsSchema &&
-                canRenderGeneratedConfigPanel &&
-                configPanelLabels &&
-                updateInstanceConfig &&
-                configInstanceId === instance.instanceId && (
-                  <GeneratedConfigPanel
-                    schema={typeDef.optionsSchema}
-                    config={toConfigRecord(instance.config)}
-                    labels={configPanelLabels}
-                    onUpdate={(partial) => updateInstanceConfig(instance, partial, typeDef)}
-                    onClose={() => setConfigInstanceId(null)}
+            <div key={instance.instanceId} className="dashboard-grid__item">
+              <WidgetShell
+                title={title}
+                labels={shellLabels}
+                draggable={draggable}
+                onConfigClick={handleConfigClick}
+                onDuplicateClick={onDuplicate ? () => onDuplicate(instance) : undefined}
+                onRemoveClick={onRemove ? () => onRemove(instance) : undefined}
+                onClose={onClose ? () => onClose(instance) : undefined}
+                isEmpty={isInstanceEmpty?.(instance, typeDef)}
+                emptyState={renderEmptyState?.(instance, typeDef)}
+                loadingState={getLoadingState?.(instance, typeDef)}
+              >
+                {typeDef ? (
+                  <ResolvedWidget
+                    instance={instance}
+                    typeDef={typeDef}
+                    renderContext={renderContext}
+                  />
+                ) : (
+                  <UnknownWidgetContent
+                    instance={instance}
+                    getUnknownWidgetMessage={getUnknownWidgetMessage}
                   />
                 )}
-            </WidgetShell>
+                {typeDef?.optionsSchema &&
+                  canRenderGeneratedConfigPanel &&
+                  configPanelLabels &&
+                  updateInstanceConfig &&
+                  configInstanceId === instance.instanceId && (
+                    <GeneratedConfigPanel
+                      schema={typeDef.optionsSchema}
+                      config={toConfigRecord(instance.config)}
+                      labels={configPanelLabels}
+                      onUpdate={(partial) => updateInstanceConfig(instance, partial, typeDef)}
+                      onClose={() => setConfigInstanceId(null)}
+                    />
+                  )}
+              </WidgetShell>
+            </div>
           );
         })}
       </Responsive>

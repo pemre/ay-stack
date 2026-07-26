@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
+import "@ay/dashboard-engine/styles.css";
 import "@fontsource/crimson-pro/400.css";
 import "@fontsource/crimson-pro/500.css";
 import "@fontsource/crimson-pro/700.css";
