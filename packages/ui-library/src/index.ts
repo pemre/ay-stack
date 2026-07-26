@@ -2,6 +2,14 @@
 
 export { ImageZoom } from "./blocks/ImageZoom/ImageZoom.tsx";
 export type { ImageZoomConfig, ImageZoomProps, ZoomLevel } from "./blocks/ImageZoom/types.ts";
+export { MarkdownViewer } from "./blocks/MarkdownViewer/MarkdownViewer.tsx";
+export type {
+  ContentViewModel,
+  MarkdownViewerConfig,
+  MarkdownViewerLabels,
+  MarkdownViewerProps,
+} from "./blocks/MarkdownViewer/types.ts";
+export { DEFAULT_MARKDOWN_VIEWER_LABELS } from "./blocks/MarkdownViewer/types.ts";
 export { SpiralTimeline } from "./blocks/SpiralTimeline/SpiralTimeline.tsx";
 export type {
   AnimationConfig,

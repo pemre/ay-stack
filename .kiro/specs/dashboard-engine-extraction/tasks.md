@@ -271,16 +271,16 @@ typechecks and lints for the packages touched so far.
     `packages/ui-library/src/index.ts`
     - _Requirements: 7.7_
 
-- [ ] 13. Move `ContentPanel` → `MarkdownViewer` into `@ay/ui-library`
-  - [ ] 13.1 Move and rename `ContentPanel.tsx` →
+- [x] 13. Move `ContentPanel` → `MarkdownViewer` into `@ay/ui-library`
+  - [x] 13.1 Move and rename `ContentPanel.tsx` →
     `packages/ui-library/src/blocks/MarkdownViewer/MarkdownViewer.tsx`
     (`ContentPanelLabels` → `MarkdownViewerLabels`, etc.); move `ContentPanel.css`
     - _Requirements: 7.2_
-  - [ ] 13.2 Move and update `ContentPanel.test.tsx` →
+  - [x] 13.2 Move and update `ContentPanel.test.tsx` →
     `MarkdownViewer.test.tsx`
-  - [ ] 13.3 Create `MarkdownViewer.stories.tsx`
+  - [x] 13.3 Create `MarkdownViewer.stories.tsx`
     - _Requirements: 7.6_
-  - [ ] 13.4 Add `MarkdownViewer` and its types to
+  - [x] 13.4 Add `MarkdownViewer` and its types to
     `packages/ui-library/src/index.ts`
     - _Requirements: 7.7_
 
