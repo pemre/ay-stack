@@ -113,7 +113,7 @@ function absentEntries(consumer: Consumer): ChainEntry[] {
 function diff(consumer: Consumer): Report {
   const post = resolveThemes(consumer.chain.map((entry) => read(ROOT, entry.path)));
   const base = baseline.perSource[consumer.baselineKey];
-  if (!base) throw new Error("baseline.json has no perSource entry for " + consumer.baselineKey);
+  if (!base) throw new Error(`baseline.json has no perSource entry for ${consumer.baselineKey}`);
 
   const allowed = ALLOWED_DEVIATIONS[consumer.baselineKey] ?? {};
   const report: Report = {
@@ -129,7 +129,7 @@ function diff(consumer: Consumer): Report {
     for (const [name, expected] of Object.entries(before)) {
       report.checked[theme]++;
       if (!(name in after)) {
-        report.missing.push(theme + " " + name + " (was " + expected + ")");
+        report.missing.push(`${theme} ${name} (was ${expected})`);
         continue;
       }
       const actual = after[name];
@@ -139,7 +139,7 @@ function diff(consumer: Consumer): Report {
         report.accepted.push({ theme, name, from: expected, to: actual });
         continue;
       }
-      report.changed.push(theme + " " + name + ": " + expected + " -> " + actual);
+      report.changed.push(`${theme} ${name}: ${expected} -> ${actual}`);
     }
   }
   return report;
@@ -160,7 +160,7 @@ for (const { consumer, absent } of pending) {
         consumer.label +
         ": the post-migration chain is not fully in place yet.\n" +
         owned
-          .map((entry) => "    missing " + entry.path + " — created by " + entry.pendingTask)
+          .map((entry) => `    missing ${entry.path} — created by ${entry.pendingTask}`)
           .join("\n") +
         "\n    This consumer's " +
         consumer.expectedProperties +
@@ -176,24 +176,23 @@ describe("Property 1: computed-value preservation across the migration", () => {
     const skip = absent.length > 0 && absent.every((entry) => entry.pendingTask);
 
     it.skipIf(skip)(
-      "resolves every " + consumer.label + " baseline property to its pre-migration literal",
+      `resolves every ${consumer.label} baseline property to its pre-migration literal`,
       () => {
         // A chain file that no later task owns is a real failure, not a skip.
         const unowned = absent.filter((entry) => !entry.pendingTask);
         expect(
           unowned.map((entry) => entry.path),
-          "post-migration chain file missing for " + consumer.label,
+          `post-migration chain file missing for ${consumer.label}`,
         ).toEqual([]);
 
         const report = diff(consumer);
 
         // Missing keys and changed values are distinct failures so the cause is
         // unambiguous: a token that disappeared is not a token that drifted.
-        expect(report.missing, "tokens missing from the " + consumer.label + " chain").toEqual([]);
-        expect(
-          report.changed,
-          "computed values changed on the " + consumer.label + " chain",
-        ).toEqual([]);
+        expect(report.missing, `tokens missing from the ${consumer.label} chain`).toEqual([]);
+        expect(report.changed, `computed values changed on the ${consumer.label} chain`).toEqual(
+          [],
+        );
 
         // Exhaustive, not sampled: every property the baseline recorded for this
         // consumer was compared in both themes.

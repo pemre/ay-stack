@@ -61,7 +61,7 @@ export function declaredNames(body: string): string[] {
 
 /** Plain (non-custom-property) declarations, used for `color-scheme`. */
 export function plainDeclaration(body: string, property: string): string | null {
-  const re = new RegExp("(?:^|;|\\})\\s*" + property + "\\s*:\\s*([^;}]+)");
+  const re = new RegExp(`(?:^|;|\\})\\s*${property}\\s*:\\s*([^;}]+)`);
   const m = re.exec(body);
   return m ? m[1].trim() : null;
 }

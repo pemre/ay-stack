@@ -36,7 +36,7 @@ const coreNames = new Set(
 describe("Property 8: theme entry and plain entry declare the same tokens", () => {
   it("emits all four artifacts the exports map names", () => {
     for (const file of ["core.css", "semantic.css", "tokens.css", "theme.css"]) {
-      expect(existsSync(join(PKG, "dist", file)), "dist/" + file + " missing").toBe(true);
+      expect(existsSync(join(PKG, "dist", file)), `dist/${file} missing`).toBe(true);
     }
   });
 
@@ -49,7 +49,7 @@ describe("Property 8: theme entry and plain entry declare the same tokens", () =
     const differing: string[] = [];
     for (const [name, value] of themeDecls) {
       if (plainDecls.get(name) !== value) {
-        differing.push(name + ": theme " + value + " vs plain " + plainDecls.get(name));
+        differing.push(`${name}: theme ${value} vs plain ${plainDecls.get(name)}`);
       }
     }
     expect(differing).toEqual([]);

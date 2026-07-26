@@ -23,7 +23,7 @@ describe("@ay/tokens authored token set", () => {
     const missing: string[] = [];
     for (const shade of ["400", "500"]) {
       for (const alpha of ["a12", "a15", "a20", "a30", "a44", "a66"]) {
-        const name = "--color-amber-" + shade + "-" + alpha;
+        const name = `--color-amber-${shade}-${alpha}`;
         if (!coreDecls.has(name)) missing.push(name);
       }
     }

@@ -5,11 +5,11 @@
 // **Validates: Requirements 6.6**
 //
 // The alias set comes from the stylesheet's own region markers and the reference
-// index from every Bürküt source file, so adding an alias without using it fails
-// automatically. A reference from inside the alias region itself does not count —
-// otherwise an alias could justify its own existence.
+// index from the application plus extracted ui-library Blocks, so adding an alias
+// without using it fails automatically. A reference from inside the alias region
+// itself does not count — otherwise an alias could justify its own existence.
 
-import { relative } from "node:path";
+import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   APP,
@@ -24,6 +24,7 @@ import {
 } from "./helpers/css";
 
 const SOURCE_EXTENSIONS = [".css", ".ts", ".tsx"];
+const BLOCKS = join(ROOT, "packages", "ui-library", "src", "blocks");
 
 /** Every alias name declared in either theme's alias region. */
 function aliasNames(): string[] {
@@ -42,7 +43,10 @@ function referenceIndex(): Map<string, string[]> {
     aliasRegion(read(APP_TOKENS_CSS), theme as "light" | "dark"),
   );
 
-  for (const file of filesUnder(APP, SOURCE_EXTENSIONS)) {
+  for (const file of [
+    ...filesUnder(APP, SOURCE_EXTENSIONS),
+    ...filesUnder(BLOCKS, SOURCE_EXTENSIONS),
+  ]) {
     let text = file.endsWith(".css") ? stripComments(read(file)) : read(file);
     // A reference from inside the alias region is self-justifying, so remove it.
     if (file === APP_TOKENS_CSS) {

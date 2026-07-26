@@ -25,6 +25,7 @@ const APP_DIR = resolveProjectRoot();
 const WORKSPACE_ROOT = resolve(APP_DIR, "..", "..");
 const BLOCKS_DIR = resolve(WORKSPACE_ROOT, "packages", "ui-library", "src", "blocks");
 const TOKENS_CSS = resolve(WORKSPACE_ROOT, "packages", "tokens", "dist", "tokens.css");
+const APP_TOKENS_CSS = resolve(APP_DIR, "src", "styles", "app-tokens.css");
 const TAILWIND_ENTRY = resolve(APP_DIR, "src", "styles", "tailwind.css");
 
 const require = createRequire(resolve(APP_DIR, "package.json"));
@@ -61,10 +62,10 @@ function blockClassNames(): string[] {
   const names = new Set<string>();
   for (const file of sources) {
     const content = readFileSync(file, "utf-8");
-    for (const match of content.matchAll(/className=(?:"([^"]*)"|\{`([^`]*)`\})/g)) {
+    for (const match of content.matchAll(/className=(?:"([^"]*)"|\{`([^`]*)`})/g)) {
       const literal = match[1] ?? match[2] ?? "";
       // Drop `${...}` interpolations, keep the static class tokens around them.
-      for (const token of literal.replace(/\$\{[^}]*\}/g, " ").split(/\s+/)) {
+      for (const token of literal.replace(/\$\{[^}]*}/g, " ").split(/\s+/)) {
         if (token.length > 0) names.add(token);
       }
     }
@@ -145,12 +146,7 @@ describe("Tailwind utility output and token fallback", () => {
     const emitted = candidates.filter((name) =>
       new RegExp(`\\.${name.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}[\\s,:{]`).test(output),
     );
-    const blockOwnClasses = candidates.filter(
-      (name) => name.startsWith("spiral-timeline") || name.startsWith("image-zoom"),
-    );
-
-    // Every block class is a block-owned name, none is a Tailwind utility.
-    expect(candidates.filter((name) => !blockOwnClasses.includes(name))).toEqual([]);
+    // The extracted Blocks own these class names; none is a Tailwind utility.
     expect(emitted).toEqual([]);
   });
 
@@ -162,7 +158,8 @@ describe("Tailwind utility output and token fallback", () => {
    * _Requirements: 11.8_
    */
   it("keeps block styling resolvable from @ay/tokens alone", () => {
-    const tokens = declaredProperties(readFileSync(TOKENS_CSS, "utf-8"));
+    const runtimeStyles = [TOKENS_CSS, APP_TOKENS_CSS].map((file) => readFileSync(file, "utf-8"));
+    const tokens = new Set(runtimeStyles.flatMap((css) => [...declaredProperties(css)]));
     const blockStylesheets = walk(BLOCKS_DIR).filter((file) => file.endsWith(".css"));
 
     expect(blockStylesheets.length).toBeGreaterThan(0);

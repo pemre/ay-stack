@@ -65,7 +65,7 @@ describe("Property 3: bidirectional tier ownership — @ay/tokens half", () => {
 
     const foreign = declaredByPackage
       .filter(({ name }) => !CORE.has(name) && !SEMANTIC.has(name))
-      .map(({ file, name }) => relative(ROOT, file) + ": " + name);
+      .map(({ file, name }) => `${relative(ROOT, file)}: ${name}`);
     expect(foreign, "@ay/tokens declares a name in neither owned tier").toEqual([]);
 
     const aliases = new Set(legacyAliasNames());
@@ -92,9 +92,9 @@ describe("Property 3: bidirectional tier ownership — @ay/tokens half", () => {
         filesScanned++;
         for (const name of declaredNames(read(file))) {
           if (CORE.has(name)) {
-            violations.push(relative(ROOT, file) + " declares core token " + name);
+            violations.push(`${relative(ROOT, file)} declares core token ${name}`);
           } else if (SEMANTIC.has(name)) {
-            violations.push(relative(ROOT, file) + " declares semantic token " + name);
+            violations.push(`${relative(ROOT, file)} declares semantic token ${name}`);
           }
         }
       }
