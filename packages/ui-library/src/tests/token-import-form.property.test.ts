@@ -58,7 +58,7 @@ function isRelative(specifier: string): boolean {
 function reachesTokenPackage(file: string, specifier: string): boolean {
   const target = resolve(dirname(file), specifier);
   if (!target.startsWith(TOKENS_PKG)) return false;
-  return existsSync(target) || existsSync(target + ".css") || existsSync(target + ".ts");
+  return existsSync(target) || existsSync(`${target}.css`) || existsSync(`${target}.ts`);
 }
 
 const REFS = filesUnder(PKG).flatMap((file) =>
@@ -69,7 +69,7 @@ describe("Property 4: token imports use the package specifier — @ay/ui-library
   it("reaches packages/tokens through no relative path", () => {
     const violations = REFS.filter(
       ({ file, specifier }) => isRelative(specifier) && reachesTokenPackage(file, specifier),
-    ).map(({ file, specifier }) => relative(ROOT, file) + ' imports "' + specifier + '"');
+    ).map(({ file, specifier }) => `${relative(ROOT, file)} imports "${specifier}"`);
 
     expect(violations, "relative import of the token package").toEqual([]);
   });

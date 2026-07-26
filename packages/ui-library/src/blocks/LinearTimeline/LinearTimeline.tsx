@@ -1,42 +1,23 @@
+import type { RefObject } from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { DataSet, Timeline } from "vis-timeline/standalone";
 import "vis-timeline/styles/vis-timeline-graph2d.min.css";
-import type { TimelineItem } from "../../adapters/viewModels.ts";
-import { useResizeObserver } from "../../hooks/useResizeObserver";
-import "./TimelinePanel.css";
-
-// ── Labels ────────────────────────────────────────────────────────────────
-
-export interface TimelinePanelLabels {
-  /** aria-label for the root section element (default: "Timeline"). */
-  ariaLabel?: string;
-}
-
-export const DEFAULT_TIMELINE_PANEL_LABELS: Required<TimelinePanelLabels> = {
-  ariaLabel: "Timeline",
-};
-
-// ── Config ────────────────────────────────────────────────────────────────
-
-export interface TimelinePanelConfig {
-  labels?: TimelinePanelLabels;
-  /** Timeline min/max bounds, ISO date strings (default: "-001800-01-01".."2100-01-01"). */
-  minDate?: string;
-  maxDate?: string;
-}
+import type { LinearTimelineConfig, LinearTimelineItem, LinearTimelineProps } from "./types.ts";
+import { DEFAULT_LINEAR_TIMELINE_LABELS } from "./types.ts";
+import "./LinearTimeline.css";
 
 const DEFAULT_MIN_DATE = "-001800-01-01";
 const DEFAULT_MAX_DATE = "2100-01-01";
 
 interface MergedConfig {
-  labels: Required<TimelinePanelLabels>;
+  labels: Required<import("./types.ts").LinearTimelineLabels>;
   minDate: string;
   maxDate: string;
 }
 
-function mergeConfig(user?: TimelinePanelConfig): MergedConfig {
+function mergeConfig(user?: LinearTimelineConfig): MergedConfig {
   return {
-    labels: { ...DEFAULT_TIMELINE_PANEL_LABELS, ...user?.labels },
+    labels: { ...DEFAULT_LINEAR_TIMELINE_LABELS, ...user?.labels },
     minDate: user?.minDate ?? DEFAULT_MIN_DATE,
     maxDate: user?.maxDate ?? DEFAULT_MAX_DATE,
   };
@@ -52,25 +33,53 @@ interface TimelineGroup {
 
 interface TimelineRef {
   tl: Timeline;
-  ds: DataSet<TimelineItem>;
+  ds: DataSet<LinearTimelineItem>;
   gs: DataSet<TimelineGroup>;
 }
 
-interface TimelinePanelProps {
-  items: TimelineItem[];
-  selectedId: string | null;
-  onSelect: (id: string) => void;
-  hiddenGroups: Set<string>;
-  config?: TimelinePanelConfig;
+export function buildLinearTimelineGroups(items: LinearTimelineItem[], hiddenGroups: Set<string>) {
+  const seen = new Set<string>();
+  for (const item of items) {
+    if (item.group) seen.add(item.group);
+  }
+  return [...seen].sort().map((id) => ({
+    id,
+    content: id,
+    visible: !hiddenGroups.has(id),
+  }));
 }
 
-export default function TimelinePanel({
+function useResizeObserver(
+  ref: RefObject<HTMLElement | null>,
+  callback: () => void,
+  delay = 100,
+): void {
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const observer = new ResizeObserver(() => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => callbackRef.current(), delay);
+    });
+    observer.observe(element);
+    return () => {
+      if (timer) clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, [ref, delay]);
+}
+
+export function LinearTimeline({
   items,
   selectedId,
   onSelect,
   hiddenGroups,
   config,
-}: TimelinePanelProps) {
+}: LinearTimelineProps) {
   const cfg = useMemo(() => mergeConfig(config), [config]);
   const containerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<TimelineRef | null>(null);
@@ -79,17 +88,10 @@ export default function TimelinePanel({
   // Track whether we've done the initial init so we don't re-init on every resize
   const initDoneRef = useRef(false);
 
-  const translatedGroups = useMemo(() => {
-    const seen = new Set<string>();
-    for (const item of items) {
-      if (item.group) seen.add(item.group);
-    }
-    return [...seen].sort().map((gid) => ({
-      id: gid,
-      content: gid,
-      visible: !hiddenGroups.has(gid),
-    }));
-  }, [items, hiddenGroups]);
+  const translatedGroups = useMemo(
+    () => buildLinearTimelineGroups(items, hiddenGroups),
+    [items, hiddenGroups],
+  );
 
   // Store latest items/groups in refs so the init function can access them
   const itemsRef = useRef(items);
@@ -100,7 +102,7 @@ export default function TimelinePanel({
   selectedIdRef.current = selectedId;
   // Track the data snapshots loaded during init so the sync effects can skip
   // the redundant clear+add that causes vis-timeline to mis-stack items.
-  const initItemsRef = useRef<TimelineItem[] | null>(null);
+  const initItemsRef = useRef<LinearTimelineItem[] | null>(null);
   const initGroupsRef = useRef<typeof translatedGroups | null>(null);
 
   // Initialize vis-timeline. Called either from the mount effect (if container
@@ -150,7 +152,7 @@ export default function TimelinePanel({
       try {
         tl.focus(sid);
         const win = tl.getWindow();
-        const winMs = win.end - win.start;
+        const winMs = new Date(win.end).getTime() - new Date(win.start).getTime();
         const item = ds.get(sid);
         if (item?.start) {
           const itemStart = new Date(item.start).getTime();
@@ -212,7 +214,7 @@ export default function TimelinePanel({
     try {
       tl.focus(selectedId);
       const win = tl.getWindow();
-      const winMs = win.end - win.start;
+      const winMs = new Date(win.end).getTime() - new Date(win.start).getTime();
       const item = ds.get(selectedId);
       if (item?.start) {
         const itemStart = new Date(item.start).getTime();

@@ -298,8 +298,8 @@ typechecks and lints for the packages touched so far.
   - [x] 14.4 Add `GeoMap` and its types to `packages/ui-library/src/index.ts`
     - _Requirements: 7.7_
 
-- [ ] 15. Move `TimelinePanel` → `LinearTimeline` into `@ay/ui-library`
-  - [ ] 15.1 Move and rename `TimelinePanel.tsx` →
+- [x] 15. Move `TimelinePanel` → `LinearTimeline` into `@ay/ui-library`
+  - [x] 15.1 Move and rename `TimelinePanel.tsx` →
     `packages/ui-library/src/blocks/LinearTimeline/LinearTimeline.tsx`
     (`TimelinePanelLabels` → `LinearTimelineLabels`,
     `TimelinePanelConfig` → `LinearTimelineConfig`,
@@ -307,27 +307,27 @@ typechecks and lints for the packages touched so far.
     `TimelinePanel.css` → `LinearTimeline.css`; keep the `vis-timeline` CSS
     self-import as-is
     - _Requirements: 7.4_
-  - [ ] 15.2 Move and update `TimelinePanel.test.tsx` → `LinearTimeline.test.tsx`
-  - [ ] 15.3 Create `LinearTimeline.stories.tsx`, pairing with
+  - [x] 15.2 Move and update `TimelinePanel.test.tsx` → `LinearTimeline.test.tsx`
+  - [x] 15.3 Create `LinearTimeline.stories.tsx`, pairing with
     `SpiralTimeline.stories.tsx`'s conventions
     - _Requirements: 7.6_
-  - [ ] 15.4 Add `LinearTimeline` and its types to
+  - [x] 15.4 Add `LinearTimeline` and its types to
     `packages/ui-library/src/index.ts`
     - _Requirements: 7.7_
 
-- [ ] 16. Update `@ay/ui-library` dependencies and build
-  - [ ] 16.1 Add `leaflet`, `react-leaflet` (matching `apps/burkut`'s current
+- [x] 16. Update `@ay/ui-library` dependencies and build
+  - [x] 16.1 Add `leaflet`, `react-leaflet` (matching `apps/burkut`'s current
     versions) as dependencies to `packages/ui-library/package.json`; add
     `vis-timeline`, `vis-data`, `react-markdown`, `remark-gfm` as dependencies
     - _Requirements: 7.8_
-  - [ ] 16.2 Run `pnpm install` at the root
-  - [ ] 16.3 Run `pnpm --filter @ay/ui-library typecheck`,
+  - [x] 16.2 Run `pnpm install` at the root
+  - [x] 16.3 Run `pnpm --filter @ay/ui-library typecheck`,
     `pnpm --filter @ay/ui-library lint`,
     `pnpm --filter @ay/ui-library test`, `pnpm --filter @ay/ui-library build`;
     fix any import path or type errors surfaced by the four new Blocks living
     inside the library
 
-- [ ] 17. Checkpoint — `@ay/ui-library` with four new Blocks
+- [x] 17. Checkpoint — `@ay/ui-library` with four new Blocks
   - Ensure all `@ay/ui-library` tests, typecheck, lint, and build pass, and that
     `pnpm --filter @ay/ui-library storybook` (or `build-storybook`) succeeds
     with the four new stories present. Ask the user if questions arise.

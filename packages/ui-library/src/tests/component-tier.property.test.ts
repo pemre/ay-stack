@@ -114,9 +114,7 @@ describe("Property 7: component CSS never reaches the core tier", () => {
           referencesChecked++;
           if (!CORE.has(target)) continue;
           if (isComponentTokenDeclaration) continue;
-          violations.push(
-            relative(ROOT, file) + ": " + property + " references core token " + target,
-          );
+          violations.push(`${relative(ROOT, file)}: ${property} references core token ${target}`);
         }
       }
     }
@@ -136,7 +134,7 @@ describe("Property 7: component CSS never reaches the core tier", () => {
         for (const target of varTargets(value)) {
           if (CORE.has(target) || SEMANTIC.has(target)) continue;
           if (target.startsWith("--spiral-") || target.startsWith("--image-zoom-")) continue;
-          unknown.push(relative(ROOT, file) + ": " + property + " -> " + target);
+          unknown.push(`${relative(ROOT, file)}: ${property} -> ${target}`);
         }
       }
     }

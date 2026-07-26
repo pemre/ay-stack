@@ -1,7 +1,5 @@
 // Barrel export — will re-export all blocks and public types
 
-export { ImageZoom } from "./blocks/ImageZoom/ImageZoom.tsx";
-export type { ImageZoomConfig, ImageZoomProps, ZoomLevel } from "./blocks/ImageZoom/types.ts";
 export { GeoMap } from "./blocks/GeoMap/GeoMap.tsx";
 export {
   DEFAULT_GEOMAP_LABELS,
@@ -10,6 +8,19 @@ export {
   type GeoMapLabels,
   type GeoMapProps,
 } from "./blocks/GeoMap/types.ts";
+export { ImageZoom } from "./blocks/ImageZoom/ImageZoom.tsx";
+export type { ImageZoomConfig, ImageZoomProps, ZoomLevel } from "./blocks/ImageZoom/types.ts";
+export {
+  buildLinearTimelineGroups,
+  LinearTimeline,
+} from "./blocks/LinearTimeline/LinearTimeline.tsx";
+export {
+  DEFAULT_LINEAR_TIMELINE_LABELS,
+  type LinearTimelineConfig,
+  type LinearTimelineItem,
+  type LinearTimelineLabels,
+  type LinearTimelineProps,
+} from "./blocks/LinearTimeline/types.ts";
 export { MarkdownViewer } from "./blocks/MarkdownViewer/MarkdownViewer.tsx";
 export type {
   ContentViewModel,
