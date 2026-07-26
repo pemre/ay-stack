@@ -1,4 +1,4 @@
-import type { PersistenceAdapter } from "@ay/dashboard-engine";
+import type { PersistenceAdapter } from "@ay/ui-library";
 import type { PersistedDashboardState } from "../shared/types.ts";
 import { CURRENT_LAYOUT_VERSION, migrateLayoutDocument } from "./layoutMigrations.ts";
 

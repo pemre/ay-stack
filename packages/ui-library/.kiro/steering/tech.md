@@ -11,7 +11,7 @@ the workspace root; nothing here uses npm or yarn.
 | Language | TypeScript (strict mode) | ^5.9 |
 | Framework | React | ^18.0.0 |
 | Visualization | D3 | ^7.0.0 |
-| Design tokens | `@ay/tokens` (`workspace:^`) | 0.1.x |
+| Design tokens | `@ay/ui-library` (`workspace:^`) | 0.1.x |
 | Utility CSS | Tailwind CSS v4 | ^4.2.1 |
 | Bundler | Vite (library mode) | ^5.4 |
 | Type declarations | vite-plugin-dts | ^4.5 |
@@ -24,7 +24,7 @@ the workspace root; nothing here uses npm or yarn.
 | Styling | Plain CSS with custom properties (no CSS-in-JS); hybrid Tailwind utilities for select blocks (e.g., ImageZoom) |
 
 React, ReactDOM, D3, and Tailwind CSS are **peer dependencies** — they are
-externalized from the build output. `@ay/tokens` is a real dependency: the package
+externalized from the build output. `@ay/ui-library` is a real dependency: the package
 consumes its stylesheet rather than declaring tokens of its own.
 
 Every shared tool version comes from the workspace catalog in
@@ -52,12 +52,12 @@ pnpm --filter @ay/ui-library build-storybook  # static Storybook site
 `packages/ui-library/` the same scripts run as plain `pnpm dev`, `pnpm test`, and
 so on.
 
-Storybook's stylesheet imports `@ay/tokens/theme.css`, which resolves to that
+Storybook's stylesheet imports `@ay/ui-library/theme.css`, which resolves to that
 package's `dist/`. A filtered command does not build workspace dependencies on its
 own, so build them first when `dist/` is cold:
 
 ```bash
-pnpm --filter "@ay/ui-library^..." build   # builds @ay/tokens
+pnpm --filter "@ay/ui-library^..." build   # builds @ay/ui-library
 ```
 
 ## Quality Gates (must all pass before merge)
@@ -85,7 +85,7 @@ Vite library mode produces:
 
 Entry point: `src/index.ts`. Externals: `react`, `react-dom`, `react/jsx-runtime`,
 `d3`. `dist/style.css` carries component CSS only — design tokens ship separately
-in `@ay/tokens`, so a consumer imports both.
+in `@ay/ui-library`, so a consumer imports both.
 
 ## TypeScript Configuration
 
@@ -112,15 +112,15 @@ configuration at the root, so lint results are identical in every package:
 ## Design Tokens
 
 Token tiers, naming patterns, and tier ownership rules:
-#[[file:packages/tokens/TOKEN-ARCHITECTURE.md]]
+#[[file:packages/ui-library/TOKEN-ARCHITECTURE.md]]
 
 This package declares **no core or semantic token**. Both tiers live in
-`@ay/tokens`; block CSS consumes semantic tokens and declares its own component
+`@ay/ui-library`; block CSS consumes semantic tokens and declares its own component
 tokens. Storybook loads them through `.storybook/tailwind.css`:
 
 ```css
 @import "tailwindcss";
-@import "@ay/tokens/theme.css";
+@import "@ay/ui-library/theme.css";
 ```
 
 Tailwind first, so the token block extends the default theme rather than being

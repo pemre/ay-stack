@@ -1,11 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════
    Bürküt — Tailwind v4 entry
 
-   Tailwind first so the @ay/tokens `@theme static` block extends and overrides
+   Tailwind first so the @ay/ui-library `@theme static` block extends and overrides
    the default theme rather than being overridden by it. The token stylesheet is
    reached through the package specifier, never a relative path, so the app
-   consumes @ay/tokens exactly the way an external consumer would.
+   consumes @ay/ui-library exactly the way an external consumer would.
    ═══════════════════════════════════════════════════════════════ */
 
 @import "tailwindcss";
-@import "@ay/tokens/theme.css";
+@import "@ay/ui-library/theme.css";

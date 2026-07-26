@@ -14,8 +14,8 @@ import { fileURLToPath } from "node:url";
 export const APP = dirname(dirname(dirname(dirname(fileURLToPath(import.meta.url)))));
 /** workspace root */
 export const ROOT = dirname(dirname(APP));
-/** packages/tokens/src */
-export const TOKENS_SRC = join(ROOT, "packages", "tokens", "src");
+/** packages/ui-library/src/tokens */
+export const TOKENS_SRC = join(ROOT, "packages", "ui-library", "src", "tokens");
 
 export const APP_TOKENS_CSS = join(APP, "src", "styles", "app-tokens.css");
 
@@ -92,12 +92,12 @@ export function varTargets(text: string): string[] {
   return found;
 }
 
-/** The core-tier names @ay/tokens owns. */
+/** The core-tier names @ay/ui-library owns. */
 export function coreNames(): Set<string> {
   return new Set(declaredNames(read(join(TOKENS_SRC, "core.css"))));
 }
 
-/** The semantic-tier names @ay/tokens owns. */
+/** The semantic-tier names @ay/ui-library owns. */
 export function semanticNames(): Set<string> {
   const css = read(join(TOKENS_SRC, "semantic.css"));
   const root = blockBody(css, /:root\s*\{/) ?? "";

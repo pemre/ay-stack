@@ -12,11 +12,11 @@ After completing any feature or bugfix spec:
 2. **Update steering docs** (`packages/ui-library/.kiro/steering/`) — keep every
    markdown file in sync with architectural, tooling, or product changes. Do not
    restate the token tier architecture; reference
-   #[[file:packages/tokens/TOKEN-ARCHITECTURE.md]] instead.
+   #[[file:packages/ui-library/TOKEN-ARCHITECTURE.md]] instead.
 3. **Update `packages/ui-library/package.json` version** per Semantic Versioning
    (patch for bugfixes, minor for new features, major for breaking changes).
 4. **Check whether the change crosses a package boundary.** A token change belongs
-   in `packages/tokens/`, and its release notes belong there too. A change that
+   in `packages/ui-library/`, and its release notes belong there too. A change that
    affects the workspace as a whole (scripts, catalog versions, layout) belongs in
    the root `README.md` and the root steering.
 5. **Run `pnpm verify` at the workspace root** so every package's quality gates are

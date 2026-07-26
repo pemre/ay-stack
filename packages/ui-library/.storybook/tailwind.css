@@ -1,4 +1,4 @@
-/* Tailwind first so the @ay/tokens @theme block extends the default theme
+/* Tailwind first so the @ay/ui-library @theme block extends the default theme
    rather than being overridden by it. */
 @import "tailwindcss";
-@import "@ay/tokens/theme.css";
+@import "../src/tokens/theme.css";

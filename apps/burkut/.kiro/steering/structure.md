@@ -57,7 +57,7 @@ apps/burkut/
 │   │   └── devServer.ts         # Vite dev server launcher for CLI mode
 │   ├── content/                 # Sample content shipped with the repo
 │   ├── styles/
-│   │   ├── tailwind.css         # @import "tailwindcss" then "@ay/tokens/theme.css"
+│   │   ├── tailwind.css         # @import "tailwindcss" then "@ay/ui-library/theme.css"
 │   │   ├── app-tokens.css       # Legacy aliases + app-specific tokens + base element rules
 │   │   └── layout.css           # App shell and panel layout styles
 │   ├── types/                   # TypeScript declarations
@@ -89,7 +89,7 @@ Workspace-level files that affect Bürküt:
 | `biome.json` (root) | the shared lint/format configuration this app extends |
 | `packages/vite-config/src/index.ts` | `ayResolve()` — the Local Dev Alias and the React dedupe |
 | `.github/workflows/deploy-pages.yml` | the single workflow that builds and publishes the app |
-| `packages/tokens/TOKEN-ARCHITECTURE.md` | the authoritative token tier document |
+| `packages/ui-library/TOKEN-ARCHITECTURE.md` | the authoritative token tier document |
 
 ## Conventions
 
@@ -97,9 +97,9 @@ Workspace-level files that affect Bürküt:
   co-located `.css` and `.test.tsx` files.
 - Hooks live in `src/hooks/` with co-located `.test.ts` files.
 - All UI strings go through `react-i18next` — never hardcode user-facing text.
-- CSS consumes custom properties: semantic tokens from `@ay/tokens`, app tokens and
+- CSS consumes custom properties: semantic tokens from `@ay/ui-library`, app tokens and
   legacy aliases from `src/styles/app-tokens.css`. No CSS-in-JS.
-- Never declare a core or semantic token in this app; add it to `@ay/tokens`
+- Never declare a core or semantic token in this app; add it to `@ay/ui-library`
   instead. A test enforces this.
 - `react-leaflet` doesn't render in jsdom — MapPanel tests use mocks.
 - vis-timeline requires explicit `destroy()` on unmount to prevent memory leaks.

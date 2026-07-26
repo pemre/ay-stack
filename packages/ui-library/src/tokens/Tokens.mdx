@@ -1,0 +1,38 @@
+import { Canvas, Meta } from "@storybook/blocks";
+import * as TokenStories from "./Tokens.stories";
+
+<Meta of={TokenStories} />
+
+# Design tokens
+
+`@ay/ui-library` owns the AY core and semantic CSS variables. Blocks consume semantic values and declare their own component-scoped variables.
+
+<Canvas of={TokenStories.SemanticReference} />
+
+## Plain CSS
+
+```css
+@import "@ay/ui-library/styles.css";
+```
+
+This imports the plain token entry and all library component styles.
+
+## Tailwind v4
+
+```css
+@import "tailwindcss";
+@import "@ay/ui-library/theme.css";
+```
+
+Import the AY theme after Tailwind so its `@theme static` block extends Tailwind's default theme.
+
+## Theme switching
+
+Set `data-theme="dark"` on an ancestor to switch semantic values without changing component code.
+
+```html
+<html data-theme="dark"></html>
+```
+
+For tier ownership, naming rules, and component-token guidance, see [TOKEN-ARCHITECTURE.md](../../TOKEN-ARCHITECTURE.md).
+

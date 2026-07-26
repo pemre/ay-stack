@@ -1,7 +1,0 @@
-/* 🌜 @ay/tokens — Tailwind v4 entry (source form).
-   Core tier as `@theme static`, then the semantic tier. Import this after
-   `@import "tailwindcss"` so the token block extends the default theme rather
-   than being overridden by it. The published counterpart is dist/theme.css. */
-
-@import "./core.css";
-@import "./semantic.css";

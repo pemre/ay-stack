@@ -13,7 +13,7 @@
 // a var() whose target is core-tier may appear only on the right-hand side of a
 // component-token declaration, never in an ordinary property declaration.
 //
-// The owned name sets are read from packages/tokens/src/*.css rather than
+// The owned name sets are read from the unified token sources rather than
 // hardcoded, so adding a core token automatically widens the check.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -25,7 +25,7 @@ import { describe, expect, it } from "vitest";
 const PKG = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 /** workspace root */
 const ROOT = dirname(dirname(PKG));
-const TOKENS_SRC = join(ROOT, "packages", "tokens", "src");
+const TOKENS_SRC = join(PKG, "src", "tokens");
 
 function stripComments(css: string): string {
   return css.replace(/\/\*[\s\S]*?\*\//g, "");
@@ -43,12 +43,12 @@ function declaredNames(css: string): string[] {
   return found;
 }
 
-/** Every custom property @ay/tokens declares in its core tier. */
+/** Every custom property the unified library declares in its core tier. */
 function coreNames(): Set<string> {
   return new Set(declaredNames(readFileSync(join(TOKENS_SRC, "core.css"), "utf-8")));
 }
 
-/** Every custom property @ay/tokens declares in its semantic tier. */
+/** Every custom property the unified library declares in its semantic tier. */
 function semanticNames(): Set<string> {
   return new Set(declaredNames(readFileSync(join(TOKENS_SRC, "semantic.css"), "utf-8")));
 }
@@ -98,7 +98,7 @@ function varTargets(value: string): string[] {
 
 const CORE = coreNames();
 const SEMANTIC = semanticNames();
-const FILES = cssFiles(join(PKG, "src"));
+const FILES = [...cssFiles(join(PKG, "src", "blocks")), ...cssFiles(join(PKG, "src", "dashboard"))];
 
 describe("Property 7: component CSS never reaches the core tier", () => {
   it("routes every ordinary declaration through a component or semantic token", () => {

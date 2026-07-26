@@ -24,13 +24,13 @@ import { fileURLToPath } from "node:url";
  * entry relative to the workspace root.
  */
 export const AY_LOCAL_ENTRIES: Record<string, string> = {
-  "@ay/dashboard-engine/styles.css": "packages/dashboard-engine/src/styles.css",
-  "@ay/tokens/theme.css": "packages/tokens/src/theme.css",
-  "@ay/tokens/core.css": "packages/tokens/src/core.css",
-  "@ay/tokens/semantic.css": "packages/tokens/src/semantic.css",
+  "@ay/ui-library/dashboard": "packages/ui-library/src/dashboard/index.ts",
+  "@ay/ui-library/styles.css": "packages/ui-library/src/styles.css",
+  "@ay/ui-library/tokens.css": "packages/ui-library/src/tokens/tokens.css",
+  "@ay/ui-library/theme.css": "packages/ui-library/src/tokens/theme.css",
+  "@ay/ui-library/core.css": "packages/ui-library/src/tokens/core.css",
+  "@ay/ui-library/semantic.css": "packages/ui-library/src/tokens/semantic.css",
   "@ay/ui-library": "packages/ui-library/src/index.ts",
-  "@ay/dashboard-engine": "packages/dashboard-engine/src/index.ts",
-  "@ay/tokens": "packages/tokens/src/tokens.css",
 };
 
 /** The modules deduped on every branch, so one React instance is guaranteed. */

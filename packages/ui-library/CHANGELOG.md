@@ -26,12 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `@ay/tokens` as a dependency: the core and semantic token tiers were extracted
+- `@ay/ui-library` as a dependency: the core and semantic token tiers were extracted
   into their own publishable package, which is now the single source of truth for
   the shared design language. Token tiers, naming, and ownership rules are
-  documented once, in `@ay/tokens`'s `TOKEN-ARCHITECTURE.md`.
+  documented once, in `@ay/ui-library`'s `TOKEN-ARCHITECTURE.md`.
 - Static checks that keep the tier boundaries honest: block CSS may not reference a
-  core token, and token imports must use the `@ay/tokens` package specifier rather
+  core token, and token imports must use the `@ay/ui-library` package specifier rather
   than a relative path.
 - Storybook's Vite `base` is configurable through `STORYBOOK_BASE`, defaulting to
   `/` for local runs, which is what lets CI publish it under a subpath.
@@ -39,8 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Removed `src/styles/tokens.css` — every core and semantic token it declared now
-  lives in `@ay/tokens`, and Storybook sources them through
-  `@import "@ay/tokens/theme.css"`. Computed values are unchanged in both themes.
+  lives in `@ay/ui-library`, and Storybook sources them through
+  `@import "@ay/ui-library/theme.css"`. Computed values are unchanged in both themes.
 - Package-linking instructions. Cross-package development uses the workspace's
   Local Dev Alias (`AY_LOCAL=1`), which resolves `@ay/*` to package source while
   keeping a single React instance.

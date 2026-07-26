@@ -1,13 +1,13 @@
 # Local Dev Alias — the supported cross-package workflow
 
-To work on `@ay/tokens` or `@ay/ui-library` while running a consuming app, set
+To work on `@ay/ui-library` or `@ay/ui-library` while running a consuming app, set
 `AY_LOCAL=1`. There is nothing else to configure, and no linking step.
 
 ```bash
 AY_LOCAL=1 pnpm dev          # Bürküt, resolving @ay/* to packages/*/src
 ```
 
-Edits under `packages/ui-library/src/` or `packages/tokens/src/` reach the running
+Edits under `packages/ui-library/src/` or `packages/ui-library/src/tokens/` reach the running
 dev server through ordinary HMR — no rebuild, no reinstall, no `dist/`.
 
 ## How it works

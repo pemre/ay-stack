@@ -1,6 +1,6 @@
 # 🌜 @ay/ui-library
 
-Reusable visualization and interactive components for React.
+Design tokens, reusable visualization Blocks, and dashboard infrastructure for React.
 
 [![Build](https://img.shields.io/github/actions/workflow/status/pemre/ay-stack/deploy-pages.yml?branch=main)](https://github.com/pemre/ay-stack/actions)
 [![npm](https://img.shields.io/npm/v/@ay/ui-library)](https://www.npmjs.com/package/@ay/ui-library)
@@ -17,7 +17,7 @@ unscoped name `ay-ui-library`, which is deprecated; see [CHANGELOG.md](./CHANGEL
 
 - **Standalone package** — Zero coupling to any consuming app. Data, callbacks, and locale are passed via props.
 - **D3 for math, React owns the DOM** — D3-powered components use D3 for scales, color interpolators, geometry, and data joins inside a single `<svg>`. It never creates DOM outside the SVG element.
-- **Tokens live in one package** — theming runs on CSS custom properties from [`@ay/tokens`](../tokens/README.md), a dependency of this package. Theme switching is a `data-theme` attribute or a variable override.
+- **Tokens live with the components** — theming runs on this package's core and semantic CSS custom properties. Theme switching is a `data-theme` attribute or a variable override.
 - **Blocks architecture** — Each component lives in `src/blocks/{Name}/` with co-located `.tsx`, `.css`, `.test.tsx`, and `.stories.tsx` files. A barrel `src/index.ts` re-exports the public API.
 - **Property-based testing** — Correctness properties are encoded as executable tests using fast-check, complemented by unit tests with Vitest and Testing Library.
 
@@ -28,26 +28,24 @@ unscoped name `ay-ui-library`, which is deprecated; see [CHANGELOG.md](./CHANGEL
 ### Install
 
 ```bash
-pnpm add @ay/ui-library @ay/tokens
+pnpm add @ay/ui-library
 ```
 
 React, ReactDOM, D3, and Tailwind CSS are peer dependencies — your project owns
-those versions. `@ay/tokens` is a real dependency and installs with the library;
-listing it explicitly is worthwhile because you import its stylesheet directly.
+those versions.
 
-Import the component, the library's styles, and the design tokens:
+Import a component and the convenience stylesheet:
 
 ```tsx
 import { SpiralTimeline } from "@ay/ui-library";
 import "@ay/ui-library/styles.css";
-import "@ay/tokens";
 ```
 
-With Tailwind v4, source the theme from the token package instead:
+With Tailwind v4, source the theme from this package instead:
 
 ```css
 @import "tailwindcss";
-@import "@ay/tokens/theme.css";
+@import "@ay/ui-library/theme.css";
 ```
 
 Tailwind first, so the token block extends the default theme rather than being
@@ -153,10 +151,10 @@ See the [ImageZoom stories](https://pemre.github.io/ay-stack/) in the live Story
 ## Theming & Design Tokens
 
 Token tiers, naming patterns, and tier ownership rules are stated in one place:
-[`packages/tokens/TOKEN-ARCHITECTURE.md`](../tokens/TOKEN-ARCHITECTURE.md).
+[`TOKEN-ARCHITECTURE.md`](./TOKEN-ARCHITECTURE.md).
 
-This package declares no core or semantic token. Both tiers come from `@ay/tokens`;
-block CSS consumes semantic tokens and declares its own component tokens
+This package owns the core and semantic token tiers. Block CSS consumes semantic
+tokens and declares its own component tokens
 (`--spiral-*`, `--image-zoom-*`) in the block's `.css` file.
 
 ### Theme switching
@@ -196,8 +194,8 @@ pnpm install
 pnpm storybook       # Storybook on http://localhost:6006
 ```
 
-If `packages/tokens/dist/` is cold, build the dependency first — Storybook's
-stylesheet imports `@ay/tokens/theme.css`:
+If `packages/ui-library/dist/` is cold, build the dependency first — Storybook's
+stylesheet imports `@ay/ui-library/theme.css`:
 
 ```bash
 pnpm --filter "@ay/ui-library^..." build

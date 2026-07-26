@@ -3,7 +3,7 @@ import {
   type DashboardGridInstance,
   type DashboardGridProps,
   type WidgetTypeDefinition as EngineWidgetTypeDefinition,
-} from "@ay/dashboard-engine";
+} from "@ay/ui-library";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import config from "../../config";

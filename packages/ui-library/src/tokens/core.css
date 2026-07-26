@@ -1,0 +1,82 @@
+/* ═══════════════════════════════════════════════════════════════
+      🌜 @ay/ui-library — Core tier (raw, context-free design values)
+
+   This is the single authoring site for every core value in the shared design
+      language. `scripts/build-tokens-css.mjs` derives the Tailwind-free `:root` copy from
+   this file by rewriting the at-rule only — values are never touched.
+
+   `static` is mandatory, not decoration. By default Tailwind emits only the
+   theme variables it observes in use, and "in use" means utility usage. These
+   tokens are consumed through hand-authored `var()` references in component
+   CSS, so without `static` they would silently vanish from the output.
+
+   Tier definitions, naming patterns, and tier ownership: TOKEN-ARCHITECTURE.md
+   ═══════════════════════════════════════════════════════════════ */
+
+@theme static {
+  /* Color — amber (primary accent) */
+  --color-amber-400: #f5ab35;
+  --color-amber-500: #f29b17;
+
+  /* Color — gray scale */
+  --color-gray-100: #f0f2f5;
+  --color-gray-200: #e8ebef;
+  --color-gray-300: #d1d9e0;
+  --color-gray-400: #8b949e;
+  --color-gray-500: #656d76;
+  --color-gray-600: #545d68;
+  --color-gray-700: #444c56;
+  --color-gray-800: #373e47;
+  --color-gray-900: #1f2328;
+
+  /* Color — green (backs the success status tokens) */
+  --color-green-500: #2da44e;
+  --color-green-400: #3fb950;
+  --color-green-500-a30: rgba(45, 164, 78, 0.3);
+  --color-green-400-a30: rgba(63, 185, 80, 0.3);
+
+  /* Color — alpha variants (amber-500)
+
+     ⚠️ The suffix convention is internally inconsistent, and the inconsistency
+     is preserved on purpose. `a12`, `a15`, `a20`, and `a30` read as decimal
+     alpha percentages; `a44` and `a66` are hex alpha bytes carried over from
+     the original hex literals (0x44 ≈ 0.267, 0x66 = 0.400). The two shades
+     express the same suffix in different notations too: amber-500 keeps its hex
+     literal, amber-400 the rounded decimal `0.27`. Normalizing either way would
+     change the rendered 8-bit alpha by up to 1/255, so all twelve values below
+     are verbatim from the pre-migration sources. A follow-up
+     token-normalization spec renormalizes once a visual-diff budget exists. */
+  --color-amber-500-a12: rgba(242, 155, 23, 0.12);
+  --color-amber-500-a15: rgba(242, 155, 23, 0.15);
+  --color-amber-500-a20: rgba(242, 155, 23, 0.2);
+  --color-amber-500-a30: rgba(242, 155, 23, 0.3);
+  --color-amber-500-a44: #f29b1744;
+  --color-amber-500-a66: #f29b1766;
+
+  /* Color — alpha variants (amber-400, used by the dark theme) */
+  --color-amber-400-a12: rgba(245, 171, 53, 0.12);
+  --color-amber-400-a15: rgba(245, 171, 53, 0.15);
+  --color-amber-400-a20: rgba(245, 171, 53, 0.2);
+  --color-amber-400-a30: rgba(245, 171, 53, 0.3);
+  --color-amber-400-a44: rgba(245, 171, 53, 0.27);
+  --color-amber-400-a66: rgba(245, 171, 53, 0.4);
+
+  /* Spacing */
+  --space-1: 0.125rem;
+  --space-2: 0.25rem;
+  --space-3: 0.375rem;
+  --space-4: 0.5rem;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Font size */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.85rem;
+
+  /* Transition duration */
+  --duration-fast: 0.15s;
+  --duration-normal: 0.25s;
+}

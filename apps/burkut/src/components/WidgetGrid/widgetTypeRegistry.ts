@@ -1,9 +1,12 @@
 import {
   createWidgetRegistry,
   type WidgetTypeDefinition as EngineWidgetTypeDefinition,
+  GeoMap,
+  LinearTimeline,
+  MarkdownViewer,
   type OptionsSchema,
-} from "@ay/dashboard-engine";
-import { GeoMap, LinearTimeline, MarkdownViewer, TreeList } from "@ay/ui-library";
+  TreeList,
+} from "@ay/ui-library";
 import type { TFunction } from "i18next";
 import {
   buildContentViewModel,

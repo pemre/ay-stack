@@ -44,7 +44,7 @@ packages/ui-library/
 ├── .storybook/
 │   ├── main.ts                                # Discovers src/blocks/**/*.stories.tsx; base from STORYBOOK_BASE
 │   ├── preview.ts                             # Loads .storybook/tailwind.css, viewports, theme globals
-│   ├── tailwind.css                           # @import "tailwindcss" then "@ay/tokens/theme.css"
+│   ├── tailwind.css                           # @import "tailwindcss" then "@ay/ui-library/theme.css"
 │   └── preview-head.html                      # Body styling driven by semantic tokens
 ├── .kiro/
 │   └── steering/                              # Kiro steering documents (this directory)
@@ -53,7 +53,7 @@ packages/ui-library/
 │   ├── index.cjs.js
 │   ├── index.d.ts
 │   └── style.css
-├── package.json                               # @ay/ui-library; catalog: versions; @ay/tokens dependency
+├── package.json                               # @ay/ui-library; catalog: versions; @ay/ui-library dependency
 ├── tsconfig.json
 ├── vite.config.ts                             # Vite library mode + Vitest config
 ├── biome.json                                 # extends ../../biome.json
@@ -63,10 +63,10 @@ packages/ui-library/
 ```
 
 There is **no `src/styles/` directory**. Core and semantic tokens moved out to
-`@ay/tokens` (`packages/tokens/`), which is the only place either tier is declared.
+`@ay/ui-library` (`packages/ui-library/`), which is the only place either tier is declared.
 
 Token tiers, naming patterns, and tier ownership rules:
-#[[file:packages/tokens/TOKEN-ARCHITECTURE.md]]
+#[[file:packages/ui-library/TOKEN-ARCHITECTURE.md]]
 
 Workspace-level files that affect this package:
 
@@ -75,7 +75,7 @@ Workspace-level files that affect this package:
 | `pnpm-workspace.yaml` | workspace globs plus the `catalog:` versions this package references |
 | `biome.json` (root) | the shared lint/format configuration this package extends |
 | `.github/workflows/deploy-pages.yml` | the single workflow that builds and publishes Storybook |
-| `packages/tokens/TOKEN-ARCHITECTURE.md` | the authoritative token tier document |
+| `packages/ui-library/TOKEN-ARCHITECTURE.md` | the authoritative token tier document |
 
 ## Conventions
 

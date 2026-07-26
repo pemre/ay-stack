@@ -1,7 +1,7 @@
 # ay-stack Roadmap
 
-Roadmap for the **shared stack** — `@ay/tokens`, `@ay/ui-library`, and the
-`@ay/dashboard-engine` to come.
+Roadmap for the **shared stack** — `@ay/ui-library`, `@ay/ui-library`, and the
+`@ay/ui-library` to come.
 
 This document is written to be delegated. Each phase states its entry criteria,
 scope, explicit non-scope, exit criteria, and known risks, so an agent can pick up
@@ -80,7 +80,7 @@ type today means editing engine code in two places, which defeats the registry.
 users' disks; renaming without a migration handler turns every existing layout
 into "Unknown Widget" placeholders.
 
-**Out of scope.** `WidgetShell`, error boundaries, `@ay/dashboard-engine`, moving
+**Out of scope.** `WidgetShell`, error boundaries, `@ay/ui-library`, moving
 any widget into `@ay/ui-library`. Purify in place; move later.
 
 **Exit criteria.** All four widgets take view models, `labels`, and `config`; no
@@ -96,7 +96,7 @@ Bürküt-specific and belong in the adapter, not the Block.
 
 ## Phase 2 — `dashboard-engine-extraction`
 
-**Goal.** Extract `@ay/dashboard-engine`: the grid, a real `WidgetShell`, the
+**Goal.** Extract `@ay/ui-library`: the grid, a real `WidgetShell`, the
 registry, and schema-driven widget options.
 
 **Entry criteria.** Phase 1 complete. Attempting this before the widgets are pure
@@ -203,10 +203,10 @@ Read these before touching anything.
   literals (`--absent-${i}` → `--absent - ${i}`). Re-read every generated file,
   prefer string concatenation in generated code, and finish with
   `pnpm biome format --write`. Requirement 10.9 mandates 2-space indent.
-- **Dependency direction:** `@ay/tokens` ← `@ay/ui-library` ← app. Nothing imports
+- **Dependency direction:** `@ay/ui-library` ← `@ay/ui-library` ← app. Nothing imports
   from `apps/`. The engine must not depend on the block library.
 - **The token architecture is stated exactly once**, in
-  `packages/tokens/TOKEN-ARCHITECTURE.md`. Reference it with
+  `packages/ui-library/TOKEN-ARCHITECTURE.md`. Reference it with
   `#[[file:...]]`; never restate it. A root test enforces this.
 - **Never write `npm link` or `yalc` into a document.** A root test asserts no
   document does. Use the Local Dev Alias.

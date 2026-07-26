@@ -1,5 +1,5 @@
-import type { PersistenceAdapter } from "@ay/dashboard-engine";
-import { createPersistenceMiddleware, validateWidgetConfig } from "@ay/dashboard-engine";
+import type { PersistenceAdapter } from "@ay/ui-library";
+import { createPersistenceMiddleware, validateWidgetConfig } from "@ay/ui-library";
 import type { StateCreator, StoreMutatorIdentifier } from "zustand";
 import { getWidgetType } from "../components/WidgetGrid/widgetTypeRegistry.ts";
 import type {

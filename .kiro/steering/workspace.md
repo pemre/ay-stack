@@ -8,7 +8,7 @@ it is `"private": true` and carries no `bin`, `files`, `main`, `module`, or `typ
 ```
 ay-stack/
 ├── packages/
-│   ├── tokens/        # @ay/tokens      — published. Core + semantic CSS token tiers
+│   ├── tokens/        # @ay/ui-library      — published. Core + semantic CSS token tiers
 │   ├── ui-library/    # @ay/ui-library  — published. React blocks (SpiralTimeline, ImageZoom)
 │   └── vite-config/   # @ay/vite-config — private. Shared Vite resolution helpers
 ├── apps/
@@ -29,14 +29,14 @@ source of truth, and one `.github/workflows/` directory — all at the root.
 Dependencies flow one way only:
 
 ```
-@ay/tokens  ←  @ay/ui-library  ←  burkut
+@ay/ui-library  ←  @ay/ui-library  ←  burkut
      ↖───────────────────────────────┘
 ```
 
 | Rule | Why |
 |------|-----|
-| `@ay/tokens` depends on no workspace package | it is the root of the graph and must stay publishable on its own |
-| `@ay/ui-library` depends on `@ay/tokens` only | React, ReactDOM, D3, and Tailwind are **peer** dependencies so consumers own those versions |
+| `@ay/ui-library` depends on no workspace package | it is the root of the graph and must stay publishable on its own |
+| `@ay/ui-library` depends on `@ay/ui-library` only | React, ReactDOM, D3, and Tailwind are **peer** dependencies so consumers own those versions |
 | `burkut` may depend on both packages | an app is a leaf; nothing imports from it |
 | No package imports from `apps/` | Bürküt moves to its own repository in a later phase, so any such import would break |
 | `@ay/vite-config` is `private: true` | it exists only for this workspace's build configuration and never occupies a name in the public `@ay` scope |
@@ -47,7 +47,7 @@ Vitest, Biome, TypeScript, React, fast-check, and jsdom resolves workspace-wide.
 
 Where something belongs:
 
-- A value two consumers share → `@ay/tokens`
+- A value two consumers share → `@ay/ui-library`
 - A component two consumers share → `@ay/ui-library`
 - Anything meaningful to one app only → that app (component tokens, app tokens,
   app-specific layout)
@@ -78,7 +78,7 @@ pnpm --filter "@ay/ui-library^..." build     # just the dependencies
 ## Design tokens
 
 Token tiers, naming patterns, and tier ownership rules:
-#[[file:packages/tokens/TOKEN-ARCHITECTURE.md]]
+#[[file:packages/ui-library/TOKEN-ARCHITECTURE.md]]
 
 That document is the only place the architecture is stated. Every other document
 references it rather than restating it, so there is one owner to keep correct.

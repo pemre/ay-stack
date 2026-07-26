@@ -15,7 +15,7 @@ A D3-powered spiral timeline visualization for React. Each concentric ring repre
 ```tsx
 import { SpiralTimeline } from "@ay/ui-library";
 import "@ay/ui-library/styles.css";
-import "@ay/tokens";
+import "@ay/ui-library";
 
 const data = [
   {
@@ -315,9 +315,9 @@ const config = {
 
 ## Theming
 
-SpiralTimeline is themed through CSS custom properties. The tiers, their naming patterns, and their ownership rules are documented once, in `@ay/tokens`: see [TOKEN-ARCHITECTURE.md](https://github.com/pemre/ay-stack/blob/main/packages/tokens/TOKEN-ARCHITECTURE.md).
+SpiralTimeline is themed through CSS custom properties. The tiers, their naming patterns, and their ownership rules are documented once, in `@ay/ui-library`: see [TOKEN-ARCHITECTURE.md](https://github.com/pemre/ay-stack/blob/main/packages/ui-library/TOKEN-ARCHITECTURE.md).
 
-The component reads semantic tokens from `@ay/tokens` and maps them to `--spiral-*` component tokens. Override any component token to customize the look:
+The component reads semantic tokens from `@ay/ui-library` and maps them to `--spiral-*` component tokens. Override any component token to customize the look:
 
 ```css
 .my-wrapper .spiral-timeline {

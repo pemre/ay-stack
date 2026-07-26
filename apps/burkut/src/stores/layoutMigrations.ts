@@ -8,7 +8,7 @@
  * layouts into "Unknown Widget" placeholders or silently drop data.
  */
 
-import { createMigrationRunner } from "@ay/dashboard-engine";
+import { createMigrationRunner } from "@ay/ui-library";
 import type { Dashboard, PersistedDashboardState, WidgetInstance } from "../shared/types.ts";
 
 /** The current persisted-document schema version. Bump when adding a migration. */

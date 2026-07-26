@@ -1,4 +1,4 @@
-import { createBroadcastMiddleware } from "@ay/dashboard-engine";
+import { createBroadcastMiddleware } from "@ay/ui-library";
 import type { StateCreator, StoreMutatorIdentifier } from "zustand";
 import type { Dashboard } from "../shared/types.ts";
 

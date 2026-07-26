@@ -6,7 +6,7 @@ Bürküt is a CLI-driven content visualization tool. Point it at any local direc
 
 > *"Rise above time. See everything."*
 
-Bürküt is the app at `apps/burkut/` in the [ay-stack](../../README.md) workspace. It consumes two workspace packages — `@ay/tokens` for the shared design language and `@ay/ui-library` for shared React blocks — and depends on nothing else in the repository. Live build: https://pemre.github.io/ay-stack/burkut/
+Bürküt is the app at `apps/burkut/` in the [ay-stack](../../README.md) workspace. It consumes two workspace packages — `@ay/ui-library` for the shared design language and `@ay/ui-library` for shared React blocks — and depends on nothing else in the repository. Live build: https://pemre.github.io/ay-stack/burkut/
 
 ---
 
@@ -111,7 +111,7 @@ AY_LOCAL=1 pnpm dev                             # resolve @ay/* to package sourc
 CLI applies to its directory argument. Unset, the app starts on an empty content
 graph and says so on stdout.
 
-Bürküt resolves `@ay/tokens` and `@ay/ui-library` from their build output unless
+Bürküt resolves `@ay/ui-library` and `@ay/ui-library` from their build output unless
 `AY_LOCAL=1` is set, so build them when their `dist/` is cold:
 
 ```bash
@@ -134,17 +134,17 @@ command reference and configuration details.
 
 ## Stylesheets and Design Tokens
 
-Bürküt declares no core or semantic design token — both tiers live in `@ay/tokens`.
+Bürküt declares no core or semantic design token — both tiers live in `@ay/ui-library`.
 The app's own stylesheets are:
 
 | File | Contents |
 |------|----------|
-| `src/styles/tailwind.css` | Tailwind v4 plus the `@ay/tokens` theme entry |
+| `src/styles/tailwind.css` | Tailwind v4 plus the `@ay/ui-library` theme entry |
 | `src/styles/app-tokens.css` | legacy aliases, timeline layer colors, vis-timeline overrides, base rules |
 | `src/styles/layout.css` | app shell and panel layout |
 
 Token tiers, naming patterns, and tier ownership rules live in one place:
-[`packages/tokens/TOKEN-ARCHITECTURE.md`](../../packages/tokens/TOKEN-ARCHITECTURE.md).
+[`packages/ui-library/TOKEN-ARCHITECTURE.md`](../../packages/ui-library/TOKEN-ARCHITECTURE.md).
 UI primitive conventions and component APIs are in
 [`src/components/ui/GUIDELINES.md`](src/components/ui/GUIDELINES.md).
 

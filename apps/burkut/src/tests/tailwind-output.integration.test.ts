@@ -11,20 +11,20 @@ import { resolveProjectRoot } from "../cli/paths.ts";
  * Requirement 11.7 is vacuous today — no `@ay/ui-library` block declares a
  * Tailwind utility class — so the first half of this test guards the *wiring*:
  * the app's Tailwind entry must compile, must emit utilities, and those
- * utilities must be generated from the `@ay/tokens` `@theme` block rather than
+ * utilities must be generated from the `@ay/ui-library` `@theme` block rather than
  * from Tailwind's built-in defaults. The moment a block starts using a utility,
  * the same test starts checking it for real.
  *
  * Requirement 11.8 is the other direction: with no Tailwind stylesheet at all,
  * blocks stay readable because every custom property they reference is either
- * supplied by `@ay/tokens`, declared by the block itself, or carries an inline
+ * supplied by `@ay/ui-library`, declared by the block itself, or carries an inline
  * fallback.
  */
 
 const APP_DIR = resolveProjectRoot();
 const WORKSPACE_ROOT = resolve(APP_DIR, "..", "..");
 const BLOCKS_DIR = resolve(WORKSPACE_ROOT, "packages", "ui-library", "src", "blocks");
-const TOKENS_CSS = resolve(WORKSPACE_ROOT, "packages", "tokens", "dist", "tokens.css");
+const TOKENS_CSS = resolve(WORKSPACE_ROOT, "packages", "ui-library", "dist", "tokens.css");
 const APP_TOKENS_CSS = resolve(APP_DIR, "src", "styles", "app-tokens.css");
 const TAILWIND_ENTRY = resolve(APP_DIR, "src", "styles", "tailwind.css");
 
@@ -100,11 +100,11 @@ async function compileAppTailwind(candidates: string[]): Promise<string> {
 describe("Tailwind utility output and token fallback", () => {
   /**
    * The wiring guard: the app's Tailwind entry compiles, emits utilities, and
-   * those utilities carry `@ay/tokens` values.
+   * those utilities carry `@ay/ui-library` values.
    *
    * _Requirements: 11.7_
    */
-  it("emits utility rules generated from the @ay/tokens theme", async () => {
+  it("emits utility rules generated from the @ay/ui-library theme", async () => {
     const output = await compileAppTailwind([
       "flex",
       "p-2",
@@ -119,7 +119,7 @@ describe("Tailwind utility output and token fallback", () => {
     expect(output).toMatch(/\.rounded-md\s*\{/);
 
     // Generated from the token package's @theme block, not Tailwind's defaults:
-    // amber-500 and green-400 are @ay/tokens core values.
+    // amber-500 and green-400 are @ay/ui-library core values.
     expect(output).toContain("--color-amber-500");
     expect(output).toContain("--color-green-400");
     expect(output).toMatch(/\.text-amber-500\s*\{/);
@@ -152,12 +152,12 @@ describe("Tailwind utility output and token fallback", () => {
 
   /**
    * Without the Tailwind stylesheet, blocks remain readable: every custom
-   * property they reference is supplied by `@ay/tokens`, declared by the block
+   * property they reference is supplied by `@ay/ui-library`, declared by the block
    * itself, or carries an inline fallback.
    *
    * _Requirements: 11.8_
    */
-  it("keeps block styling resolvable from @ay/tokens alone", () => {
+  it("keeps block styling resolvable from @ay/ui-library alone", () => {
     const runtimeStyles = [TOKENS_CSS, APP_TOKENS_CSS].map((file) => readFileSync(file, "utf-8"));
     const tokens = new Set(runtimeStyles.flatMap((css) => [...declaredProperties(css)]));
     const blockStylesheets = walk(BLOCKS_DIR).filter((file) => file.endsWith(".css"));

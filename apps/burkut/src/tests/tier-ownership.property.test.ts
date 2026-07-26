@@ -1,7 +1,7 @@
 // Feature: ay-monorepo-foundation, Property 3: For any CSS file in @ay/ui-library
 // or in the Bürküt application, that file SHALL declare no custom property whose
-// name belongs to the core or semantic tier owned by @ay/tokens; and for any
-// custom property declared by @ay/tokens, that property's name SHALL belong to
+// name belongs to the core or semantic tier owned by @ay/ui-library; and for any
+// custom property declared by @ay/ui-library, that property's name SHALL belong to
 // the core or semantic tier and SHALL match no legacy-alias name, no
 // app-specific prefix, and no component-tier prefix.
 //
@@ -10,7 +10,7 @@
 // This is the Bürküt half of the property, and it is what satisfies Requirement
 // 16.7 — the test suite asserting that the Bürküt application declares no core
 // or semantic custom property. The owned name sets are read from
-// packages/tokens/src/ rather than hardcoded, so a token added there tightens
+// packages/ui-library/src/tokens/ rather than hardcoded, so a token added there tightens
 // this check automatically.
 
 import { relative } from "node:path";
@@ -30,7 +30,7 @@ const CORE = coreNames();
 const SEMANTIC = semanticNames();
 const BURKUT_CSS = filesUnder(APP, [".css"]);
 
-/** Prefixes that mark a name as belonging to a tier @ay/tokens must not own. */
+/** Prefixes that mark a name as belonging to a tier @ay/ui-library must not own. */
 const APP_SPECIFIC_PREFIXES = ["--tl-bg-", "--vis-"];
 const APP_SPECIFIC_NAMES = ["--font-serif"];
 const COMPONENT_PREFIXES = ["--spiral-", "--image-zoom-", "--btn-"];
@@ -51,7 +51,7 @@ describe("Property 3: bidirectional tier ownership — Bürküt half", () => {
       }
     }
 
-    expect(violations, "Bürküt declares tokens @ay/tokens owns").toEqual([]);
+    expect(violations, "Bürküt declares tokens @ay/ui-library owns").toEqual([]);
     // Non-vacuity: the glob actually found and parsed Bürküt's stylesheets.
     expect(BURKUT_CSS.length).toBeGreaterThan(0);
     expect(namesScanned).toBeGreaterThan(20);
@@ -72,7 +72,7 @@ describe("Property 3: bidirectional tier ownership — Bürküt half", () => {
     }
   });
 
-  it("keeps the reverse direction: @ay/tokens owns no Bürküt-tier name", () => {
+  it("keeps the reverse direction: @ay/ui-library owns no Bürküt-tier name", () => {
     // The other half of the bidirectional property, checked from the consumer's
     // side too: the shared package must not have absorbed an app-specific token,
     // a legacy alias, or a component token.
@@ -83,9 +83,9 @@ describe("Property 3: bidirectional tier ownership — Bürküt half", () => {
         APP_SPECIFIC_NAMES.includes(name) ||
         COMPONENT_PREFIXES.some((prefix) => name.startsWith(prefix)),
     );
-    expect(trespassing, "@ay/tokens declares a name it does not own").toEqual([]);
+    expect(trespassing, "@ay/ui-library declares a name it does not own").toEqual([]);
 
-    // Every legacy alias Bürküt declares must be absent from @ay/tokens (6.4).
+    // Every legacy alias Bürküt declares must be absent from @ay/ui-library (6.4).
     const aliasNames = declaredNames(read(APP_TOKENS_CSS)).filter(
       (name) =>
         !APP_SPECIFIC_PREFIXES.some((prefix) => name.startsWith(prefix)) &&

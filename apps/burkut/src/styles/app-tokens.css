@@ -5,14 +5,14 @@
 
    1. The Legacy Alias block. These names exist for backward compatibility with
       older Bürküt CSS. Every one of them now resolves through a semantic token
-      from @ay/tokens — no hex or rgba() literal remains, which is what makes the
+         from @ay/ui-library — no hex or rgba() literal remains, which is what makes the
       tiers unbypassable. Values are unchanged in both themes.
    2. Application-specific tokens: the six --tl-bg-* timeline layers, the six
       --vis-* vis-timeline overrides, and --font-serif. These carry meaning only
       inside Bürküt, so they stay in Bürküt rather than in the shared package.
 
-   Core and semantic tokens are declared by @ay/tokens and by nothing here.
-   Tier definitions and ownership: packages/tokens/TOKEN-ARCHITECTURE.md
+   Core and semantic tokens are declared by @ay/ui-library and by nothing here.
+   Tier definitions and ownership: packages/ui-library/TOKEN-ARCHITECTURE.md
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Light theme (default) ──────────────────────────────────── */

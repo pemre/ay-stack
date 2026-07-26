@@ -6,8 +6,7 @@ nothing — it is private and exists to hold the packages together.
 
 | Package | Name | Published | What it is |
 |---------|------|-----------|------------|
-| [`packages/tokens`](packages/tokens/README.md) | `@ay/tokens` | yes | Core + semantic CSS custom properties, plus a Tailwind v4 theme entry |
-| [`packages/ui-library`](packages/ui-library/README.md) | `@ay/ui-library` | yes | React blocks — `SpiralTimeline`, `ImageZoom` |
+| [`packages/ui-library`](packages/ui-library/README.md) | `@ay/ui-library` | yes | Design tokens, dashboard infrastructure, and React Blocks |
 | [`packages/vite-config`](packages/vite-config/README.md) | `@ay/vite-config` | no | Shared Vite resolution: the Local Dev Alias and the React singleton guarantee |
 | [`apps/burkut`](apps/burkut/README.md) | `burkut` | no | CLI-driven content visualizer |
 
@@ -20,8 +19,7 @@ https://pemre.github.io/ay-stack/burkut/.
 ```
 ay-stack/
 ├── packages/
-│   ├── tokens/        # @ay/tokens
-│   ├── ui-library/    # @ay/ui-library
+│   ├── ui-library/    # @ay/ui-library (tokens, dashboard, Blocks)
 │   └── vite-config/   # @ay/vite-config (private)
 ├── apps/
 │   └── burkut/        # burkut (private)
@@ -70,19 +68,18 @@ pnpm --filter "@ay/ui-library^..." build   # only the dependencies
 
 ## Package boundaries
 
-Dependencies flow one way: `@ay/tokens` → `@ay/ui-library` → `burkut`.
+Dependencies flow one way: `@ay/ui-library` → `burkut`.
 
-- `@ay/tokens` depends on no workspace package, so it stays publishable alone.
-- `@ay/ui-library` depends on `@ay/tokens` only. React, ReactDOM, D3, and Tailwind
-  are peer dependencies, so consumers own those versions.
-- `burkut` may depend on both packages. Nothing depends on `burkut` — it is a leaf,
+- `@ay/ui-library` depends on no workspace package, so it stays publishable alone.
+  React, ReactDOM, D3, and Tailwind are peer dependencies, so consumers own those versions.
+- `burkut` may depend on `@ay/ui-library`. Nothing depends on `burkut` — it is a leaf,
   and it moves to its own repository in a later phase.
-- Anything shared by two consumers belongs in a package: shared values in
-  `@ay/tokens`, shared components in `@ay/ui-library`. Anything meaningful to one
+- Anything shared by two consumers belongs in `@ay/ui-library`: shared values,
+  dashboard infrastructure, and reusable components. Anything meaningful to one
   app stays in that app.
 
 Token tiers, naming patterns, and tier ownership rules are stated in exactly one
-document: [`packages/tokens/TOKEN-ARCHITECTURE.md`](packages/tokens/TOKEN-ARCHITECTURE.md).
+document: [`packages/ui-library/TOKEN-ARCHITECTURE.md`](packages/ui-library/TOKEN-ARCHITECTURE.md).
 Every other document links to it rather than restating it.
 
 ## Local Dev Alias — the cross-package workflow
@@ -94,7 +91,7 @@ AY_LOCAL=1 pnpm dev
 ```
 
 Vite then resolves every `@ay/*` specifier to that package's `packages/*/src`
-source, so edits under `packages/ui-library/src/` or `packages/tokens/src/` arrive
+source, so edits under `packages/ui-library/src/` or `packages/ui-library/src/tokens/` arrive
 through HMR — no rebuild, no reinstall, no publish. Any other value, including
 absence, resolves the packages' published entry points, which is the path
 `pnpm build` and CI take. `resolve.dedupe` keeps a single React instance on both
@@ -112,16 +109,14 @@ package to the map is a one-line change to `AY_LOCAL_ENTRIES`.
 
 ## Publishing
 
-`@ay/tokens` and `@ay/ui-library` publish independently under the `@ay` scope:
+`@ay/ui-library` is the single published design-system package under the `@ay` scope:
 
 ```bash
-pnpm --filter @ay/tokens build
-pnpm publish --filter @ay/tokens
+pnpm --filter @ay/ui-library build
+pnpm publish --filter @ay/ui-library
 ```
 
-Each package's `files` field limits the tarball to build output plus its documents,
-and `workspace:^` ranges are rewritten to published versions at pack time. When a
-library release depends on an unreleased token change, publish `@ay/tokens` first.
+Its `files` field limits the tarball to build output plus its documents.
 
 ## CI
 
@@ -135,9 +130,8 @@ owns it; either build failing short-circuits the deploy with no artifact publish
 
 | Document | Contents |
 |----------|----------|
-| [`packages/tokens/TOKEN-ARCHITECTURE.md`](packages/tokens/TOKEN-ARCHITECTURE.md) | The token tiers, naming, and ownership rules |
-| [`packages/tokens/README.md`](packages/tokens/README.md) | Installing and consuming `@ay/tokens` |
-| [`packages/ui-library/README.md`](packages/ui-library/README.md) | Component APIs, theming, contributing |
+| [`packages/ui-library/TOKEN-ARCHITECTURE.md`](packages/ui-library/TOKEN-ARCHITECTURE.md) | The token tiers, naming, and ownership rules |
+| [`packages/ui-library/README.md`](packages/ui-library/README.md) | Installing, components, dashboard APIs, theming, contributing |
 | [`apps/burkut/README.md`](apps/burkut/README.md) | Bürküt CLI usage and content conventions |
 | [`ROADMAP.md`](ROADMAP.md) | Phase plan and completed work |
 | `.kiro/steering/` | Workspace steering: layout, boundaries, Local Dev Alias |

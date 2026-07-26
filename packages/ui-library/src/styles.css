@@ -1,0 +1,10 @@
+/* One-import stylesheet for plain-CSS consumers. Tailwind consumers should import
+   @ay/ui-library/theme.css after tailwindcss instead. */
+@import "./tokens/tokens.css";
+@import "./blocks/ImageZoom/ImageZoom.css";
+@import "./blocks/TreeList/TreeList.css";
+@import "./blocks/LinearTimeline/LinearTimeline.css";
+@import "./blocks/SpiralTimeline/SpiralTimeline.css";
+@import "./blocks/MarkdownViewer/MarkdownViewer.css";
+@import "./blocks/GeoMap/GeoMap.css";
+@import "./dashboard/styles.css";

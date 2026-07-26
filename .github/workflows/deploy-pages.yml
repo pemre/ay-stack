@@ -95,9 +95,8 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      # Storybook's tailwind.css imports @ay/tokens/theme.css, which resolves to
-      # the package's dist/. A filtered run does not build workspace dependencies
-      # on its own, so the `^...` selector builds them explicitly first.
+      # Storybook imports ui-library's local token source, so no other workspace
+      # package must be built before its filtered Storybook build.
       - name: Build workspace dependencies
         run: pnpm --filter "@ay/ui-library^..." build
 
@@ -147,7 +146,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # `burkut...` includes Bürküt's workspace dependencies and pnpm runs them in
-      # topological order, so @ay/tokens and @ay/ui-library build before the app.
+      # topological order, so @ay/ui-library builds before the app.
       - name: Build
         run: pnpm --filter "burkut..." build
         env:

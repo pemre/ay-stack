@@ -17,7 +17,7 @@ Bürküt (`apps/burkut/`) is the first consumer, but the coupling runs one way o
 
 - `@ay/ui-library` imports nothing from Bürküt
 - All data, callbacks, and locale are passed via props
-- Shared design tokens come from `@ay/tokens`, which both this package and Bürküt
+- Shared design tokens come from `@ay/ui-library`, which both this package and Bürküt
   depend on — neither owns a private copy
 - Data interfaces are shaped to fit Bürküt's content structures, but the library
   has no knowledge of Bürküt's internals
@@ -33,14 +33,14 @@ A "Block" is an independent, self-contained UI component living in
 - Is a React component accepting data and configuration via props
 - May use D3 for SVG math/scales/data-joins (e.g., SpiralTimeline) or be pure
   React (e.g., ImageZoom) — D3 is not required for every block
-- Consumes semantic tokens from `@ay/tokens` and declares its own component tokens
+- Consumes semantic tokens from `@ay/ui-library` and declares its own component tokens
 - May use Tailwind utility classes for layout alongside the token system (hybrid
   styling approach)
 - Includes co-located tests, stories, and documentation
 - Is exported from the package barrel (`src/index.ts`)
 
 Token tiers, naming patterns, and tier ownership rules:
-#[[file:packages/tokens/TOKEN-ARCHITECTURE.md]]
+#[[file:packages/ui-library/TOKEN-ARCHITECTURE.md]]
 
 ## npm Publishing Workflow
 
@@ -52,8 +52,8 @@ Token tiers, naming patterns, and tier ownership rules:
    plus `README.md`, `CHANGELOG.md`, and `LICENSE`, and
    `publishConfig.access: "public"` makes the scoped package public
 
-`@ay/tokens` publishes independently. When a release depends on an unreleased
-token change, publish `@ay/tokens` first — the `workspace:^` range is rewritten to
+`@ay/ui-library` publishes independently. When a release depends on an unreleased
+token change, publish `@ay/ui-library` first — the `workspace:^` range is rewritten to
 the published version at pack time.
 
 ## Local Development Against Package Source

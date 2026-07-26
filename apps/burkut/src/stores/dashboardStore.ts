@@ -1,4 +1,4 @@
-import { validateWidgetConfig } from "@ay/dashboard-engine";
+import { validateWidgetConfig } from "@ay/ui-library";
 import { create } from "zustand";
 import { getWidgetType } from "../components/WidgetGrid/widgetTypeRegistry.ts";
 import type {

@@ -37,7 +37,7 @@ module.exports = {
 ```tsx
 import { ImageZoom } from "@ay/ui-library";
 import "@ay/ui-library/styles.css";
-import "@ay/tokens";
+import "@ay/ui-library";
 
 function App() {
   return (
@@ -177,9 +177,9 @@ The component supports four discrete zoom levels. Any numeric value is clamped t
 
 ## Theming
 
-ImageZoom is themed through CSS custom properties. The tiers, their naming patterns, and their ownership rules are documented once, in `@ay/tokens`: see [TOKEN-ARCHITECTURE.md](https://github.com/pemre/ay-stack/blob/main/packages/tokens/TOKEN-ARCHITECTURE.md).
+ImageZoom is themed through CSS custom properties. The tiers, their naming patterns, and their ownership rules are documented once, in `@ay/ui-library`: see [TOKEN-ARCHITECTURE.md](https://github.com/pemre/ay-stack/blob/main/packages/ui-library/TOKEN-ARCHITECTURE.md).
 
-What matters here: the block consumes semantic tokens from `@ay/tokens` and exposes its own `--image-zoom-*` component tokens for overrides.
+What matters here: the block consumes semantic tokens from `@ay/ui-library` and exposes its own `--image-zoom-*` component tokens for overrides.
 
 Override any component token to customize the look:
 

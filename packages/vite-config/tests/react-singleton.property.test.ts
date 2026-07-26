@@ -11,8 +11,8 @@
 // failure mode is a resolution outcome, not a declared version.
 //
 // Scope note, stated rather than hidden: React resolution is only meaningful for
-// alias targets that participate in the JS module graph. The `@ay/tokens`
-// entries are stylesheets — nothing in them can import React — so the resolution
+// alias targets that participate in the JS module graph. The token stylesheet
+// entries are CSS-only — nothing in them can import React — so the resolution
 // assertion covers the JS/TS targets, and a separate assertion keeps that set
 // from silently becoming empty.
 

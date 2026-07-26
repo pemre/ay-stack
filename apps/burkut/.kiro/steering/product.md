@@ -24,11 +24,11 @@ It consumes two workspace packages:
 
 | Dependency | What Bürküt gets |
 |------------|------------------|
-| `@ay/tokens` | the shared design language, as CSS and as the Tailwind v4 theme |
+| `@ay/ui-library` | the shared design language, as CSS and as the Tailwind v4 theme |
 | `@ay/ui-library` | the `SpiralTimeline` and `ImageZoom` blocks |
 
 Token tiers, naming patterns, and tier ownership rules:
-#[[file:packages/tokens/TOKEN-ARCHITECTURE.md]]
+#[[file:packages/ui-library/TOKEN-ARCHITECTURE.md]]
 
 The deployed app is served from the shared Pages site at
 https://pemre.github.io/ay-stack/burkut/ — Storybook occupies the site root.
@@ -51,7 +51,7 @@ https://pemre.github.io/ay-stack/burkut/ — Storybook occupies the site root.
 
 ## Developing against library source
 
-To iterate on `@ay/ui-library` or `@ay/tokens` while running Bürküt, set the Local
+To iterate on `@ay/ui-library` or `@ay/ui-library` while running Bürküt, set the Local
 Dev Alias instead of linking packages:
 
 ```bash

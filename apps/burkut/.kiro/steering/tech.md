@@ -11,7 +11,7 @@ Paths below are relative to `apps/burkut/`; commands run from the workspace root
 | Framework | React 18 |
 | Bundler | Vite 5 |
 | Utility CSS | Tailwind CSS v4 via `@tailwindcss/vite` |
-| Design tokens | `@ay/tokens` (`workspace:^`) |
+| Design tokens | `@ay/ui-library` (`workspace:^`) |
 | Shared components | `@ay/ui-library` (`workspace:^`) |
 | Visualization | D3 (`d3`), used by library blocks and app widgets |
 | Timeline | vis-timeline / vis-data |
@@ -92,11 +92,11 @@ results are identical across packages:
 ## Stylesheets
 
 `global.css` is gone. Its contents were split three ways: the core and semantic
-tiers moved to `@ay/tokens`, and what remained stayed in the app.
+tiers moved to `@ay/ui-library`, and what remained stayed in the app.
 
 | File | Contents |
 |------|----------|
-| `src/styles/tailwind.css` | `@import "tailwindcss";` then `@import "@ay/tokens/theme.css";` — Tailwind first so the token block extends the default theme |
+| `src/styles/tailwind.css` | `@import "tailwindcss";` then `@import "@ay/ui-library/theme.css";` — Tailwind first so the token block extends the default theme |
 | `src/styles/app-tokens.css` | Bürküt's own tier: legacy aliases resolved to semantic tokens, the `--tl-bg-*` timeline layers, the `--vis-*` overrides, `--font-serif`, and the base element rules |
 | `src/styles/layout.css` | app shell and panel layout |
 
@@ -107,9 +107,9 @@ aliases before the layout that consumes them.
 ## Design System
 
 Token tiers, naming patterns, and tier ownership rules:
-#[[file:packages/tokens/TOKEN-ARCHITECTURE.md]]
+#[[file:packages/ui-library/TOKEN-ARCHITECTURE.md]]
 
-Bürküt declares **no core or semantic token** — both tiers belong to `@ay/tokens`.
+Bürküt declares **no core or semantic token** — both tiers belong to `@ay/ui-library`.
 Application-specific values and legacy aliases live in `src/styles/app-tokens.css`;
 component tokens live in each component's own `.css` file. A test in
 `src/tests/` fails the build if a core or semantic token reappears in the app.

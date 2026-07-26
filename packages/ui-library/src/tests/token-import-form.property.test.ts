@@ -1,13 +1,13 @@
 // Feature: ay-monorepo-foundation, Property 4: For any import statement in
 // @ay/ui-library or in the Bürküt application whose target resolves inside
-// packages/tokens, that import SHALL be written as an @ay/tokens package
-// specifier and SHALL NOT be a relative filesystem path.
+// packages/ui-library/src/tokens, that import SHALL remain inside this package;
+// no source may reference the retired standalone token package specifier.
 //
 // **Validates: Requirements 5.3, 5.4**
 //
 // This is the library's side of the property. The scan starts at the package root
-// rather than at src/, because the library's token import lives in
-// .storybook/tailwind.css — the one place the library loads the stylesheet at all.
+// rather than at src/, because Storybook loads the source Tailwind entry from
+// .storybook/tailwind.css.
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
@@ -18,7 +18,8 @@ import { describe, expect, it } from "vitest";
 const PKG = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 /** workspace root */
 const ROOT = dirname(dirname(PKG));
-const TOKENS_PKG = join(ROOT, "packages", "tokens");
+const TOKENS_SRC = join(PKG, "src", "tokens");
+const RETIRED_TOKEN_SPECIFIER = ["@ay", "tokens"].join("/");
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".css"];
 const SKIP_DIRS = new Set(["node_modules", "dist", "storybook-static", "coverage"]);
 
@@ -55,9 +56,9 @@ function isRelative(specifier: string): boolean {
   return specifier.startsWith(".") || specifier.startsWith("/");
 }
 
-function reachesTokenPackage(file: string, specifier: string): boolean {
+function reachesTokenSource(file: string, specifier: string): boolean {
   const target = resolve(dirname(file), specifier);
-  if (!target.startsWith(TOKENS_PKG)) return false;
+  if (!target.startsWith(TOKENS_SRC)) return false;
   return existsSync(target) || existsSync(`${target}.css`) || existsSync(`${target}.ts`);
 }
 
@@ -66,25 +67,29 @@ const REFS = filesUnder(PKG).flatMap((file) =>
 );
 
 describe("Property 4: token imports use the package specifier — @ay/ui-library", () => {
-  it("reaches packages/tokens through no relative path", () => {
-    const violations = REFS.filter(
-      ({ file, specifier }) => isRelative(specifier) && reachesTokenPackage(file, specifier),
+  it("keeps local token-source imports within the unified package", () => {
+    const outside = REFS.filter(
+      ({ file, specifier }) => isRelative(specifier) && reachesTokenSource(file, specifier),
     ).map(({ file, specifier }) => `${relative(ROOT, file)} imports "${specifier}"`);
 
-    expect(violations, "relative import of the token package").toEqual([]);
+    expect(outside).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/src\/styles\.css imports "\.\/tokens\/tokens\.css"/),
+      ]),
+    );
   });
 
-  it("imports the token stylesheet through the @ay/tokens specifier", () => {
-    const tokenImports = REFS.filter(({ specifier }) => specifier.startsWith("@ay/tokens"));
-    expect(tokenImports.length).toBeGreaterThan(0);
-    for (const { specifier } of tokenImports) {
-      expect(isRelative(specifier)).toBe(false);
-    }
+  it("contains no import of the retired token package", () => {
+    const tokenImports = REFS.filter(({ specifier }) =>
+      specifier.startsWith(RETIRED_TOKEN_SPECIFIER),
+    );
+    expect(tokenImports).toEqual([]);
     expect(REFS.length).toBeGreaterThan(20);
   });
 
-  it("declares no local token stylesheet", () => {
-    // src/styles/tokens.css was the library's private copy of the shared tiers.
-    expect(existsSync(join(PKG, "src", "styles", "tokens.css"))).toBe(false);
+  it("owns token sources under src/tokens", () => {
+    for (const file of ["core.css", "semantic.css", "theme.css", "tokens.css"]) {
+      expect(existsSync(join(TOKENS_SRC, file)), file).toBe(true);
+    }
   });
 });

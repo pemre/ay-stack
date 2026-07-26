@@ -1,0 +1,50 @@
+import { Canvas, Meta } from "@storybook/blocks";
+import * as DashboardStories from "./Dashboard.stories";
+
+<Meta of={DashboardStories} />
+
+# Dashboard infrastructure
+
+The unified design system includes an app-agnostic responsive dashboard grid, widget shell, registry, generated configuration panel, Standard Schema-compatible option validation, persistence middleware, and BroadcastChannel synchronization.
+
+<Canvas of={DashboardStories.Playground} />
+
+## Usage
+
+```tsx
+import {
+  DashboardGrid,
+  createWidgetRegistry,
+  type WidgetTypeDefinition,
+} from "@ay/ui-library";
+import "@ay/ui-library/styles.css";
+```
+
+Each host app owns its widget definitions, render context, state shape, translations, and persistence adapter. The library owns generic grid mechanics, error isolation, configuration controls, and validation helpers.
+
+## Register a widget
+
+```tsx
+const registry = createWidgetRegistry<MyRenderContext>();
+
+registry.register({
+  typeId: "activity",
+  titleKey: "Activity",
+  descriptionKey: "Recent activity",
+  component: ActivityWidget,
+  defaultSize: { w: 4, h: 4 },
+  minSize: { w: 2, h: 2 },
+  defaultConfig: { limit: 10 },
+  optionsSchema: [
+    { key: "limit", kind: "number", label: "Items", default: 10, min: 1, max: 100 },
+  ],
+  buildProps: (context, config) => ({ items: context.items, limit: config.limit }),
+});
+```
+
+`DashboardGrid` renders the registered component inside `WidgetShell`. A throwing widget is isolated to its own shell; schema-backed fields get generated configuration controls automatically.
+
+## Persistence
+
+Use `createPersistenceMiddleware` with a host-owned `PersistenceAdapter`. The adapter decides where data is stored; the library provides debounced saves, retry behavior, hydration, migrations, and optional cross-tab synchronization.
+

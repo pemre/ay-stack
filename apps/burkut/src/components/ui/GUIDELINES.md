@@ -7,14 +7,14 @@ Machine-readable conventions for the Bürküt design system. Follow these rules 
 ## Token Architecture
 
 Token tiers, naming patterns, and tier ownership rules:
-[`packages/tokens/TOKEN-ARCHITECTURE.md`](../../../../../packages/tokens/TOKEN-ARCHITECTURE.md)
+[`packages/ui-library/TOKEN-ARCHITECTURE.md`](../../../../../packages/ui-library/TOKEN-ARCHITECTURE.md)
 — that document is authoritative and is not restated here.
 
 What matters for a UI primitive in this directory:
 
 | Where a value lives | File |
 |---------------------|------|
-| Shared core and semantic tokens | `@ay/tokens`, loaded through `src/styles/tailwind.css` |
+| Shared core and semantic tokens | `@ay/ui-library`, loaded through `src/styles/tailwind.css` |
 | Bürküt's legacy aliases and app-specific tokens | `src/styles/app-tokens.css` |
 | A primitive's own component tokens | that component's co-located `.css` file |
 
@@ -34,8 +34,8 @@ references a core token directly.
 ### Adding a New Token
 
 1. A value shared with another package or app is a core or semantic token: add it
-   to `@ay/tokens` (`packages/tokens/src/core.css` or
-   `packages/tokens/src/semantic.css`). Never declare either tier in this app — a
+   to `@ay/ui-library` (`packages/ui-library/src/tokens/core.css` or
+   `packages/ui-library/src/tokens/semantic.css`). Never declare either tier in this app — a
    test in `src/tests/` fails the build if you do.
 2. A value meaningful only to Bürküt goes in `src/styles/app-tokens.css`.
 3. A value specific to one component goes in that component's `.css` file, named

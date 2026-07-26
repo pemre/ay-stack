@@ -25,13 +25,22 @@ export default defineConfig({
       fileName: (format) => `index.${format === "es" ? "es" : "cjs"}.js`,
     },
     rollupOptions: {
-      external: ["react", "react-dom", "react/jsx-runtime", "d3"],
+      external: [
+        "react",
+        "react-dom",
+        "react/jsx-runtime",
+        "d3",
+        "react-grid-layout",
+        "zustand",
+      ],
       output: {
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
           "react/jsx-runtime": "jsxRuntime",
-          d3: "d3",
+            d3: "d3",
+            "react-grid-layout": "ReactGridLayout",
+            zustand: "zustand",
         },
       },
     },

@@ -1,7 +1,7 @@
 {
   "name": "@ay/ui-library",
-  "version": "0.5.0",
-  "description": "🌜 Ay UI Library — Reusable visualization and interactive components for React",
+  "version": "1.0.0",
+  "description": "🌜 Ay UI Library — Design tokens, dashboard infrastructure, and reusable React blocks",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.cjs.js",
@@ -13,19 +13,29 @@
       "import": "./dist/index.es.js",
       "require": "./dist/index.cjs.js"
     },
+    "./dashboard": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs.js"
+    },
     "./dist/style.css": "./dist/style.css",
     "./styles.css": "./dist/style.css",
+    "./tokens.css": "./dist/tokens.css",
+    "./theme.css": "./dist/theme.css",
+    "./core.css": "./dist/core.css",
+    "./semantic.css": "./dist/semantic.css",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "README.md",
+    "TOKEN-ARCHITECTURE.md",
     "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {
     "dev": "STORYBOOK=true storybook dev -p 6006",
-    "build": "vite build",
+    "build": "vite build && node scripts/build-tokens-css.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
@@ -39,14 +49,16 @@
     "access": "public"
   },
   "dependencies": {
-    "@ay/tokens": "workspace:^",
+    "@standard-schema/spec": "1.1.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.575.0",
     "react-markdown": "^9.0.1",
     "react-leaflet": "^4.2.1",
     "remark-gfm": "^4.0.0",
     "vis-data": "^7.1.9",
-    "vis-timeline": "^7.7.3"
+    "vis-timeline": "^7.7.3",
+    "react-grid-layout": "^2.2.2",
+    "zustand": "^5.0.12"
   },
   "peerDependencies": {
     "d3": "^7.0.0",
@@ -76,12 +88,14 @@
     "jsdom": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "react-grid-layout": "^2.2.2",
     "storybook": "^8.6.18",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "^4.5.4",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "zustand": "^5.0.12"
   },
   "repository": {
     "type": "git",

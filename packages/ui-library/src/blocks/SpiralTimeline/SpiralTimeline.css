@@ -5,7 +5,7 @@
    Component CSS references the semantic and component tiers only; the
    core tier is reached exactly once, in the mapping block below, so the
    component stays re-themable. Literal fallbacks are retained so the
-   block degrades gracefully when the @ay/tokens stylesheet is absent.
+      block degrades gracefully when the @ay/ui-library token stylesheet is absent.
    ═══════════════════════════════════════════════════════════════ */
 
 .spiral-timeline {

@@ -49,10 +49,10 @@ Some blocks (e.g., ImageZoom) use a hybrid styling approach where Tailwind utili
 ## 4. CSS Custom Properties
 
 Token tiers, naming patterns, and tier ownership rules:
-#[[file:packages/tokens/TOKEN-ARCHITECTURE.md]]
+#[[file:packages/ui-library/TOKEN-ARCHITECTURE.md]]
 
 In `{BlockName}.css`, define component tokens mapped to semantic tokens from
-`@ay/tokens`:
+`@ay/ui-library`:
 
 ```css
 .{block-name} {
@@ -153,5 +153,5 @@ pnpm --filter @ay/ui-library build       # production build succeeds
 
 Verify the component renders correctly in Storybook
 (`pnpm --filter @ay/ui-library storybook`, or `pnpm storybook` at the root). If
-`packages/tokens/dist/` is cold, build it first with
+`packages/ui-library/dist/` is cold, build it first with
 `pnpm --filter "@ay/ui-library^..." build`.
