@@ -7,16 +7,16 @@
 }
 
 .progress-pie__track {
-  stroke: var(--border-default);
+  stroke: var(--color-border-default);
 }
 
 .progress-pie__fill {
-  stroke: var(--success);
+  stroke: var(--color-status-success);
   transition: stroke-dashoffset 0.4s ease;
 }
 
 .progress-pie__text {
-  fill: var(--text-primary);
+  fill: var(--color-text-primary);
   font-size: 10px;
   font-weight: 700;
   user-select: none;
