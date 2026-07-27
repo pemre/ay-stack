@@ -5,9 +5,23 @@ import * as DashboardStories from "./Dashboard.stories";
 
 # Dashboard infrastructure
 
-The unified design system includes an app-agnostic responsive dashboard grid, widget shell, registry, generated configuration panel, Standard Schema-compatible option validation, persistence middleware, and BroadcastChannel synchronization.
+The Dashboard engine is an app-agnostic responsive grid: the library renders and protects widgets, while the host app owns widget definitions, data, translations, and persistence decisions. It includes `DashboardGrid`, `WidgetShell`, a widget registry, generated configuration controls, Standard Schema-compatible validation, persistence middleware, and optional BroadcastChannel synchronization.
 
 <Canvas of={DashboardStories.Playground} />
+
+## Playground guide
+
+The **Controls** panel demonstrates the dashboard behaviors a host can configure:
+
+- **Draggable** enables the header drag handle and grid resizing. Moving or resizing a widget invokes `onLayoutChange`.
+- **Show empty state** uses the host's `isInstanceEmpty` and `renderEmptyState` callbacks instead of widget content.
+- **Show loading state** supplies the host's Suspense fallback for lazy widget content.
+
+The header exposes every instance action supported by `DashboardGrid`: configure, duplicate, remove, and close. The generated **Label** field demonstrates `onUpdateInstanceConfig`. All callbacks are visible in Storybook's **Actions** panel. The fixture persists emitted drag and resize positions locally, removes closed and removed widgets, and adds a positioned copy when duplicated solely to make each action's result visible; production hosts decide their own state transition.
+
+<Canvas of={DashboardStories.UnknownWidget} />
+
+An instance whose `widgetTypeId` is not registered is safely contained and rendered with `getUnknownWidgetMessage`; it does not crash the rest of the dashboard.
 
 ## Usage
 
@@ -20,7 +34,7 @@ import {
 import "@ay/ui-library/styles.css";
 ```
 
-Each host app owns its widget definitions, render context, state shape, translations, and persistence adapter. The library owns generic grid mechanics, error isolation, configuration controls, and validation helpers.
+Each host app owns its widget definitions, render context, state shape, translations, and persistence adapter. The library owns generic grid mechanics, error isolation, configuration controls, and validation helpers. Pass all visible strings through labels or host callbacks—the engine deliberately does not call application i18n or theme hooks.
 
 ## Register a widget
 
@@ -44,7 +58,49 @@ registry.register({
 
 `DashboardGrid` renders the registered component inside `WidgetShell`. A throwing widget is isolated to its own shell; schema-backed fields get generated configuration controls automatically.
 
+## `DashboardGrid` API
+
+| Prop | Required | Host responsibility |
+| --- | --- | --- |
+| `instances` | Yes | The ordered, controlled list of `instanceId`, `widgetTypeId`, grid `position`, and opaque `config`. |
+| `resolveType` | Yes | Resolve a widget type from the host registry. An unresolved type uses the unknown-widget fallback. |
+| `renderContext` | Yes | Supply app data and dependencies consumed by each definition's `buildProps`. |
+| `draggable` | No | Defaults to `true`; controls drag and resize interaction. |
+| `onLayoutChange` | No | Persist the layout emitted by `react-grid-layout`; it receives the current layout and all responsive layouts. |
+| `shellLabels` | No | Localized accessible labels and error text for every `WidgetShell` action. |
+| `getWidgetTitle` | No | Localize or override the title for a specific instance. |
+| `getUnknownWidgetMessage` | No | Render a recoverable message for stale or unavailable widget types. |
+| `onConfigClick` | No | Observe a configuration action. Provide this alone for a host-owned config UI. |
+| `onDuplicate`, `onRemove`, `onClose` | No | Apply the host's state transition for the selected instance. The engine never mutates `instances`. |
+| `onUpdateInstanceConfig` + `getConfigPanelLabels` | Together | Enable the built-in schema-generated configuration panel. Merge the partial config into host state. |
+| `isInstanceEmpty` + `renderEmptyState` | Together | Replace content with a host-defined empty state when data is absent. |
+| `getLoadingState` | No | Supply the Suspense fallback for a lazy widget. |
+
+`onConfigClick` is called whether the built-in panel is enabled or not. The built-in panel appears only when the type has an `optionsSchema` and both `onUpdateInstanceConfig` and `getConfigPanelLabels` are supplied.
+
+## Widget definition contract
+
+`WidgetTypeDefinition` is the host-to-engine boundary. Register each unique `typeId` once. `defaultSize` and `minSize` describe grid constraints; `defaultConfig` is host-owned initial state; `buildProps(context, config)` must translate opaque host context and config into the widget's component props. Keep widget components prop-driven and free of host state, translation, and theme hooks so the definition remains portable and testable.
+
+### Action and configuration example
+
+```tsx
+<DashboardGrid
+  instances={instances}
+  resolveType={registry.get}
+  renderContext={dashboardContext}
+  shellLabels={labels.dashboard}
+  onLayoutChange={(layout) => saveLayout(layout)}
+  onDuplicate={(instance) => setInstances((current) => duplicate(current, instance))}
+  onRemove={(instance) => setInstances((current) => remove(current, instance.instanceId))}
+  onUpdateInstanceConfig={(instance, partial) =>
+    setInstances((current) => updateConfig(current, instance.instanceId, partial))
+  }
+  getConfigPanelLabels={() => ({ title: labels.options, closeAriaLabel: labels.close })}
+/>
+```
+
 ## Persistence
 
-Use `createPersistenceMiddleware` with a host-owned `PersistenceAdapter`. The adapter decides where data is stored; the library provides debounced saves, retry behavior, hydration, migrations, and optional cross-tab synchronization.
+Use `createPersistenceMiddleware` with a host-owned `PersistenceAdapter`. The adapter decides where data is stored; the library provides debounced saves, retry behavior, hydration, migrations, and optional cross-tab synchronization. Build migrations with `createMigrationRunner`, and add `createBroadcastMiddleware` only when cross-tab updates are desired. Test migrations and persistence separately from visual stories because both are state-transport concerns rather than rendering behavior.
 

@@ -1,6 +1,8 @@
 import { type ReactNode, type RefObject, useMemo, useState } from "react";
 import type { Layout, ResponsiveLayouts } from "react-grid-layout";
 import { Responsive, useContainerWidth } from "react-grid-layout";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
 import {
   GeneratedConfigPanel,
   type GeneratedConfigPanelLabels,
