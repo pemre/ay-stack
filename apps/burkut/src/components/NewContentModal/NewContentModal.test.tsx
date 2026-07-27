@@ -104,6 +104,37 @@ describe("NewContentModal", () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
+  it("dismisses on Escape", () => {
+    const onDismiss = vi.fn();
+    render(
+      <NewContentModal
+        newContentIds={["newMovie"]}
+        index={mockIndex}
+        percentage={75}
+        onDismiss={onDismiss}
+      />,
+    );
+
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it("dismisses on an overlay click", () => {
+    const onDismiss = vi.fn();
+    render(
+      <NewContentModal
+        newContentIds={["newMovie"]}
+        index={mockIndex}
+        percentage={75}
+        onDismiss={onDismiss}
+      />,
+    );
+
+    const dialog = screen.getByRole("dialog");
+    fireEvent.click(dialog.parentElement as HTMLElement);
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
   it("has dialog role and aria-modal", () => {
     render(
       <NewContentModal

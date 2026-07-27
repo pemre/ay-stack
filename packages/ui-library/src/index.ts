@@ -54,4 +54,5 @@ export {
   type TreeListProps,
   type TreeNode,
 } from "./blocks/TreeList/types.ts";
+export { Button, Modal, type ButtonProps, type ModalProps } from "./primitives/index.ts";
 export * from "./dashboard/index.ts";

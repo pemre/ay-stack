@@ -8,3 +8,5 @@
 @import "./blocks/MarkdownViewer/MarkdownViewer.css";
 @import "./blocks/GeoMap/GeoMap.css";
 @import "./dashboard/styles.css";
+@import "./primitives/Button/Button.css";
+@import "./primitives/Modal/Modal.css";

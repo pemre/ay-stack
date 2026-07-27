@@ -1,40 +1,10 @@
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
-}
-
-.modal-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  padding: 1.5rem 2rem;
-  max-width: 420px;
-  width: 90%;
-  max-height: 70vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
-}
-
-.modal-title {
-  margin: 0 0 0.25rem;
-  font-size: 1.1rem;
-  color: var(--accent);
-}
-
-.modal-message {
+.new-content-modal__message {
   margin: 0 0 0.75rem;
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
 }
 
-.modal-list {
+.new-content-modal__list {
   list-style: none;
   padding: 0;
   margin: 0 0 1rem;
@@ -42,40 +12,42 @@
   overflow-y: auto;
 }
 
-.modal-list-item {
+.new-content-modal__list-item {
   padding: 0.35rem 0.5rem;
   font-size: 0.82rem;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-subtle);
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
-.modal-list-item::before {
+.new-content-modal__list-item::before {
   content: "🆕 ";
 }
 
-.modal-list-item:last-child {
+.new-content-modal__list-item:last-child {
   border-bottom: none;
 }
 
-.modal-progress {
+.new-content-modal__progress {
   display: flex;
   justify-content: center;
   margin-bottom: 1rem;
 }
 
-.modal-dismiss-btn {
+.new-content-modal__dismiss {
   align-self: center;
   padding: 0.4rem 1.5rem;
-  border: 1px solid var(--accent);
+  border: 1px solid var(--color-primary);
   border-radius: 6px;
-  background: var(--accent);
-  color: var(--text-on-accent);
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.15s;
 }
 
-.modal-dismiss-btn:hover {
+.new-content-modal__dismiss.new-content-modal__dismiss:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   opacity: 0.85;
 }

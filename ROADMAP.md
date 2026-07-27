@@ -28,7 +28,6 @@ deviation. That guard must stay green through every phase below.
 | 1 | `widget-purity-contract` | finished |
 | 2 | `dashboard-engine-extraction` | finished |
 | 3 | `burkut-repo-extraction` | not started |
-| 4 | second app | not started |
 
 ---
 

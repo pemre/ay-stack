@@ -1,11 +1,11 @@
 import { Github, RotateCcw } from "lucide-react";
 import { type ChangeEvent, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@ay/ui-library";
 import { DashboardBar } from "./components/DashboardBar/DashboardBar";
 import NewContentModal from "./components/NewContentModal/NewContentModal";
 import ProgressPie from "./components/ProgressPie/ProgressPie";
 import ThemeToggle from "./components/ThemeToggle/ThemeToggle";
-import { Button } from "./components/ui";
 import { WidgetGrid } from "./components/WidgetGrid/WidgetGrid";
 import config from "./config";
 import { useContentGraph } from "./hooks/useContentGraph";

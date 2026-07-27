@@ -1,7 +1,7 @@
+import { Button } from "@ay/ui-library";
 import { Moon, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../hooks/useTheme";
-import { Button } from "../ui";
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
