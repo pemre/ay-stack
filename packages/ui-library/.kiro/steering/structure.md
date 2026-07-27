@@ -8,6 +8,10 @@ packages/ui-library/
 ├── src/
 │   ├── index.ts                               # Barrel export — all blocks + public types
 │   ├── blocks/
+│   │   ├── ProgressPie/
+│   │   │   ├── ProgressPie.tsx                  # Reusable SVG progress donut
+│   │   │   ├── ProgressPie.css                  # ProgressPie component styles
+│   │   │   └── ProgressPie.stories.tsx          # Storybook controls and variants
 │   │   ├── SpiralTimeline/
 │   │   │   ├── SpiralTimeline.tsx              # Main component
 │   │   │   ├── SpiralTimeline.css              # Component tokens + block styles
@@ -36,6 +40,11 @@ packages/ui-library/
 │   │       ├── ImageZoom.mdx                   # MDX documentation page for Storybook
 │   │       ├── types.ts                        # Public TypeScript interfaces
 │   │       └── defaults.ts                     # DEFAULT_CONFIG constant
+│   ├── icons/
+│   │   ├── *Icon.tsx                            # Curated decorative icon wrappers
+│   │   ├── Icons.stories.tsx                     # Curated icon gallery and usage example
+│   │   ├── icons.test.tsx                       # Icon contract tests
+│   │   └── index.ts                             # Public icon entry point
 │   ├── tests/
 │   │   ├── setup.ts                            # Vitest setup (jest-dom matchers)
 │   │   ├── component-tier.property.test.ts     # Block CSS never reaches the core tier
@@ -100,6 +109,11 @@ component with their own co-located `.test.ts` files.
 
 `src/index.ts` re-exports all Block components and their public types. Every new
 Block must be added here.
+
+Icons are a deliberately separate public surface under `src/icons/`. Add a
+wrapper only for a confirmed shared use case, export it from `src/icons/index.ts`,
+and then re-export that barrel from `src/index.ts`. Consumers must not import
+`lucide-react` directly.
 
 ```typescript
 export { SpiralTimeline } from "./blocks/SpiralTimeline/SpiralTimeline.tsx";

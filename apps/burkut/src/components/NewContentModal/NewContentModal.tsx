@@ -1,7 +1,6 @@
-import { Button, Modal } from "@ay/ui-library";
+import { Button, Modal, ProgressPie } from "@ay/ui-library";
 import { useTranslation } from "react-i18next";
 import type { ContentIndex } from "../../shared/types.ts";
-import ProgressPie from "../ProgressPie/ProgressPie";
 import "./NewContentModal.css";
 
 interface NewContentModalProps {
@@ -42,7 +41,7 @@ export default function NewContentModal({
       </ul>
 
       <div className="new-content-modal__progress">
-        <ProgressPie percentage={percentage} size={48} />
+        <ProgressPie percentage={percentage} size={48} label={t("progress.title")} />
       </div>
 
       <Button className="new-content-modal__dismiss" onClick={onDismiss} variant="text">

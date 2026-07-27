@@ -9,6 +9,8 @@
  * Requirement 3: Config panels generated from the options schema
  */
 
+import type { ReactNode } from "react";
+import { XIcon } from "../../icons/index.ts";
 import type { FieldDescriptor, OptionsSchema } from "../schema/types.ts";
 import {
   BooleanFieldControl,
@@ -33,6 +35,10 @@ export interface GeneratedConfigPanelProps {
   labels: GeneratedConfigPanelLabels;
   onUpdate: (partial: Record<string, unknown>) => void;
   onClose: () => void;
+  icons?: {
+    close?: ReactNode;
+    removeTag?: (tag: string) => ReactNode;
+  };
 }
 
 /**
@@ -46,6 +52,7 @@ export function GeneratedConfigPanel({
   labels,
   onUpdate,
   onClose,
+  icons,
 }: GeneratedConfigPanelProps): JSX.Element {
   const renderField = (field: FieldDescriptor): JSX.Element => {
     const value = config[field.key];
@@ -86,6 +93,7 @@ export function GeneratedConfigPanel({
               addTagPlaceholder: labels.addTagPlaceholder,
               removeTagAriaLabel: labels.removeTagAriaLabel,
             }}
+            removeIcon={icons?.removeTag}
           />
         );
 
@@ -122,7 +130,7 @@ export function GeneratedConfigPanel({
           aria-label={labels.closeAriaLabel}
           type="button"
         >
-          ✕
+          {icons?.close ?? <XIcon size={14} />}
         </button>
       </header>
       <div className="generated-config-panel__fields">{schema.map(renderField)}</div>

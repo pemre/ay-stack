@@ -1,7 +1,7 @@
-import { Check } from "lucide-react";
 import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { CheckIcon } from "../../icons/index.ts";
 import {
   DEFAULT_MARKDOWN_VIEWER_LABELS,
   type MarkdownViewerLabels,
@@ -50,7 +50,7 @@ export default function MarkdownViewerClient({
             aria-label={completed ? labels.markUnread : labels.markRead}
             title={completed ? labels.markUnread : labels.markRead}
           >
-            <Check size={16} />
+            <CheckIcon size={16} />
           </button>
         )}
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>

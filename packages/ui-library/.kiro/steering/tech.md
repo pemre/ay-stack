@@ -22,10 +22,17 @@ the workspace root; nothing here uses npm or yarn.
 | DOM environment | jsdom | ^28.1 |
 | Linting/Formatting | Biome | ^2.4 |
 | Styling | Plain CSS with custom properties (no CSS-in-JS); hybrid Tailwind utilities for select blocks (e.g., ImageZoom) |
+| Icons | `lucide-react` internally, exposed only through curated `src/icons/*Icon.tsx` wrappers |
 
 React, ReactDOM, D3, and Tailwind CSS are **peer dependencies** — they are
 externalized from the build output. `@ay/ui-library` is a real dependency: the package
 consumes its stylesheet rather than declaring tokens of its own.
+
+`lucide-react` is an implementation dependency, not a consumer API. Shared
+applications import named wrappers such as `SettingsIcon` and `CheckIcon` from
+`@ay/ui-library`. Keep wrappers decorative by default so labelled parent controls
+do not receive duplicate accessible names. `ProgressPie` is also library-owned
+and receives its accessible label through props rather than application i18n.
 
 Every shared tool version comes from the workspace catalog in
 `pnpm-workspace.yaml`, so this package's manifest writes `"vitest": "catalog:"`

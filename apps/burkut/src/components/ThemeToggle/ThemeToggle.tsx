@@ -1,5 +1,4 @@
-import { Button } from "@ay/ui-library";
-import { Moon, Sun } from "lucide-react";
+import { Button, MoonIcon, SunIcon } from "@ay/ui-library";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../hooks/useTheme";
 
@@ -14,7 +13,7 @@ export default function ThemeToggle() {
       aria-label={t("theme.toggle")}
       title={t("theme.toggle")}
     >
-      {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+      {theme === "dark" ? <SunIcon size={18} /> : <MoonIcon size={18} />}
     </Button>
   );
 }

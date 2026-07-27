@@ -18,7 +18,7 @@ Paths below are relative to `apps/burkut/`; commands run from the workspace root
 | Map | react-leaflet + Leaflet |
 | Markdown | react-markdown + remark-gfm |
 | i18n | react-i18next |
-| Icons | lucide-react |
+| Icons | Curated `*Icon` exports from `@ay/ui-library` (`lucide-react` is library-internal) |
 | Layout | react-grid-layout v2 |
 | State | Zustand (with BroadcastChannel cross-tab middleware) |
 | Styling | Plain CSS with custom properties (no CSS-in-JS) + Tailwind utilities |
@@ -113,6 +113,11 @@ Bürküt declares **no core or semantic token** — both tiers belong to `@ay/ui
 Application-specific values and legacy aliases live in `src/styles/app-tokens.css`;
 component tokens live in each component's own `.css` file. A test in
 `src/tests/` fails the build if a core or semantic token reappears in the app.
+
+Do not add `lucide-react` imports to Bürküt. Use the named icon wrappers from
+`@ay/ui-library`, which preserve explicit SVG props and default to decorative
+accessibility behavior. `ProgressPie` is likewise imported from the library and
+receives its translated accessible label through props.
 
 UI primitives live in `src/components/ui/` with co-located `.tsx`, `.css`, and
 `.test.tsx` files. A barrel `index.ts` re-exports all primitives. When building new

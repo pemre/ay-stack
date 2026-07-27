@@ -19,6 +19,7 @@ unscoped name `ay-ui-library`, which is deprecated; see [CHANGELOG.md](./CHANGEL
 - **D3 for math, React owns the DOM** — D3-powered components use D3 for scales, color interpolators, geometry, and data joins inside a single `<svg>`. It never creates DOM outside the SVG element.
 - **Tokens live with the components** — theming runs on this package's core and semantic CSS custom properties. Theme switching is a `data-theme` attribute or a variable override.
 - **Blocks architecture** — Each component lives in `src/blocks/{Name}/` with co-located `.tsx`, `.css`, `.test.tsx`, and `.stories.tsx` files. A barrel `src/index.ts` re-exports the public API.
+- **Curated icons** — Shared iconography is exposed through named `*Icon` wrappers. Consumers must import icons from `@ay/ui-library`, not from `lucide-react`.
 - **Property-based testing** — Correctness properties are encoded as executable tests using fast-check, complemented by unit tests with Vitest and Testing Library.
 
 ---
@@ -145,6 +146,46 @@ function App() {
 ```
 
 See the [ImageZoom stories](https://pemre.github.io/ay-stack/) in the live Storybook for interactive examples.
+
+---
+
+### Icons
+
+The library owns the workspace icon boundary and intentionally exposes a small,
+curated API:
+
+The Storybook entry **Icons/Curated API** shows the complete supported set,
+prop controls, and the decorative behavior used inside labelled buttons.
+
+```tsx
+import { CheckIcon, SettingsIcon } from "@ay/ui-library";
+
+<button type="button" aria-label="Configure">
+  <SettingsIcon size={14} />
+</button>;
+<CheckIcon size={16} />;
+```
+
+Icons accept the relevant SVG props, including `size`, `strokeWidth`, `className`,
+and `color`. They are decorative by default (`aria-hidden="true"` and
+`focusable="false"`) so a labelled parent button remains the sole accessible
+name. The current public set is `SettingsIcon`, `CopyIcon`, `XIcon`, `PlusIcon`,
+`MoonIcon`, `SunIcon`, `GithubIcon`, `RotateCcwIcon`, `MapPinIcon`, `CheckIcon`,
+`ChevronDownIcon`, and `ChevronRightIcon`.
+
+### ProgressPie
+
+`ProgressPie` is a reusable SVG donut chart. It is independent of application
+i18n; pass the translated accessible label from the consuming app:
+
+The Storybook entry **Blocks/ProgressPie** includes interactive percentage and
+size controls plus empty, complete, and large variants.
+
+```tsx
+import { ProgressPie } from "@ay/ui-library";
+
+<ProgressPie percentage={72} size={48} label="Reading progress" />;
+```
 
 ---
 

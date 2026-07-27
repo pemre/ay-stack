@@ -90,9 +90,6 @@ vi.mock("./components/DashboardBar/DashboardBar", () => ({
 vi.mock("./components/ThemeToggle/ThemeToggle", () => ({
   default: () => <div data-testid="theme-toggle" />,
 }));
-vi.mock("./components/ProgressPie/ProgressPie", () => ({
-  default: () => <div data-testid="progress-pie" />,
-}));
 vi.mock("./components/NewContentModal/NewContentModal", () => ({
   default: () => null,
 }));

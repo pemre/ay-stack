@@ -22,6 +22,10 @@ Bürküt is the app at `apps/burkut/` in the [ay-stack](../../README.md) workspa
 - ✓ Reading progress tracker with new-content detection
 - 🔄 HMR — adding, editing, or deleting files updates the UI live
 
+Shared iconography and the reading-progress donut are provided by
+`@ay/ui-library`. Bürküt does not import `lucide-react` directly; use the
+library’s curated `*Icon` exports for new app controls.
+
 ## Multi-Dashboard System
 
 Bürküt uses a Datadog-style multi-dashboard system. Instead of a single fixed layout, you create named dashboards — each a canvas of independently configured widget instances.

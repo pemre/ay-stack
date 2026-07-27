@@ -31,7 +31,6 @@
     "d3": "catalog:",
     "gray-matter": "^4.0.3",
     "i18next": "^25.8.13",
-    "lucide-react": "^0.575.0",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-grid-layout": "^2.2.2",

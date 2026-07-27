@@ -8,8 +8,7 @@ it is `"private": true` and carries no `bin`, `files`, `main`, `module`, or `typ
 ```
 ay-stack/
 ├── packages/
-│   ├── tokens/        # @ay/ui-library      — published. Core + semantic CSS token tiers
-│   ├── ui-library/    # @ay/ui-library  — published. React blocks (SpiralTimeline, ImageZoom)
+│   ├── ui-library/    # @ay/ui-library  — published. React blocks, icons, and dashboard infrastructure
 │   └── vite-config/   # @ay/vite-config — private. Shared Vite resolution helpers
 ├── apps/
 │   └── burkut/        # burkut          — private app, CLI-driven content visualizer
@@ -49,8 +48,12 @@ Where something belongs:
 
 - A value two consumers share → `@ay/ui-library`
 - A component two consumers share → `@ay/ui-library`
+- Shared iconography and reusable visualizations such as `ProgressPie` → `@ay/ui-library`
 - Anything meaningful to one app only → that app (component tokens, app tokens,
   app-specific layout)
+
+`@ay/ui-library` is the only public icon boundary. Its small `src/icons/` API
+wraps `lucide-react`; applications must not import `lucide-react` directly.
 
 ## Commands
 

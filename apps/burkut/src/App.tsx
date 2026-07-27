@@ -1,10 +1,8 @@
-import { Github, RotateCcw } from "lucide-react";
+import { Button, GithubIcon, ProgressPie, RotateCcwIcon } from "@ay/ui-library";
 import { type ChangeEvent, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@ay/ui-library";
 import { DashboardBar } from "./components/DashboardBar/DashboardBar";
 import NewContentModal from "./components/NewContentModal/NewContentModal";
-import ProgressPie from "./components/ProgressPie/ProgressPie";
 import ThemeToggle from "./components/ThemeToggle/ThemeToggle";
 import { WidgetGrid } from "./components/WidgetGrid/WidgetGrid";
 import config from "./config";
@@ -66,7 +64,7 @@ export default function App() {
             aria-label={t("layout.reset")}
             title={t("layout.reset")}
           >
-            <RotateCcw size={16} />
+            <RotateCcwIcon size={16} />
           </Button>
         )}
 
@@ -91,7 +89,7 @@ export default function App() {
           aria-label="GitHub"
           title="GitHub"
         >
-          <Github size={18} />
+          <GithubIcon size={18} />
         </Button>
       </header>
 

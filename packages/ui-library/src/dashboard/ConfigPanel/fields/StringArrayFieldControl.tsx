@@ -3,8 +3,9 @@
  * Renders a tag/chip editor with an add-tag input.
  */
 
-import type { KeyboardEvent } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import { useState } from "react";
+import { XIcon } from "../../../icons/index.ts";
 import type { StringArrayField } from "../../schema/types.ts";
 
 export interface StringArrayFieldControlLabels {
@@ -17,6 +18,7 @@ export interface StringArrayFieldControlProps {
   value: unknown;
   onChange: (newValue: unknown) => void;
   labels?: StringArrayFieldControlLabels;
+  removeIcon?: (tag: string) => ReactNode;
 }
 
 export function StringArrayFieldControl({
@@ -24,6 +26,7 @@ export function StringArrayFieldControl({
   value,
   onChange,
   labels,
+  removeIcon,
 }: StringArrayFieldControlProps) {
   const items = Array.isArray(value) ? value : [];
   const [tagInput, setTagInput] = useState("");
@@ -66,7 +69,7 @@ export function StringArrayFieldControl({
                 aria-label={getRemoveAriaLabel(tag)}
                 onClick={() => handleRemoveTag(tag)}
               >
-                ×
+                {removeIcon?.(tag) ?? <XIcon size={10} />}
               </button>
             </span>
           ))}

@@ -1,4 +1,5 @@
 import { type ReactNode, Suspense } from "react";
+import { CopyIcon, SettingsIcon, XIcon } from "../../icons/index.ts";
 import { WidgetErrorBoundary } from "./WidgetErrorBoundary";
 import "./WidgetShell.css";
 
@@ -16,6 +17,13 @@ export interface WidgetShellLabels {
   errorFallbackMessage?: string;
 }
 
+export interface WidgetShellIcons {
+  config?: ReactNode;
+  duplicate?: ReactNode;
+  remove?: ReactNode;
+  close?: ReactNode;
+}
+
 /**
  * Props for the WidgetShell component.
  */
@@ -24,6 +32,8 @@ export interface WidgetShellProps {
   title: string;
   /** Labels for buttons and error messages */
   labels?: WidgetShellLabels;
+  /** Optional visual content for action buttons. */
+  icons?: WidgetShellIcons;
   /** Whether the widget is draggable (affects CSS class) */
   draggable: boolean;
   /** Callback when config button is clicked */
@@ -73,6 +83,7 @@ export function WidgetShell(props: WidgetShellProps): JSX.Element {
   const {
     title,
     labels: userLabels,
+    icons,
     draggable,
     onConfigClick,
     onDuplicateClick,
@@ -124,7 +135,7 @@ export function WidgetShell(props: WidgetShellProps): JSX.Element {
               aria-label={labels.configAriaLabel}
               className="widget-action-config"
             >
-              ⚙️
+              {icons?.config ?? <SettingsIcon size={14} />}
             </button>
           )}
           {onDuplicateClick && (
@@ -134,7 +145,7 @@ export function WidgetShell(props: WidgetShellProps): JSX.Element {
               aria-label={labels.duplicateAriaLabel}
               className="widget-action-duplicate"
             >
-              📋
+              {icons?.duplicate ?? <CopyIcon size={14} />}
             </button>
           )}
           {onRemoveClick && (
@@ -144,7 +155,7 @@ export function WidgetShell(props: WidgetShellProps): JSX.Element {
               aria-label={labels.removeAriaLabel}
               className="widget-action-remove"
             >
-              🗑️
+              {icons?.remove ?? <XIcon size={14} />}
             </button>
           )}
           {onClose && (
@@ -154,7 +165,7 @@ export function WidgetShell(props: WidgetShellProps): JSX.Element {
               aria-label={labels.closeAriaLabel}
               className="widget-action-close"
             >
-              ✕
+              {icons?.close ?? <XIcon size={14} />}
             </button>
           )}
         </div>

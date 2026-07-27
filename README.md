@@ -75,8 +75,10 @@ Dependencies flow one way: `@ay/ui-library` → `burkut`.
 - `burkut` may depend on `@ay/ui-library`. Nothing depends on `burkut` — it is a leaf,
   and it moves to its own repository in a later phase.
 - Anything shared by two consumers belongs in `@ay/ui-library`: shared values,
-  dashboard infrastructure, and reusable components. Anything meaningful to one
-  app stays in that app.
+  dashboard infrastructure, reusable components, curated icons, and visualizations
+  such as `ProgressPie`. Anything meaningful to one app stays in that app. Apps
+  must not import `lucide-react` directly; they use the named icon wrappers from
+  `@ay/ui-library`.
 
 Token tiers, naming patterns, and tier ownership rules are stated in exactly one
 document: [`packages/ui-library/TOKEN-ARCHITECTURE.md`](packages/ui-library/TOKEN-ARCHITECTURE.md).

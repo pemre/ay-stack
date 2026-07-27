@@ -1,6 +1,7 @@
 import L from "leaflet";
 import { type RefObject, useCallback, useEffect, useMemo, useRef } from "react";
 import { MapContainer, Marker, Polygon, Popup, TileLayer, useMap } from "react-leaflet";
+import { MapPinIcon } from "../../icons/index.ts";
 import type { GeoMapConfig, GeoMapLabels, GeoMapProps } from "./types.ts";
 import { DEFAULT_GEOMAP_LABELS } from "./types.ts";
 import "leaflet/dist/leaflet.css";
@@ -101,8 +102,8 @@ export default function GeoMapClient({ selectedId, features, config }: GeoMapPro
       </MapContainer>
       {selected && (
         <div className="map-info">
-          📍 <strong>{selected.label}</strong>&nbsp;—&nbsp;{selected.lat.toFixed(2)}°N,{" "}
-          {selected.lng.toFixed(2)}°E
+          <MapPinIcon size={16} /> <strong>{selected.label}</strong>&nbsp;—&nbsp;
+          {selected.lat.toFixed(2)}°N, {selected.lng.toFixed(2)}°E
         </div>
       )}
     </section>

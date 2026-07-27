@@ -1,4 +1,4 @@
-import { Plus, X } from "lucide-react";
+import { PlusIcon, XIcon } from "@ay/ui-library";
 import {
   type KeyboardEvent,
   type RefObject,
@@ -178,7 +178,7 @@ export function DashboardBar() {
                   deleteDashboard(dashboard.id);
                 }}
               >
-                <X size={12} />
+                <XIcon size={12} />
               </button>
             )}
           </button>
@@ -195,7 +195,7 @@ export function DashboardBar() {
           aria-expanded={dropdownOpen}
           onClick={handleAddClick}
         >
-          <Plus size={14} />
+          <PlusIcon size={14} />
         </button>
 
         {dropdownOpen && (

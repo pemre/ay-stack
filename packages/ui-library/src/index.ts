@@ -29,6 +29,8 @@ export type {
   MarkdownViewerProps,
 } from "./blocks/MarkdownViewer/types.ts";
 export { DEFAULT_MARKDOWN_VIEWER_LABELS } from "./blocks/MarkdownViewer/types.ts";
+export type { ProgressPieProps } from "./blocks/ProgressPie/ProgressPie.tsx";
+export { default as ProgressPie } from "./blocks/ProgressPie/ProgressPie.tsx";
 export { SpiralTimeline } from "./blocks/SpiralTimeline/SpiralTimeline.tsx";
 export type {
   AnimationConfig,
@@ -54,5 +56,6 @@ export {
   type TreeListProps,
   type TreeNode,
 } from "./blocks/TreeList/types.ts";
-export { Button, Modal, type ButtonProps, type ModalProps } from "./primitives/index.ts";
 export * from "./dashboard/index.ts";
+export * from "./icons/index.ts";
+export { Button, type ButtonProps, Modal, type ModalProps } from "./primitives/index.ts";

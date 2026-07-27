@@ -22,7 +22,6 @@ apps/burkut/
 │   │   ├── WidgetPicker/        # Menu for adding widget instances to a dashboard
 │   │   ├── WidgetVisibilityMenu/ # (Legacy) Dropdown to toggle widget visibility
 │   │   ├── ThemeToggle/         # Dark/light theme switch
-│   │   ├── ProgressPie/         # SVG donut chart for reading progress
 │   │   ├── NewContentModal/     # Modal for newly detected content
 │   │   └── ui/                  # Design system primitives (Button, etc.)
 │   │       ├── Button/          # Polymorphic button component
@@ -108,4 +107,7 @@ Workspace-level files that affect Bürküt:
   `import { Button } from "../ui";`
 - Components shared beyond Bürküt belong in `@ay/ui-library`, not here. Bürküt may
   import from `@ay/ui-library`; the reverse is never allowed.
+- Shared icons and `ProgressPie` are owned by `@ay/ui-library`. Bürküt imports the
+  curated `*Icon` wrappers and the block from that package; it must not import
+  `lucide-react` directly or recreate the progress chart locally.
 - See `src/components/ui/GUIDELINES.md` for the full design system conventions.

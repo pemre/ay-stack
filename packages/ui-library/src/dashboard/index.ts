@@ -48,5 +48,9 @@ export type {
 export { validateWidgetConfig } from "./schema/validateWidgetConfig";
 export type { WidgetErrorBoundaryProps } from "./WidgetShell/WidgetErrorBoundary";
 export { WidgetErrorBoundary } from "./WidgetShell/WidgetErrorBoundary";
-export type { WidgetShellLabels, WidgetShellProps } from "./WidgetShell/WidgetShell";
+export type {
+  WidgetShellIcons,
+  WidgetShellLabels,
+  WidgetShellProps,
+} from "./WidgetShell/WidgetShell";
 export { WidgetShell } from "./WidgetShell/WidgetShell";
