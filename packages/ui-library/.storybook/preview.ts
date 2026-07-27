@@ -1,4 +1,4 @@
-import type { Decorator, Preview } from "@storybook/react";
+import type { Decorator, Preview } from "@storybook/react-vite";
 import { useEffect } from "react";
 import "./tailwind.css";
 
@@ -39,7 +39,7 @@ const preview: Preview = {
   decorators: [withTheme],
   parameters: {
     viewport: {
-      viewports: VIEWPORTS,
+      options: VIEWPORTS,
     },
   },
 };

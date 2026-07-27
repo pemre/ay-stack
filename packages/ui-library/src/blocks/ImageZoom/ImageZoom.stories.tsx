@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ImageZoom } from "./ImageZoom.tsx";
 import type { ImageZoomProps } from "./types.ts";
 

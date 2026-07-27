@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import ProgressPie from "./ProgressPie.tsx";
 import type { ProgressPieProps } from "./ProgressPie.tsx";
 

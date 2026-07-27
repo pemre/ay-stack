@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { fn } from "@storybook/test";
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { fn } from "storybook/test";
 import { ExternalLink, Plus } from "lucide-react";
 import type { ButtonProps } from "./Button.tsx";
 import { Button } from "./Button.tsx";

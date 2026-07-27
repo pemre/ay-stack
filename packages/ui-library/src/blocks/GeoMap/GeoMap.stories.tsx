@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { GeoMap } from "./GeoMap.tsx";
 import type { GeoFeature, GeoMapProps } from "./types.ts";
 

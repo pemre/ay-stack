@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import { useMemo, useState } from "react";
 import { FpsOverlay } from "./FpsOverlay.tsx";
 import { SpiralTimeline } from "./SpiralTimeline.tsx";
