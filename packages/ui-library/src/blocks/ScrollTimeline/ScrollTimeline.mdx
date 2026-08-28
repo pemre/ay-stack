@@ -1,0 +1,124 @@
+{/* ScrollTimeline MDX Documentation */}
+import { Meta, Canvas, Controls } from "@storybook/addon-docs/blocks";
+import * as ScrollTimelineStories from "./ScrollTimeline.stories";
+
+<Meta of={ScrollTimelineStories} />
+
+# ScrollTimeline
+
+A vertical scroll-progress timeline component. A sticky SVG on the left draws a progress line that grows as the user scrolls through content, with milestone dots that fill once scrolled past and labels that appear on hover (or permanently when configured).
+
+Reverse-engineered from the [ai-2027.com](https://ai-2027.com) website's left-side navigation.
+
+<Canvas of={ScrollTimelineStories.Default} />
+
+## How it works
+
+1. **Scroll tracking** — A single `scroll` listener computes progress (0→1) as the viewport center moves through the content area.
+2. **Active section** — The last section whose top is above the viewport center becomes active, highlighting its label.
+3. **Dot positions** — Each child element marked with `data-timeline-id` and `data-timeline-label` is measured and positioned proportionally along the SVG.
+4. **Progress line** — An SVG `<line>` whose `y2` is driven by `Math.max(scrollProgress * 100, 2)%`.
+
+The component is fully prop-driven and has zero runtime dependencies beyond React.
+
+## Usage
+
+```tsx
+import { ScrollTimeline } from "@ay/ui-library";
+import "@ay/ui-library/styles.css";
+
+const sections = [
+  { id: "jan", label: "January" },
+  { id: "feb", label: "February" },
+  { id: "mar", label: "March" },
+];
+
+function App() {
+  return (
+    <ScrollTimeline sections={sections} namePrefix="report">
+      <article data-timeline-id="jan" data-timeline-label="January">
+        <h2>January Report</h2>
+        <p>Content...</p>
+      </article>
+      <article data-timeline-id="feb" data-timeline-label="February">
+        <h2>February Report</h2>
+        <p>Content...</p>
+      </article>
+      <article data-timeline-id="mar" data-timeline-label="March">
+        <h2>March Report</h2>
+        <p>Content...</p>
+      </article>
+    </ScrollTimeline>
+  );
+}
+```
+
+### Always show labels
+
+```tsx
+<ScrollTimeline
+  sections={sections}
+  config={{ alwaysShowLabels: true }}
+>
+  {/* children */}
+</ScrollTimeline>
+```
+
+### Custom nav width
+
+```tsx
+<ScrollTimeline
+  sections={sections}
+  config={{ navWidth: 200, alwaysShowLabels: true }}
+>
+  {/* children */}
+</ScrollTimeline>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `sections` | `ScrollTimelineSection[]` | — | Milestone sections with `id` and `label`. |
+| `namePrefix` | `string` | `"narrative"` | Prefix for anchor link IDs (`#narrative-{id}`). |
+| `config` | `ScrollTimelineConfig` | — | Optional configuration overrides. |
+| `config.navWidth` | `number` | `130` | Width of the SVG nav area in pixels. |
+| `config.minViewportWidth` | `number` | `1024` | Below this viewport width, the timeline is hidden. |
+| `config.alwaysShowLabels` | `boolean` | `false` | Show labels permanently instead of on hover. |
+| `labels` | `ScrollTimelineLabels` | — | Accessibility label overrides. |
+| `labels.ariaLabel` | `string` | `"Scroll timeline"` | aria-label for the nav element. |
+| `className` | `string` | `""` | Extra CSS class on the root wrapper. |
+| `children` | `ReactNode` | — | Content sections rendered alongside the timeline. |
+
+## Host responsibilities
+
+- Each content section that should appear as a dot **must** have `data-timeline-id` and `data-timeline-label` attributes matching the `sections` prop.
+- Smooth scrolling (`scroll-behavior: smooth` on the root) is recommended for anchor navigation.
+- The component hides itself below `minViewportWidth` (default `lg` breakpoint). Ensure content is readable without the timeline on mobile.
+
+## Theming
+
+ScrollTimeline uses component-level CSS custom properties that reference the library's semantic tokens:
+
+| Token | Default | Purpose |
+|-------|---------|---------|
+| `--scroll-timeline-line-color` | `--color-text-primary` | Progress line stroke |
+| `--scroll-timeline-dot-outer` | `--color-text-primary` | Outer dot ring |
+| `--scroll-timeline-dot-inner` | `--color-bg-surface` | Inner dot fill (unfilled state) |
+| `--scroll-timeline-label-color` | `--color-text-primary` | Label text color |
+| `--scroll-timeline-link-color` | `--color-text-primary` | Anchor link color |
+
+Override by targeting the `.scroll-timeline` class:
+
+```css
+.my-wrapper .scroll-timeline {
+  --scroll-timeline-line-color: hotpink;
+  --scroll-timeline-dot-outer: hotpink;
+}
+```
+
+## Accessibility
+
+- The SVG nav is marked `aria-hidden="true"` as it is a visual aid; the anchor links inside it are keyboard-focusable.
+- The root `<nav>` has an `aria-label` configurable via the `labels.ariaLabel` prop.
+- On narrow viewports, the timeline is removed entirely so only content remains.

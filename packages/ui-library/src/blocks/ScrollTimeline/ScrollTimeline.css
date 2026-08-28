@@ -1,0 +1,71 @@
+/* ── ScrollTimeline component tokens ─────────────────────── */
+.scroll-timeline {
+  --scroll-timeline-dot-inner: var(--color-bg-surface);
+  --scroll-timeline-line-color: var(--color-text-primary);
+  --scroll-timeline-dot-outer: var(--color-text-primary);
+  --scroll-timeline-label-color: var(--color-text-primary);
+  --scroll-timeline-link-color: var(--color-text-primary);
+}
+
+/* ── Layout ──────────────────────────────────────────────── */
+.scroll-timeline {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+}
+
+/* ── Nav (left column) ───────────────────────────────────── */
+.scroll-timeline-nav {
+  padding-top: 2.75rem;
+  z-index: 10;
+}
+
+.scroll-timeline-nav-inner {
+  position: sticky;
+  top: 0.5rem;
+}
+
+.scroll-timeline-svg {
+  position: absolute;
+  top: 0;
+  transition: opacity 1s ease;
+}
+
+.scroll-timeline-line {
+  stroke: var(--scroll-timeline-line-color);
+  stroke-width: 2;
+}
+
+.scroll-timeline-dot-outer {
+  fill: var(--scroll-timeline-dot-outer);
+}
+
+.scroll-timeline-link {
+  fill: var(--scroll-timeline-link-color);
+  text-decoration: none;
+}
+
+.scroll-timeline-label {
+  fill: var(--scroll-timeline-label-color);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.scroll-timeline-label--active,
+.scroll-timeline-label--visible {
+  opacity: 1;
+}
+
+.scroll-timeline-label--active {
+  font-weight: 700;
+}
+
+.scroll-timeline-nav-inner:hover .scroll-timeline-label {
+  opacity: 1;
+}
+
+/* ── Content (right column) ──────────────────────────────── */
+.scroll-timeline-content {
+  min-width: 0;
+}
