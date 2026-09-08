@@ -48,7 +48,6 @@ const contentSections = [
 const meta: Meta<ScrollTimelineProps> = {
   title: "Blocks/ScrollTimeline",
   component: ScrollTimeline,
-  tags: ["autodocs"],
   decorators: [
     (Story) => (
       <div style={{ width: "100%", minHeight: "100vh" }}>

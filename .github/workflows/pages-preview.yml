@@ -88,6 +88,7 @@ jobs:
         run: pnpm --filter @ay/ui-library build-storybook
         env:
           STORYBOOK_BASE: /ay-stack/pull/${{ github.event.pull_request.number }}/
+          STORYBOOK_TELEMETRY_DISABLED: "true"
 
       - name: Build PR Bürküt
         if: github.event.action != 'closed'
@@ -112,6 +113,7 @@ jobs:
         run: pnpm --filter @ay/ui-library build-storybook
         env:
           STORYBOOK_BASE: /ay-stack/
+          STORYBOOK_TELEMETRY_DISABLED: "true"
 
       - name: Build production Bürküt
         working-directory: production
