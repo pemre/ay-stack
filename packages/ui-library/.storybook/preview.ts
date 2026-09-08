@@ -1,3 +1,7 @@
+// Preload addon-docs blocks before Storybook's focus instrumentation runs.
+// Workaround for https://github.com/storybookjs/storybook/issues/35502
+// (Illegal invocation on HTMLElement.prototype.focus in Storybook 10.5.x)
+import "@storybook/addon-docs/blocks";
 import type { Decorator, Preview } from "@storybook/react-vite";
 import { useEffect } from "react";
 import "./tailwind.css";

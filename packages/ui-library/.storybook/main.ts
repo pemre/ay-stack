@@ -4,15 +4,13 @@ const config: StorybookConfig = {
   stories: ["../src/**/*.stories.tsx", "../src/**/*.mdx"],
   addons: ["@storybook/addon-docs"],
 
-  disableTelemetry: true,
-
   framework: {
     name: "@storybook/react-vite",
     options: {},
   },
 
   typescript: {
-    reactDocgen: "react-docgen",
+    reactDocgen: "react-docgen-typescript",
   },
 
   // Storybook occupies the Pages site root, so CI passes STORYBOOK_BASE=/ay-stack/.

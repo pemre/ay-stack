@@ -1,5 +1,5 @@
 import { act, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ScrollTimeline } from "./ScrollTimeline.tsx";
 
 /**
@@ -10,9 +10,10 @@ import { ScrollTimeline } from "./ScrollTimeline.tsx";
  * 3. Uses custom namePrefix for anchor links.
  * 4. Falls back to content-only on narrow viewports.
  * 5. Renders SVG with progress line and dots.
- * 6. Computes dot positions from DOM after layout (rAF).
+ * 6. Computes distinct dot positions from DOM via getBoundingClientRect.
  * 7. Labels are visible when alwaysShowLabels is true.
  * 8. Active section updates on scroll.
+ * 9. Renders dots even when labels are empty.
  */
 
 const sections = [
@@ -27,21 +28,21 @@ function TestContent({ withLabels = true }: { withLabels?: boolean }) {
       <div
         data-timeline-id="alpha"
         data-timeline-label={withLabels ? "Alpha" : ""}
-        style={{ minHeight: "200px", padding: "1rem" }}
+        style={{ height: "300px", padding: "1rem" }}
       >
         <h2>Alpha content</h2>
       </div>
       <div
         data-timeline-id="beta"
         data-timeline-label={withLabels ? "Beta" : ""}
-        style={{ minHeight: "200px", padding: "1rem" }}
+        style={{ height: "300px", padding: "1rem" }}
       >
         <h2>Beta content</h2>
       </div>
       <div
         data-timeline-id="gamma"
         data-timeline-label={withLabels ? "Gamma" : ""}
-        style={{ minHeight: "200px", padding: "1rem" }}
+        style={{ height: "300px", padding: "1rem" }}
       >
         <h2>Gamma content</h2>
       </div>
@@ -49,7 +50,7 @@ function TestContent({ withLabels = true }: { withLabels?: boolean }) {
   );
 }
 
-// Helper: flush all pending rAF callbacks
+/** Flush pending rAF callbacks so the component's position computation runs. */
 function flushRaf() {
   return new Promise<void>((resolve) => {
     requestAnimationFrame(() => {
@@ -58,13 +59,73 @@ function flushRaf() {
   });
 }
 
+/**
+ * Mock getBoundingClientRect so jsdom returns simulated layout values.
+ * Each [data-timeline-id] element gets a distinct top position.
+ * The content container gets a combined height.
+ */
+function mockGetBoundingClientRect() {
+  const sectionTops: Record<string, number> = {
+    alpha: 0,
+    beta: 300,
+    gamma: 600,
+  };
+  return vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    const id = this.getAttribute?.("data-timeline-id");
+    if (id && id in sectionTops) {
+      return {
+        top: sectionTops[id],
+        left: 0,
+        bottom: sectionTops[id] + 300,
+        right: 600,
+        width: 600,
+        height: 300,
+        x: 0,
+        y: sectionTops[id],
+        toJSON: () => ({}),
+      };
+    }
+    // Container or other elements: return the full content area
+    return {
+      top: 0,
+      left: 0,
+      bottom: 900,
+      right: 600,
+      width: 600,
+      height: 900,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    };
+  });
+}
+
 describe("ScrollTimeline", () => {
+  let rectSpy: ReturnType<typeof mockGetBoundingClientRect> | null = null;
+
   beforeEach(() => {
     Object.defineProperty(window, "innerWidth", {
       writable: true,
       configurable: true,
       value: 1200,
     });
+    Object.defineProperty(window, "innerHeight", {
+      writable: true,
+      configurable: true,
+      value: 800,
+    });
+    Object.defineProperty(window, "scrollY", {
+      writable: true,
+      configurable: true,
+      value: 0,
+    });
+    rectSpy = mockGetBoundingClientRect();
+  });
+
+  afterEach(() => {
+    rectSpy?.mockRestore();
   });
 
   it("renders a nav with the configured aria-label", () => {
@@ -134,7 +195,7 @@ describe("ScrollTimeline", () => {
     expect(svg?.querySelectorAll("circle")).toHaveLength(6);
   });
 
-  it("computes dot positions from DOM after layout via rAF", async () => {
+  it("computes distinct dot positions via getBoundingClientRect", async () => {
     const { container } = render(
       <ScrollTimeline sections={sections} config={{ alwaysShowLabels: true }}>
         <TestContent />
@@ -145,17 +206,23 @@ describe("ScrollTimeline", () => {
       await flushRaf();
     });
 
-    // After rAF, all 3 labels should be rendered as <a> elements
-    const links = container.querySelectorAll("a.scroll-timeline-link");
-    expect(links).toHaveLength(3);
-
-    // Each <g> should have a transform with a y-offset percentage
     const groups = container.querySelectorAll("svg.scroll-timeline-svg g");
-    groups.forEach((g) => {
-      const transform = g.getAttribute("transform");
-      expect(transform).toContain("translate(0,");
-      expect(transform).toContain("%");
+    expect(groups).toHaveLength(3);
+
+    // Extract the y-translate percentages from each group's transform
+    const transforms = Array.from(groups).map((g) => g.getAttribute("transform") || "");
+    transforms.forEach((t) => {
+      expect(t).toContain("translate(0,");
+      expect(t).toContain("%");
     });
+
+    // Positions should be monotonically increasing (not all at 0%)
+    const pcts = transforms.map((t) => {
+      const m = t.match(/translate\(0,\s*([\d.]+)%\)/);
+      return m ? Number.parseFloat(m[1]) : -1;
+    });
+    expect(pcts[0]).toBeLessThan(pcts[1]);
+    expect(pcts[1]).toBeLessThan(pcts[2]);
   });
 
   it("shows labels when alwaysShowLabels is true", async () => {
@@ -184,7 +251,6 @@ describe("ScrollTimeline", () => {
       await flushRaf();
     });
 
-    // Labels exist but should not have the --visible class
     const allLabels = container.querySelectorAll(".scroll-timeline-label");
     const visibleLabels = container.querySelectorAll(".scroll-timeline-label--visible");
     expect(allLabels.length).toBeGreaterThan(0);
@@ -202,7 +268,7 @@ describe("ScrollTimeline", () => {
       await flushRaf();
     });
 
-    // Initially, the first section should be active (it's at the top)
+    // Initially, the first section should be active
     const activeLabels = container.querySelectorAll(".scroll-timeline-label--active");
     expect(activeLabels.length).toBeGreaterThanOrEqual(1);
 
@@ -217,7 +283,6 @@ describe("ScrollTimeline", () => {
       await flushRaf();
     });
 
-    // After scroll, there should still be an active label
     const activeAfterScroll = container.querySelectorAll(".scroll-timeline-label--active");
     expect(activeAfterScroll.length).toBeGreaterThanOrEqual(1);
   });

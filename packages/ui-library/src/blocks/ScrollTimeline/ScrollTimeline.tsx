@@ -35,6 +35,11 @@ interface TimelineItem {
  *
  * The component is fully prop-driven: it reads milestone positions from child
  * elements marked with `data-timeline-id` and `data-timeline-label`.
+ *
+ * Position computation uses `getBoundingClientRect()` (viewport-relative) rather
+ * than `offsetTop` (offsetParent-relative) so dots render at correct positions
+ * regardless of DOM nesting depth — critical for Storybook's iframe and any
+ * host app with wrapper divs.
  */
 export function ScrollTimeline({
   sections: _sections,
@@ -56,43 +61,46 @@ export function ScrollTimeline({
 
   /**
    * Recompute dot positions, scroll progress, and active section.
-   * Called on scroll, resize, and after a rAF delay on mount.
+   * Uses getBoundingClientRect for all measurements so it works inside
+   * deeply-nested containers (Storybook iframe, host app wrappers, etc.).
    */
   const recompute = useCallback(() => {
     const container = contentRef.current;
     if (!container) return;
 
+    // Get container position. Prefer getBoundingClientRect (viewport-relative,
+    // works regardless of DOM nesting) but fall back to offsetTop/offsetHeight
+    // when getBoundingClientRect returns zeros (jsdom, or not-yet-laid-out DOM).
+    const containerRect = container.getBoundingClientRect();
+    const useRectApi = containerRect.height > 0;
+    const containerHeight = useRectApi ? containerRect.height : container.offsetHeight;
+    if (containerHeight <= 0) return;
+    const containerTopDoc = useRectApi ? containerRect.top + window.scrollY : container.offsetTop;
+
     // 1 — overall scroll progress (0→1), clamped
+    const viewportCenter = window.scrollY + window.innerHeight / 2;
+    const p = Math.max(0, Math.min((viewportCenter - containerTopDoc) / containerHeight, 1));
+    setScrollProgress(p);
     if (tocRef.current) {
-      const top = container.offsetTop;
-      const height = container.offsetHeight;
-      if (height > 0) {
-        const p = Math.max(
-          0,
-          Math.min((window.scrollY + window.innerHeight / 2 - top) / height, 1),
-        );
-        setScrollProgress(p);
-        tocRef.current.style.setProperty("--scrollPosition", String(p));
-      }
+      tocRef.current.style.setProperty("--scrollPosition", String(p));
     }
 
     // 2 — active section: last marker above viewport center
     const markers = container.querySelectorAll<HTMLElement>("[data-timeline-id]");
     let active: string | null = null;
     for (const el of markers) {
-      if (el.getBoundingClientRect().top < window.innerHeight / 2) {
+      const elTop = useRectApi ? el.getBoundingClientRect().top : el.offsetTop - containerTopDoc;
+      if (elTop < window.innerHeight / 2) {
         active = el.getAttribute("data-timeline-id");
       }
     }
     if (active) setActiveId(active);
 
-    // 3 — compute dot positions as % of content height
-    const containerTop = container.offsetTop;
-    const containerHeight = container.offsetHeight || 1;
+    // 3 — compute dot positions as fraction of content height
     const items: TimelineItem[] = [];
     for (const el of markers) {
-      const offset = (el.offsetTop - containerTop) / containerHeight;
-      // Skip items with invalid positions (not yet laid out)
+      const elTopDoc = useRectApi ? el.getBoundingClientRect().top + window.scrollY : el.offsetTop;
+      const offset = (elTopDoc - containerTopDoc) / containerHeight;
       if (Number.isFinite(offset) && offset >= 0) {
         items.push({
           offset,
@@ -101,26 +109,27 @@ export function ScrollTimeline({
         });
       }
     }
-    // Only update if we found valid items (avoid overwriting with empty on first render)
     if (items.length > 0) {
       setTimelineItems(items);
     }
   }, []);
 
-  // Scroll listener — attaches to window for iframe compatibility
+  // Scroll + resize listener
   useEffect(() => {
-    // Defer first computation until after paint so DOM has real dimensions
-    const rafId = requestAnimationFrame(() => {
-      // Double rAF: first frame paints, second frame has measured layout
-      requestAnimationFrame(recompute);
+    // Double rAF: first frame paints, second frame has measured layout
+    let raf1 = requestAnimationFrame(() => {
+      raf1 = requestAnimationFrame(recompute);
     });
 
-    const handler = () => recompute();
+    const handler = () => {
+      cancelAnimationFrame(raf1);
+      raf1 = requestAnimationFrame(recompute);
+    };
     window.addEventListener("scroll", handler, { passive: true });
     window.addEventListener("resize", handler);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      cancelAnimationFrame(raf1);
       window.removeEventListener("scroll", handler);
       window.removeEventListener("resize", handler);
     };
