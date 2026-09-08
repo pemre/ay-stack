@@ -54,7 +54,11 @@ export function ScrollTimeline({
   const contentRef = useRef<HTMLElement | null>(null);
   const tocRef = useRef<HTMLDivElement | null>(null);
 
-  const onScroll = useCallback(() => {
+  /**
+   * Recompute dot positions, scroll progress, and active section.
+   * Called on scroll, resize, and after a rAF delay on mount.
+   */
+  const recompute = useCallback(() => {
     const container = contentRef.current;
     if (!container) return;
 
@@ -62,9 +66,14 @@ export function ScrollTimeline({
     if (tocRef.current) {
       const top = container.offsetTop;
       const height = container.offsetHeight;
-      const p = Math.max(0, Math.min((window.scrollY + window.innerHeight / 2 - top) / height, 1));
-      setScrollProgress(p);
-      tocRef.current.style.setProperty("--scrollPosition", String(p));
+      if (height > 0) {
+        const p = Math.max(
+          0,
+          Math.min((window.scrollY + window.innerHeight / 2 - top) / height, 1),
+        );
+        setScrollProgress(p);
+        tocRef.current.style.setProperty("--scrollPosition", String(p));
+      }
     }
 
     // 2 — active section: last marker above viewport center
@@ -78,23 +87,64 @@ export function ScrollTimeline({
     if (active) setActiveId(active);
 
     // 3 — compute dot positions as % of content height
+    const containerTop = container.offsetTop;
+    const containerHeight = container.offsetHeight || 1;
     const items: TimelineItem[] = [];
     for (const el of markers) {
-      items.push({
-        offset: (el.offsetTop - container.offsetTop) / (container.offsetHeight || 1),
-        label: el.getAttribute("data-timeline-label") ?? "",
-        id: el.getAttribute("data-timeline-id") ?? "",
-      });
+      const offset = (el.offsetTop - containerTop) / containerHeight;
+      // Skip items with invalid positions (not yet laid out)
+      if (Number.isFinite(offset) && offset >= 0) {
+        items.push({
+          offset,
+          label: el.getAttribute("data-timeline-label") ?? "",
+          id: el.getAttribute("data-timeline-id") ?? "",
+        });
+      }
     }
-    setTimelineItems(items);
+    // Only update if we found valid items (avoid overwriting with empty on first render)
+    if (items.length > 0) {
+      setTimelineItems(items);
+    }
   }, []);
 
+  // Scroll listener — attaches to window for iframe compatibility
   useEffect(() => {
-    onScroll();
-    document.addEventListener("scroll", onScroll, { passive: true });
-    return () => document.removeEventListener("scroll", onScroll);
-  }, [onScroll]);
+    // Defer first computation until after paint so DOM has real dimensions
+    const rafId = requestAnimationFrame(() => {
+      // Double rAF: first frame paints, second frame has measured layout
+      requestAnimationFrame(recompute);
+    });
 
+    const handler = () => recompute();
+    window.addEventListener("scroll", handler, { passive: true });
+    window.addEventListener("resize", handler);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", handler);
+      window.removeEventListener("resize", handler);
+    };
+  }, [recompute]);
+
+  // ResizeObserver — recompute when content height changes (images loading, etc.)
+  useEffect(() => {
+    const container = contentRef.current;
+    if (!container || typeof ResizeObserver === "undefined") return;
+
+    let rafId: number | undefined;
+    const observer = new ResizeObserver(() => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(recompute);
+    });
+    observer.observe(container);
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      observer.disconnect();
+    };
+  }, [recompute]);
+
+  // Viewport width check
   useEffect(() => {
     function checkWidth() {
       setIsWideEnough(window.innerWidth >= cfg.minViewportWidth);
@@ -137,7 +187,7 @@ export function ScrollTimeline({
               className="scroll-timeline-line"
             />
             {/* dots + labels */}
-            {timelineItems.map((item, _i) => {
+            {timelineItems.map((item) => {
               const passed = item.offset <= scrollProgress;
               const isActive = item.id === activeId;
               return (

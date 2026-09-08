@@ -12,7 +12,7 @@ const config: StorybookConfig = {
   },
 
   typescript: {
-    reactDocgen: "react-docgen-typescript",
+    reactDocgen: "react-docgen",
   },
 
   // Storybook occupies the Pages site root, so CI passes STORYBOOK_BASE=/ay-stack/.

@@ -1,5 +1,5 @@
 {/* ScrollTimeline MDX Documentation */}
-import { Meta, Canvas, Controls } from "@storybook/addon-docs/blocks";
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
 import * as ScrollTimelineStories from "./ScrollTimeline.stories";
 
 <Meta of={ScrollTimelineStories} />
@@ -14,7 +14,7 @@ Reverse-engineered from the [ai-2027.com](https://ai-2027.com) website's left-si
 
 ## How it works
 
-1. **Scroll tracking** — A single `scroll` listener computes progress (0→1) as the viewport center moves through the content area.
+1. **Scroll tracking** — A `scroll` listener on `window` computes progress (0â1) as the viewport center moves through the content area. A `ResizeObserver` recomputes dot positions when content height changes (e.g. images loading).
 2. **Active section** — The last section whose top is above the viewport center becomes active, highlighting its label.
 3. **Dot positions** — Each child element marked with `data-timeline-id` and `data-timeline-label` is measured and positioned proportionally along the SVG.
 4. **Progress line** — An SVG `<line>` whose `y2` is driven by `Math.max(scrollProgress * 100, 2)%`.
@@ -79,16 +79,16 @@ function App() {
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `sections` | `ScrollTimelineSection[]` | — | Milestone sections with `id` and `label`. |
+| `sections` | `ScrollTimelineSection[]` | â | Milestone sections with `id` and `label`. |
 | `namePrefix` | `string` | `"narrative"` | Prefix for anchor link IDs (`#narrative-{id}`). |
-| `config` | `ScrollTimelineConfig` | — | Optional configuration overrides. |
+| `config` | `ScrollTimelineConfig` | â | Optional configuration overrides. |
 | `config.navWidth` | `number` | `130` | Width of the SVG nav area in pixels. |
 | `config.minViewportWidth` | `number` | `1024` | Below this viewport width, the timeline is hidden. |
 | `config.alwaysShowLabels` | `boolean` | `false` | Show labels permanently instead of on hover. |
-| `labels` | `ScrollTimelineLabels` | — | Accessibility label overrides. |
+| `labels` | `ScrollTimelineLabels` | â | Accessibility label overrides. |
 | `labels.ariaLabel` | `string` | `"Scroll timeline"` | aria-label for the nav element. |
 | `className` | `string` | `""` | Extra CSS class on the root wrapper. |
-| `children` | `ReactNode` | — | Content sections rendered alongside the timeline. |
+| `children` | `ReactNode` | â | Content sections rendered alongside the timeline. |
 
 ## Host responsibilities
 

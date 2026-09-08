@@ -1,71 +1,179 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-
 import { ScrollTimeline } from "./ScrollTimeline.tsx";
 import type { ScrollTimelineProps } from "./types.ts";
 
+/* ── Demo content with varied layout ──────────────────────── */
+
 const sections: ScrollTimelineProps["sections"] = [
-  { id: "2025-04", label: "Early 2025" },
-  { id: "2025-08", label: "Mid 2025" },
-  { id: "2025-12", label: "Late 2025" },
-  { id: "2026-04", label: "2026" },
-  { id: "2026-08", label: "Mid 2026" },
-  { id: "2027-03", label: "Early 2027" },
-  { id: "2027-12", label: "Late 2027" },
+  { id: "jan", label: "January" },
+  { id: "feb", label: "February" },
+  { id: "mar", label: "March" },
+  { id: "apr", label: "April" },
+  { id: "may", label: "May" },
+  { id: "jun", label: "June" },
 ];
 
-function DemoContent({ sections }: { sections: { id: string; title: string; body: string }[] }) {
+/** Rich content with images, short text, long text, and code blocks. */
+function RichContent() {
   return (
     <div>
-      {sections.map((s) => (
-        <div
-          key={s.id}
-          data-timeline-id={s.id}
-          data-timeline-label={s.title}
+      {/* Section 1 — short text */}
+      <div
+        data-timeline-id="jan"
+        data-timeline-label="January"
+        style={{ minHeight: "60vh", padding: "2rem 0", borderBottom: "1px solid #e5e5e5" }}
+      >
+        <h2 style={{ margin: "0 0 0.5rem" }}>January — Kickoff</h2>
+        <p style={{ color: "#666", lineHeight: 1.6 }}>The project kicks off. Short and sweet.</p>
+      </div>
+
+      {/* Section 2 — image + text */}
+      <div
+        data-timeline-id="feb"
+        data-timeline-label="February"
+        style={{ minHeight: "70vh", padding: "2rem 0", borderBottom: "1px solid #e5e5e5" }}
+      >
+        <h2 style={{ margin: "0 0 0.5rem" }}>February — Design Phase</h2>
+        <img
+          src="https://picsum.photos/seed/feb/600/300"
+          alt="Design mockup"
+          style={{ width: "100%", borderRadius: "8px", marginBottom: "1rem" }}
+          loading="lazy"
+        />
+        <p style={{ color: "#666", lineHeight: 1.6 }}>
+          Wireframes and design systems take shape. The team reviews the first round of mockups and
+          provides feedback on color, typography, and layout choices. Several iterations are
+          expected before the final design is approved.
+        </p>
+      </div>
+
+      {/* Section 3 — code block */}
+      <div
+        data-timeline-id="mar"
+        data-timeline-label="March"
+        style={{ minHeight: "65vh", padding: "2rem 0", borderBottom: "1px solid #e5e5e5" }}
+      >
+        <h2 style={{ margin: "0 0 0.5rem" }}>March — Implementation</h2>
+        <pre
           style={{
-            minHeight: "60vh",
-            padding: "2rem 0",
-            borderBottom: "1px solid var(--color-border-default, #e5e5e5)",
+            background: "#1e1e2e",
+            color: "#cdd6f4",
+            padding: "1rem",
+            borderRadius: "8px",
+            overflow: "auto",
+            fontSize: "0.85rem",
           }}
         >
-          <h2 style={{ margin: "0 0 0.5rem" }}>{s.title}</h2>
-          <p style={{ color: "#666", lineHeight: 1.6 }}>{s.body}</p>
-        </div>
-      ))}
+          <code>{`const timeline = new ScrollTimeline({
+  sections: data,
+  onActive: (id) => console.log(id),
+});`}</code>
+        </pre>
+        <p style={{ color: "#666", lineHeight: 1.6, marginTop: "1rem" }}>
+          Core implementation begins. The component is wired up and integration tests are written.
+        </p>
+      </div>
+
+      {/* Section 4 — long text, no image */}
+      <div
+        data-timeline-id="apr"
+        data-timeline-label="April"
+        style={{ minHeight: "80vh", padding: "2rem 0", borderBottom: "1px solid #e5e5e5" }}
+      >
+        <h2 style={{ margin: "0 0 0.5rem" }}>April — Testing & QA</h2>
+        <p style={{ color: "#666", lineHeight: 1.6 }}>
+          Comprehensive testing begins. Unit tests cover edge cases like empty sections, single
+          items, and very long labels. Integration tests verify scroll behavior across different
+          viewport sizes. Accessibility audit ensures the timeline is navigable by keyboard and
+          readable by screen readers. Performance profiling identifies any jank in the scroll
+          handler. The team discovers that images loading asynchronously can shift content
+          positions, so a ResizeObserver is added to recompute dot positions when the content height
+          changes. This is a longer paragraph to demonstrate how the timeline behaves with
+          substantial text content that spans many lines.
+        </p>
+      </div>
+
+      {/* Section 5 — image + bullet list */}
+      <div
+        data-timeline-id="may"
+        data-timeline-label="May"
+        style={{ minHeight: "60vh", padding: "2rem 0", borderBottom: "1px solid #e5e5e5" }}
+      >
+        <h2 style={{ margin: "0 0 0.5rem" }}>May — Beta Release</h2>
+        <img
+          src="https://picsum.photos/seed/may/600/200"
+          alt="Beta release dashboard"
+          style={{ width: "100%", borderRadius: "8px", marginBottom: "1rem" }}
+          loading="lazy"
+        />
+        <ul style={{ color: "#666", lineHeight: 1.8, paddingLeft: "1.5rem" }}>
+          <li>Feature freeze on May 1st</li>
+          <li>Beta program opens to 50 users</li>
+          <li>Feedback collected via in-app survey</li>
+          <li>Two bug-fix releases planned</li>
+        </ul>
+      </div>
+
+      {/* Section 6 — short, with quote */}
+      <div
+        data-timeline-id="jun"
+        data-timeline-label="June"
+        style={{ minHeight: "55vh", padding: "2rem 0" }}
+      >
+        <h2 style={{ margin: "0 0 0.5rem" }}>June — Launch</h2>
+        <blockquote
+          style={{
+            borderLeft: "3px solid #ccc",
+            paddingLeft: "1rem",
+            color: "#999",
+            fontStyle: "italic",
+          }}
+        >
+          "Ship it." — The Team
+        </blockquote>
+        <p style={{ color: "#666", lineHeight: 1.6, marginTop: "1rem" }}>
+          The product goes live. Time to celebrate.
+        </p>
+      </div>
     </div>
   );
 }
 
-const contentSections = [
-  { id: "2025-04", title: "Early 2025", body: "AI coding assistants are useful but limited." },
-  { id: "2025-08", title: "Mid 2025", body: "Models handle multi-hour coding tasks reliably." },
-  { id: "2025-12", title: "Late 2025", body: "Models match skilled engineers on real projects." },
-  { id: "2026-04", title: "2026", body: "Superhuman coder emerges — faster and cheaper." },
-  { id: "2026-08", title: "Mid 2026", body: "AI agents run ML experiments end-to-end." },
-  { id: "2027-03", title: "Early 2027", body: "Superhuman AI researcher — 25x faster." },
-  { id: "2027-12", title: "Late 2027", body: "Artificial superintelligence arrives." },
-];
+/** Minimal content for the SingleSection story. */
+function SingleContent() {
+  return (
+    <div
+      data-timeline-id="start"
+      data-timeline-label="Start"
+      style={{ minHeight: "50vh", padding: "2rem" }}
+    >
+      <h2>Only one section</h2>
+      <p>The timeline shows a single dot at the top.</p>
+    </div>
+  );
+}
 
 const meta: Meta<ScrollTimelineProps> = {
   title: "Blocks/ScrollTimeline",
   component: ScrollTimeline,
   decorators: [
     (Story) => (
-      <div style={{ width: "100%", minHeight: "100vh" }}>
+      <div style={{ width: "100%", minHeight: "120vh" }}>
         <Story />
       </div>
     ),
   ],
   argTypes: {
     namePrefix: { control: "text" },
-    config: { control: "object" },
   },
   args: {
     sections,
     namePrefix: "narrative",
+    config: { alwaysShowLabels: true },
   },
   render: (args) => (
     <ScrollTimeline {...args}>
-      <DemoContent sections={contentSections} />
+      <RichContent />
     </ScrollTimeline>
   ),
 };
@@ -75,10 +183,10 @@ type Story = StoryObj<ScrollTimelineProps>;
 
 export const Default: Story = {};
 
-export const AlwaysShowLabels: Story = {
+export const HoverLabels: Story = {
   args: {
     sections,
-    config: { alwaysShowLabels: true },
+    config: { alwaysShowLabels: false },
   },
 };
 
@@ -95,40 +203,36 @@ export const SingleSection: Story = {
   },
   render: (args) => (
     <ScrollTimeline {...args}>
-      <div
-        data-timeline-id="start"
-        data-timeline-label="Start"
-        style={{ minHeight: "50vh", padding: "2rem" }}
-      >
-        <h2>Only one section</h2>
-        <p>The timeline shows a single dot.</p>
-      </div>
+      <SingleContent />
     </ScrollTimeline>
   ),
 };
 
-export const EmptyLabels: Story = {
+export const ManySections: Story = {
   args: {
-    sections: [
-      { id: "a", label: "" },
-      { id: "b", label: "" },
-    ],
+    sections: Array.from({ length: 12 }, (_, i) => ({
+      id: `s-${i}`,
+      label: `Step ${i + 1}`,
+    })),
+    config: { alwaysShowLabels: true },
   },
   render: (args) => (
     <ScrollTimeline {...args}>
-      <div
-        data-timeline-id="a"
-        data-timeline-label=""
-        style={{ minHeight: "40vh", padding: "2rem" }}
-      >
-        <h2>Section A</h2>
-      </div>
-      <div
-        data-timeline-id="b"
-        data-timeline-label=""
-        style={{ minHeight: "40vh", padding: "2rem" }}
-      >
-        <h2>Section B</h2>
+      <div>
+        {Array.from({ length: 12 }, (_, i) => {
+          const id = `s-${i}`;
+          return (
+            <div
+              key={id}
+              data-timeline-id={id}
+              data-timeline-label={`Step ${i + 1}`}
+              style={{ minHeight: "30vh", padding: "1.5rem 0", borderBottom: "1px solid #eee" }}
+            >
+              <h3>Step {i + 1}</h3>
+              <p style={{ color: "#999" }}>Content for step {i + 1}.</p>
+            </div>
+          );
+        })}
       </div>
     </ScrollTimeline>
   ),
