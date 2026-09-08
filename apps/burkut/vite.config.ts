@@ -95,7 +95,7 @@ const contentDir = process.env.BURKUT_CONTENT_DIR
 export default defineConfig({
   // Explicit so a root-level invocation cannot drift to the workspace root.
   root: import.meta.dirname,
-  base: process.env.GITHUB_PAGES ? "/ay-stack/burkut/" : "/",
+  base: process.env.BURKUT_BASE ?? (process.env.GITHUB_PAGES ? "/ay-stack/burkut/" : "/"),
   // react-draggable (a react-grid-layout dependency) reads
   // `process.env.DRAGGABLE_DEBUG` inside its drag-start handler. Vite doesn't
   // polyfill `process` for the browser, so without this the reference throws
