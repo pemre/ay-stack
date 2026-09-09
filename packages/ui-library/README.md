@@ -147,6 +147,39 @@ function App() {
 
 See the [ImageZoom stories](https://pemre.github.io/ay-stack/) in the live Storybook for interactive examples.
 
+### ScrollTimeline
+
+A vertical scroll-progress timeline. A sticky SVG on the left draws a progress line that grows as the user scrolls, with milestone dots that fill once scrolled past and labels that appear on hover. Reverse-engineered from [ai-2027.com](https://ai-2027.com).
+
+- Zero runtime dependencies beyond React (no D3, GSAP, or Framer Motion)
+- Milestone positions measured from `data-timeline-id` / `data-timeline-label` on child elements
+- Labels appear on hover or permanently when `alwaysShowLabels` is set
+- Active section highlighting via scroll-spy
+- Hides below the `lg` breakpoint; content remains readable on mobile
+
+```tsx
+import { ScrollTimeline } from "@ay/ui-library";
+import "@ay/ui-library/styles.css";
+
+const sections = [
+  { id: "jan", label: "January" },
+  { id: "feb", label: "February" },
+];
+
+function App() {
+  return (
+    <ScrollTimeline sections={sections} namePrefix="report">
+      <article data-timeline-id="jan" data-timeline-label="January">
+        <h2>January Report</h2>
+      </article>
+      <article data-timeline-id="feb" data-timeline-label="February">
+        <h2>February Report</h2>
+      </article>
+    </ScrollTimeline>
+  );
+}
+```
+
 ---
 
 ### Icons

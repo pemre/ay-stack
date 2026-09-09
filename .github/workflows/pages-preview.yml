@@ -1,0 +1,238 @@
+# PR preview deployment to GitHub Pages.
+#
+# Adapted from pemre/rsvp-speed-reader's pages-preview.yml.
+#
+# On every PR event (open, push, reopen, close) this workflow:
+#   1. Builds the PR's Storybook + Bürküt into /pull/{pr_number}/
+#   2. Builds the production Storybook + Bürküt from the base branch (site root)
+#   3. Restores any other existing PR previews from the gh-pages branch
+#   4. Assembles everything into one Pages artifact and deploys
+#   5. Comments the preview URL on the PR
+#
+# The production deploy workflow (deploy-pages.yml) and this one share the
+# `pages` concurrency group (cancel-in-progress: false) so they queue instead
+# of racing. When a production deploy runs after a PR preview, it overwrites
+# the site with production-only content, which is the same trade-off as the
+# original rsvp workflow.
+#
+#   Production Storybook -> https://pemre.github.io/ay-stack/
+#   Production Bürküt     -> https://pemre.github.io/ay-stack/burkut/
+#   PR preview Storybook -> https://pemre.github.io/ay-stack/pull/{pr_number}/
+#   PR preview Bürküt     -> https://pemre.github.io/ay-stack/pull/{pr_number}/burkut/
+
+name: GitHub Pages PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  pull-requests: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      # ── Checkout PR and production ──────────────────────────
+      - name: Checkout pull request
+        if: github.event.action != 'closed'
+        uses: actions/checkout@v4
+        with:
+          path: pr
+
+      - name: Checkout production source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          path: production
+
+      # ── Set up pnpm + Node (shared) ─────────────────────────
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: |
+            pr/pnpm-lock.yaml
+            production/pnpm-lock.yaml
+
+      # ── Build PR preview ────────────────────────────────────
+      - name: Install PR dependencies
+        if: github.event.action != 'closed'
+        working-directory: pr
+        run: pnpm install --frozen-lockfile
+
+      - name: Build PR workspace dependencies
+        if: github.event.action != 'closed'
+        working-directory: pr
+        run: pnpm --filter "@ay/ui-library^..." build
+
+      - name: Build PR Storybook
+        if: github.event.action != 'closed'
+        working-directory: pr
+        run: pnpm --filter @ay/ui-library build-storybook
+        env:
+          STORYBOOK_BASE: /ay-stack/pull/${{ github.event.pull_request.number }}/
+          STORYBOOK_TELEMETRY_DISABLED: "true"
+
+      - name: Build PR Bürküt
+        if: github.event.action != 'closed'
+        working-directory: pr
+        run: pnpm --filter "burkut..." build
+        env:
+          GITHUB_PAGES: "true"
+          # Override the base path for PR preview subpath
+          BURKUT_BASE: /ay-stack/pull/${{ github.event.pull_request.number }}/burkut/
+
+      # ── Build production root ────────────────────────────────
+      - name: Install production dependencies
+        working-directory: production
+        run: pnpm install --frozen-lockfile
+
+      - name: Build production workspace dependencies
+        working-directory: production
+        run: pnpm --filter "@ay/ui-library^..." build
+
+      - name: Build production Storybook
+        working-directory: production
+        run: pnpm --filter @ay/ui-library build-storybook
+        env:
+          STORYBOOK_BASE: /ay-stack/
+          STORYBOOK_TELEMETRY_DISABLED: "true"
+
+      - name: Build production Bürküt
+        working-directory: production
+        run: pnpm --filter "burkut..." build
+        env:
+          GITHUB_PAGES: "true"
+
+      # ── Assemble site: production at root, PR previews restored ─
+      - name: Restore existing previews
+        run: |
+          set -euo pipefail
+          rm -rf _site existing-pages
+          mkdir -p _site
+
+          # Production Storybook at root
+          cp -R production/packages/ui-library/storybook-static/. _site/
+          touch _site/.nojekyll
+
+          # Production Bürküt at /burkut/
+          mkdir -p _site/burkut
+          cp -R production/apps/burkut/dist/. _site/burkut/
+
+          # Restore existing PR previews from gh-pages branch
+          git clone --depth 1 --branch gh-pages \
+            "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" \
+            existing-pages || true
+
+          if [ -d existing-pages/pull ]; then
+            mkdir -p _site/pull
+            cp -R existing-pages/pull/. _site/pull/
+          fi
+
+      - name: Add pull request preview
+        if: github.event.action != 'closed'
+        run: |
+          set -euo pipefail
+          mkdir -p "_site/pull/${{ github.event.pull_request.number }}"
+          rm -rf "_site/pull/${{ github.event.pull_request.number }}"/*
+
+          # PR Storybook at /pull/{pr_number}/
+          cp -R pr/packages/ui-library/storybook-static/. \
+            "_site/pull/${{ github.event.pull_request.number }}/"
+
+          # PR Bürküt at /pull/{pr_number}/burkut/
+          mkdir -p "_site/pull/${{ github.event.pull_request.number }}/burkut"
+          cp -R pr/apps/burkut/dist/. \
+            "_site/pull/${{ github.event.pull_request.number }}/burkut/"
+
+      - name: Remove closed pull request preview
+        if: github.event.action == 'closed'
+        run: rm -rf "_site/pull/${{ github.event.pull_request.number }}"
+
+      # ── Save gh-pages storage branch ─────────────────────────
+      - name: Save Pages storage branch
+        run: |
+          set -euo pipefail
+          cd _site
+          git init
+          git checkout -B gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: update Pages preview for PR #${{ github.event.pull_request.number }}"
+          git push --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" HEAD:gh-pages
+
+      # ── Deploy to GitHub Pages ───────────────────────────────
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      # ── Comment preview URL on PR ────────────────────────────
+      - name: Comment preview URL
+        if: github.event.action != 'closed'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const previewUrl = `https://${context.repo.owner}.github.io/${context.repo.repo}/pull/${prNumber}/`;
+            const marker = '<!-- pages-preview-url -->';
+            const body = `${marker}\n✅ PR preview deployed:\n\n- **Storybook:** ${previewUrl}\n- **Bürküt:** ${previewUrl}burkut/`;
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            const previous = comments.find((comment) =>
+              comment.user.type === 'Bot' && comment.body.includes(marker)
+            );
+
+            if (previous) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previous.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body,
+              });
+            }
+
+      - name: Comment preview cleanup
+        if: github.event.action == 'closed'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: '🧹 PR preview removed from GitHub Pages.',
+            });

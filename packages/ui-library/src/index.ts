@@ -31,6 +31,14 @@ export type {
 export { DEFAULT_MARKDOWN_VIEWER_LABELS } from "./blocks/MarkdownViewer/types.ts";
 export type { ProgressPieProps } from "./blocks/ProgressPie/ProgressPie.tsx";
 export { default as ProgressPie } from "./blocks/ProgressPie/ProgressPie.tsx";
+export { ScrollTimeline } from "./blocks/ScrollTimeline/ScrollTimeline.tsx";
+export {
+  DEFAULT_SCROLL_TIMELINE_LABELS,
+  type ScrollTimelineConfig,
+  type ScrollTimelineLabels,
+  type ScrollTimelineProps,
+  type ScrollTimelineSection,
+} from "./blocks/ScrollTimeline/types.ts";
 export { SpiralTimeline } from "./blocks/SpiralTimeline/SpiralTimeline.tsx";
 export type {
   AnimationConfig,
