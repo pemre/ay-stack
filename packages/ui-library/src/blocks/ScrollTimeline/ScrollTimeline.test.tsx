@@ -209,16 +209,17 @@ describe("ScrollTimeline", () => {
     const groups = container.querySelectorAll("svg.scroll-timeline-svg g");
     expect(groups).toHaveLength(3);
 
-    // Extract the y-translate percentages from each group's transform
+    // Extract the y-translate user-unit values from each group's transform.
+    // Do not use percentage transforms: SVG transform percentages collapse to
+    // zero in some browsers, which stacks every label at the top.
     const transforms = Array.from(groups).map((g) => g.getAttribute("transform") || "");
     transforms.forEach((t) => {
       expect(t).toContain("translate(0,");
-      expect(t).toContain("%");
     });
 
     // Positions should be monotonically increasing (not all at 0%)
     const pcts = transforms.map((t) => {
-      const m = t.match(/translate\(0,\s*([\d.]+)%\)/);
+      const m = t.match(/translate\(0,\s*([\d.]+)\)/);
       return m ? Number.parseFloat(m[1]) : -1;
     });
     expect(pcts[0]).toBeLessThan(pcts[1]);

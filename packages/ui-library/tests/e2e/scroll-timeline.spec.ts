@@ -50,16 +50,16 @@ test.describe("ScrollTimeline visual regression", () => {
       return Array.from(els).map((el) => el.getAttribute("transform") || "");
     });
 
-    // All 6 groups should have transforms with percentages
+    // SVG transform attributes use explicit user-unit Y coordinates. Percentage
+    // transforms are not consistently resolved by browsers and stack at 0.
     expect(transforms.length).toBe(6);
     transforms.forEach((t) => {
       expect(t).toContain("translate(0,");
-      expect(t).toContain("%");
     });
 
     // Positions should be monotonically increasing
     const pcts = transforms.map((t) => {
-      const m = t.match(/translate\(0,\s*([\d.]+)%\)/);
+      const m = t.match(/translate\(0,\s*([\d.]+)\)/);
       return m ? Number.parseFloat(m[1]) : -1;
     });
     for (let i = 1; i < pcts.length; i++) {
@@ -86,7 +86,7 @@ test.describe("ScrollTimeline visual regression", () => {
     });
 
     const pcts = transforms.map((t) => {
-      const m = t.match(/translate\(0,\s*([\d.]+)%\)/);
+      const m = t.match(/translate\(0,\s*([\d.]+)\)/);
       return m ? Number.parseFloat(m[1]) : -1;
     });
     for (let i = 1; i < pcts.length; i++) {

@@ -22,6 +22,8 @@ function mergeConfig(user?: ScrollTimelineConfig, labels?: ScrollTimelineLabels)
 interface TimelineItem {
   /** Position as a fraction of total content height (0–1). */
   offset: number;
+  /** Position in SVG user units. SVG transform attributes do not reliably resolve percentages. */
+  y: number;
   label: string;
   id: string;
 }
@@ -96,7 +98,14 @@ export function ScrollTimeline({
     }
     if (active) setActiveId(active);
 
-    // 3 — compute dot positions as fraction of content height
+    // 3 — compute dot positions as fractions of content height, then convert
+    // them to SVG user units. Percentage values in an SVG transform attribute
+    // are inconsistently supported by browsers and can make every group render
+    // at translateY(0). The nav is sticky and viewport-sized, so its measured
+    // height is the coordinate space the dots must use.
+    const svg = tocRef.current?.querySelector<SVGSVGElement>(".scroll-timeline-svg");
+    const svgHeight = svg?.getBoundingClientRect().height || Math.max(window.innerHeight - 4, 0);
+    const dotSpan = svgHeight * 0.97;
     const items: TimelineItem[] = [];
     for (const el of markers) {
       const elTopDoc = useRectApi ? el.getBoundingClientRect().top + window.scrollY : el.offsetTop;
@@ -104,6 +113,7 @@ export function ScrollTimeline({
       if (Number.isFinite(offset) && offset >= 0) {
         items.push({
           offset,
+          y: dotSpan * offset,
           label: el.getAttribute("data-timeline-label") ?? "",
           id: el.getAttribute("data-timeline-id") ?? "",
         });
@@ -200,7 +210,7 @@ export function ScrollTimeline({
               const passed = item.offset <= scrollProgress;
               const isActive = item.id === activeId;
               return (
-                <g key={item.id} transform={`translate(0, ${97 * item.offset}%)`}>
+                <g key={item.id} transform={`translate(0, ${item.y})`}>
                   <circle cx="3" cy="6" r="3" className="scroll-timeline-dot-outer" />
                   <circle
                     cx="3"
