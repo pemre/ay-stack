@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🦅 Bürküt</title>
+    <script>
+      // Prevent flash of wrong theme before React mounts
+      (function() {
+        var t = localStorage.getItem('theme');
+        if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+    <script type="module" crossorigin src="/ay-stack/pull/1/burkut/assets/index-CTyivAVW.js"></script>
+    <link rel="stylesheet" crossorigin href="/ay-stack/pull/1/burkut/assets/index-DHRGu1e1.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

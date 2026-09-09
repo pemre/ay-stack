@@ -1,0 +1,20 @@
+import{j as t}from"./jsx-runtime-B_jdX55V.js";import{B as g}from"./Button-BClSBXJd.js";import{r as m}from"./iframe-CmaHmlH9.js";import"./preload-helper-DyxzNcLA.js";const k='a[href], area[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';function h(n){return Array.from(n.querySelectorAll(k))}function p({children:n,isOpen:c,onClose:f,title:O}){const d=m.useRef(null),y=m.useId();if(m.useEffect(()=>{var s;if(!c)return;const e=document.activeElement,a=d.current;return(s=(a&&h(a)[0])??a)==null||s.focus(),()=>e==null?void 0:e.focus()},[c]),!c)return null;const D=e=>{e.target===e.currentTarget&&f()},T=e=>{if(e.key==="Escape"){e.preventDefault(),f();return}if(e.key!=="Tab")return;const a=d.current;if(!a)return;const r=h(a);if(r.length===0){e.preventDefault(),a.focus();return}const s=r[0],u=r[r.length-1];u&&(e.shiftKey&&(document.activeElement===s||document.activeElement===a)?(e.preventDefault(),u.focus()):!e.shiftKey&&document.activeElement===u&&(e.preventDefault(),s.focus()))};return t.jsx("div",{className:"ay-modal-overlay",onClick:D,children:t.jsxs("div",{ref:d,"aria-labelledby":y,"aria-modal":"true",className:"ay-modal",onKeyDown:T,role:"dialog",tabIndex:-1,children:[t.jsx("h2",{id:y,className:"ay-modal__title",children:O}),n]})})}try{p.displayName="Modal",p.__docgenInfo={description:`A controlled, accessible dialog shell. Consumers supply the domain-specific
+content and actions while Modal owns the overlay, focus handling, and dismissal.`,displayName:"Modal",filePath:"/home/runner/work/ay-stack/ay-stack/production/packages/ui-library/src/primitives/Modal/Modal.tsx",methods:[],props:{isOpen:{defaultValue:null,declarations:[{fileName:"ui-library/src/primitives/Modal/Modal.tsx",name:"ModalProps"}],description:"",name:"isOpen",parent:{fileName:"ui-library/src/primitives/Modal/Modal.tsx",name:"ModalProps"},required:!0,tags:{},type:{name:"boolean"}},onClose:{defaultValue:null,declarations:[{fileName:"ui-library/src/primitives/Modal/Modal.tsx",name:"ModalProps"}],description:"",name:"onClose",parent:{fileName:"ui-library/src/primitives/Modal/Modal.tsx",name:"ModalProps"},required:!0,tags:{},type:{name:"() => void"}},title:{defaultValue:null,declarations:[{fileName:"ui-library/src/primitives/Modal/Modal.tsx",name:"ModalProps"}],description:"",name:"title",parent:{fileName:"ui-library/src/primitives/Modal/Modal.tsx",name:"ModalProps"},required:!0,tags:{},type:{name:"string"}}},tags:{}}}catch{}const{fn:B}=__STORYBOOK_MODULE_TEST__,K={title:"Primitives/Modal",component:p,args:{children:"Modal content belongs to the consuming application.",isOpen:!0,onClose:B(),title:"Dialog title"},argTypes:{children:{control:!1}}},i={},o={args:{children:t.jsxs(t.Fragment,{children:[t.jsx("p",{children:"Confirm or dismiss this action."}),t.jsxs("div",{style:{display:"flex",gap:"0.5rem",justifyContent:"flex-end"},children:[t.jsx(g,{variant:"text",children:"Cancel"}),t.jsx(g,{variant:"text",children:"Confirm"})]})]})}},l={args:{isOpen:!1}};var x,M,b;i.parameters={...i.parameters,docs:{...(x=i.parameters)==null?void 0:x.docs,source:{originalSource:"{}",...(b=(M=i.parameters)==null?void 0:M.docs)==null?void 0:b.source}}};var v,_,C;o.parameters={...o.parameters,docs:{...(v=o.parameters)==null?void 0:v.docs,source:{originalSource:`{
+  args: {
+    children: <>
+        <p>Confirm or dismiss this action.</p>
+        <div style={{
+        display: "flex",
+        gap: "0.5rem",
+        justifyContent: "flex-end"
+      }}>
+          <Button variant="text">Cancel</Button>
+          <Button variant="text">Confirm</Button>
+        </div>
+      </>
+  }
+}`,...(C=(_=o.parameters)==null?void 0:_.docs)==null?void 0:C.source}}};var E,j,N;l.parameters={...l.parameters,docs:{...(E=l.parameters)==null?void 0:E.docs,source:{originalSource:`{
+  args: {
+    isOpen: false
+  }
+}`,...(N=(j=l.parameters)==null?void 0:j.docs)==null?void 0:N.source}}};const R=["Default","WithActions","Closed"];export{l as Closed,i as Default,o as WithActions,R as __namedExportsOrder,K as default};

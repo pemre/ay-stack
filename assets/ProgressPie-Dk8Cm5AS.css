@@ -1,0 +1,1 @@
+.progress-pie{display:inline-flex;align-items:center;justify-content:center;margin-left:auto;cursor:default}.progress-pie__track{stroke:var(--color-border-default)}.progress-pie__fill{stroke:var(--color-status-success);transition:stroke-dashoffset .4s ease}.progress-pie__text{fill:var(--color-text-primary);font-size:10px;font-weight:700;-webkit-user-select:none;user-select:none}
